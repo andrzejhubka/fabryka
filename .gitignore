@@ -1,0 +1,27 @@
+# Katalogi build
+/build/
+/bin/
+/out/
+
+# Pliki obiektowe
+*.o
+*.obj
+*.lo
+*.lai
+
+# wykonywalne
+*.exe
+*.out
+*.app
+*.dll
+*.so
+*.dylib
+
+# debugowanie
+*.dSYM/
+*.pdb
+*.ilk
+
+# logi
+*.log
+*.tmp
