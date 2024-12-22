@@ -3,3 +3,9 @@
 //
 
 #include "utilities.h"
+#include <iostream>
+
+int main()
+{
+    std::cout << "Utilities" << std::endl;
+}

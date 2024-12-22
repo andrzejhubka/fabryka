@@ -5,10 +5,16 @@
 #ifndef DIRECTOR_H
 #define DIRECTOR_H
 
+static void polecenie_1();
+static void polecenie_2();
+static void polecenie_3();
+static void polecenie_4();
 
-
-class director {
-
+class director
+{
+  public:
+    director();
+    ~director();
 };
 
 
