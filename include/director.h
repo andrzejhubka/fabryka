@@ -5,18 +5,26 @@
 #ifndef DIRECTOR_H
 #define DIRECTOR_H
 
-static void polecenie_1();
-static void polecenie_2();
-static void polecenie_3();
-static void polecenie_4();
 
 class director
 {
-  public:
-    director();
-    ~director();
-};
+    public:
+        director();
+        ~director();
 
+    // zamkniecie magazynu
+    void polecenie_1();
+
+    // zamkniecie fabryki
+    void polecenie_2();
+
+    // zamkniecie magazynu i fabryki; zapisanie stanu magazynu
+    void polecenie_3();
+
+    // zamkniecie magazyniu i fabryki; brak zapisania stanu
+    void polecenie_4();
+
+};
 
 
 #endif //DIRECTOR_H
