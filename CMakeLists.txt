@@ -16,5 +16,6 @@ add_executable(director src/director.cpp)
 add_executable(supplier src/supplier.cpp)
 add_executable(utilities src/utilities.cpp)
 add_executable(warehouse src/warehouse.cpp)
+add_executable(factory src/factory.cpp)
 
 set(CMAKE_BINARY_DIR ${PROJECT_SOURCE_DIR}/build)
