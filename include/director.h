@@ -12,6 +12,9 @@ class director
         director();
         ~director();
 
+    // klucz ipc
+    key_t key_ipc;
+    int semid;
     // zamkniecie magazynu
     void polecenie_1();
 

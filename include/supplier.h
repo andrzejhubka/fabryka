@@ -1,12 +1,8 @@
-//
-// Created by andrzej on 12/21/24.
-//
-
 #ifndef SUPPLIER_H
 #define SUPPLIER_H
-
 #include <thread>
 #include <vector>
+#include <sys/types.h>
 
 
 class Supplier
@@ -19,8 +15,12 @@ class Supplier
         void supply_y();
         void supply_z();
 
+    key_t m_key_ipc;
+    int m_sem_id;
+
     private:
         std::vector<std::thread> threads;
+
 };
 
 

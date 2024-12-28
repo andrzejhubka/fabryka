@@ -1,22 +1,26 @@
-//
-// Created by andrzej on 12/21/24.
-//
-
 #include "supplier.h"
-
-#include <iostream>
 #include <thread>
+#include <sys/ipc.h>
+#include "utilities.h"
+
+// definicja semaforow
+#define sem_ordered_x 0
+#define sem_ordered_y 1
+#define sem_ordered_z 2
+
 
 int main()
 {
     Supplier Supplier;
 }
 
-
 Supplier::Supplier()
 {
-    // infromacja o pojawieniu sie procesu dostawcy
-    printf("Tworzenie procesu dostawcy\n");
+    // generujemy klucz ipc
+    m_key_ipc = ftok("/tmp", 32);
+
+    // sprawdzamy czy proces dyrektor dziala:
+    m_sem_id = utils::get_semid(m_key_ipc);
 
     // utworzenie trzech źrodel (watkow) wysylania produktow
     threads.emplace_back(&Supplier::supply_x, this);
@@ -37,7 +41,13 @@ Supplier::~Supplier()
 
 void Supplier::supply_x()
 {
-
+    // generuj produkt x
+    struct X
+    {
+        int occupied_space = 1;
+        int weight =
+    };
+    // wyslij produkt x
 }
 void Supplier::supply_y()
 {
