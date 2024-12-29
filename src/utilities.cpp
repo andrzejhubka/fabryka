@@ -178,6 +178,22 @@ namespace utils
             perror("msgsnd blad");
         }
     }
+    void receive_product_from_queue(int msg_id, long type)
+    {
+        return;
+        /*Message msg;
+
+        // Odbieranie wiadomości z kolejki (tylko komunikaty o typie `type`)
+        ssize_t result = msgrcv(msg_id, &msg, sizeof(msg.data), type, 0);
+
+        if (result == -1) {
+            std::cerr << "Error while receiving message: " << strerror(errno) << std::endl;
+            throw std::runtime_error("Failed to receive product from queue");
+        }
+
+        // Odbierzony produkt
+        return msg.data;  // Zwróć obiekt Product*/
+    }
 
 
 

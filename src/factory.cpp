@@ -4,6 +4,11 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <utilities.h>
+#include <warehouse.h>
+
+std::mutex mutex_shelf_x;
+std::mutex mutex_shelf_y;
+std::mutex mutex_shelf_z;
 
 int main()
 {
@@ -16,21 +21,34 @@ Factory::Factory()
     // generujemy klucz ipc
     m_key_ipc = ftok("/tmp", 32);
 
-    // sprawdzamy czy proces dyrektor dziala:
+    // probojemy podlaczyc sie do semaforow:
     m_sem_id = utils::get_semid(m_key_ipc);
+
+    // probojemy podlaczyc sie do kolejki
+    m_msg_id = utils::get_msid(m_key_ipc);
 
     // utworz magazyn
     m_magazyn = warehouse(0, 0);
     m_magazyn.load_state("/home/andrzej/Documents/SO/fabryka/data/warehouse_state");
-    m_magazyn.initialize();
+
 
     // utworz watki dla maszyn A i B
-    std::thread worker_a_THREAD(thread_worker_a);
-    std::thread worker_b_THREAD(thread_worker_b);
+   // std::thread worker_a_THREAD(thread_worker_a);
+   // std::thread worker_b_THREAD(thread_worker_b);
 
-    worker_a_THREAD.join();
-    worker_b_THREAD.join();
+    // utworz watek dla magazynu
+    warehouse_THREAD = std::thread (&warehouse::working_thread, &m_magazyn);
+
+
 }
+
+Factory::~Factory()
+{
+   // worker_a_THREAD.join();
+    //worker_b_THREAD.join();
+    warehouse_THREAD.join();
+}
+
 
 int Factory::thread_worker_a()
 {
@@ -59,5 +77,7 @@ int Factory::thread_worker_b()
         sleep(1);
     }
 }
+
+
 
 

@@ -13,6 +13,6 @@ include_directories(include)
 # Można dodać inne aplikacje (np. producer), analogicznie:
 add_executable(supplier src/supplier.cpp src/utilities.cpp)
 #add_executable(warehouse src/warehouse.cpp src/utilities.cpp)
-add_executable(factory src/factory.cpp src/utilities.cpp)
+add_executable(factory src/factory.cpp src/utilities.cpp src/warehouse.cpp)
 add_executable(director src/director.cpp src/utilities.cpp)
 set(CMAKE_BINARY_DIR ${PROJECT_SOURCE_DIR}/build)

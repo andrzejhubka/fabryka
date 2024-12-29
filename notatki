@@ -8,3 +8,6 @@ Wtedy pracownicy nie beda mogli go oproznic.
 -
 2. blad do sprawdzenia
 - chyba supplier tworzy sam kolejke ze zlymi flagami i potem dyrektor nie mogl utworzyc zbioru semaforow??
+
+3.
+- magazyn jako watek w procesie fabryka tez sie dolacza do ipc, nie powinno to sprawiac problemow. DO przeanalizowania poxniej

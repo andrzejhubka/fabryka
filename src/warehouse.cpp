@@ -5,21 +5,7 @@
 #include <sstream>
 #include <sys/sem.h>
 #include <unistd.h>
-
-// definicja semaforow
-#define sem_ordered_x 0
-#define sem_ordered_y 1
-#define sem_ordered_z 2
-
-#define sem_available_x 3
-#define sem_available_y 4
-#define sem_available_z 5
-
-int main()
-{
-    warehouse magazyn(20, 8);
-}
-
+#include <factory.h>
 
 warehouse::warehouse(int capacity, int occupancy)
     : m_capacity(capacity), m_occupancy(occupancy)
@@ -27,20 +13,22 @@ warehouse::warehouse(int capacity, int occupancy)
     // generujemy klucz ipc
     m_key_ipc = ftok("/tmp", 32);
 
-    // sprawdzamy czy proces dyrektor dziala:
+    // probojemy podlaczyc sie do semaforow:
     m_sem_id = utils::get_semid(m_key_ipc);
+
+    // probojemy podlaczyc sie do kolejki
+    m_msg_id = utils::get_msid(m_key_ipc);
 
     // ladujemy stan z pliku
     this->load_state("/home/andrzej/Documents/SO/fabryka/data/warehouse_state");
 
     // inicjujemy semafory
-    utils::semafor_set(m_sem_id, sem_available_x, m_Y);
-    utils::semafor_set(m_sem_id, sem_available_y, m_X);
-    utils::semafor_set(m_sem_id, sem_available_z, m_Z);
+    utils::semafor_set(m_sem_id, sem_available_x, 0);
+    utils::semafor_set(m_sem_id, sem_available_y, 0);
+    utils::semafor_set(m_sem_id, sem_available_z, 0);
 
     std::cout << "Utworzono magazyn o pojemnosci " << m_capacity << " jednostek" << std::endl;
 
-    // zainicjuj numery semaforow
 
 }
 
@@ -52,7 +40,8 @@ warehouse::~warehouse()
 
 void warehouse::load_state(const std::string& filePath)
 {
-    std::ifstream file(filePath);
+    return;
+    /*std::ifstream file(filePath);
 
     // sprawdzenie poprawnosci otwarcia pliku
     if (!file.is_open())
@@ -86,12 +75,13 @@ void warehouse::load_state(const std::string& filePath)
         {
             std::cerr << "Błąd w formacie danych w pliku: " << filePath << std::endl;
         }
-    }
+    }*/
 }
 
 void warehouse::save_state(const std::string& filePath) const
 {
-    // ten tryb nadpisuje zawartosc pliku
+    return;
+    /*// ten tryb nadpisuje zawartosc pliku
     std::ofstream file(filePath);
 
     if (!file.is_open())
@@ -109,13 +99,50 @@ void warehouse::save_state(const std::string& filePath) const
     std::cout << "Zapisano stan magazynu" << std::endl;
 
     // zamkniecie pliku
-    file.close();
+    file.close();*/
 }
 
-void warehouse::initialize()
+void warehouse::working_thread()
 {
-	// tworzymy watek magazynu
+    while (true)
+    {
+
+        // pobierz to co przyszlo z kolejki
+        sleep(0.2); // prawcownik magazynu tez potrzebuje czasu
+        utils::Product package = utils::Product(0,utils::X,2); //utils::receive_product_from_queue(m_msg_id, 1);
+        // umiesc to na polce (nie blokuj innych polek!)
+
+        switch (package.m_type)
+        {
+            case utils::X:
+                {
+                    mutex_shelf_x.lock();
+                    m_products_x.emplace_back(package);
+                    std::cout<<"Magazyn: polozono produkt X na polce\n";
+                    mutex_shelf_x.unlock();
+                    break;
+                };
+            case utils::Y:
+                {
+                    mutex_shelf_y.lock();
+                    m_products_x.emplace_back(package);
+                    std::cout<<"Magazyn: polozono produkt Y na polce\n";
+                    mutex_shelf_y.unlock();
+                    break;
+                };
+            case utils::Z:
+                {
+                    mutex_shelf_z.lock();
+                    m_products_x.emplace_back(package);
+                    std::cout<<"Magazyn: polozono produkt Z na polce\n";
+                    mutex_shelf_z.unlock();
+                    break;
+                };
+        }
+
+    }
 
 }
+
 
 
