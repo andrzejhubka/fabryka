@@ -19,6 +19,7 @@ class warehouse
     void save_state(const std::string& filePath) const;
     void load_state(const std::string& filePath);
     void expand(int newCapacity);
+    void initialize();
 
 };
 

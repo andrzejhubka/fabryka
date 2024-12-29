@@ -112,6 +112,10 @@ void warehouse::save_state(const std::string& filePath) const
     file.close();
 }
 
+void warehouse::initialize()
+{
+	// tworzymy watek magazynu
 
+}
 
 

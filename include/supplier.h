@@ -17,6 +17,7 @@ class Supplier
 
     key_t m_key_ipc;
     int m_sem_id;
+    int m_msg_id;
 
     private:
         std::vector<std::thread> threads;

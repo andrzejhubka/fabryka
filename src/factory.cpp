@@ -5,19 +5,6 @@
 #include <sys/types.h>
 #include <utilities.h>
 
-// definicja semaforow
-#define sem_ordered_x 0
-#define sem_ordered_y 1
-#define sem_ordered_z 2
-
-#define sem_available_x 3
-#define sem_available_y 4
-#define sem_available_z 5
-
-#define sem_warehouse 6
-
-
-
 int main()
 {
     Factory fabryka;
@@ -31,6 +18,11 @@ Factory::Factory()
 
     // sprawdzamy czy proces dyrektor dziala:
     m_sem_id = utils::get_semid(m_key_ipc);
+
+    // utworz magazyn
+    m_magazyn = warehouse(0, 0);
+    m_magazyn.load_state("/home/andrzej/Documents/SO/fabryka/data/warehouse_state");
+    m_magazyn.initialize();
 
     // utworz watki dla maszyn A i B
     std::thread worker_a_THREAD(thread_worker_a);
@@ -67,4 +59,5 @@ int Factory::thread_worker_b()
         sleep(1);
     }
 }
+
 

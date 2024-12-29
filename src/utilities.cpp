@@ -6,6 +6,8 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <random>
+#include <sys/ipc.h>
+#include <sys/msg.h>
 
 namespace utils
 {
@@ -87,9 +89,47 @@ namespace utils
             std::cout<<"Brak zbioru semaforow. Dyrektor musi go zainicjowac"<<"\n";
             sleep(10);
         }
-
+        std::cout<<"Udalo sie podlaczyc do zbioru semaforow\n";
         return semid;
     }
+
+    // kolejki komunikatow
+    int utworz_kolejke(key_t key)
+    {
+        int msid = msgget(key, IPC_CREAT | 0600);
+        if (msid == -1)
+        {
+            perror("NIe udalo sie utworzyc kolejki komunikatow");
+            return -1;
+        }
+        return msid;
+
+    }
+
+    int get_msid(key_t key)
+    {
+        int msid = msgget(key, 0);
+
+        while(msid==-1)
+        {
+            msid = msgget(key, 0);
+            std::cout<<"Brak kolejki. Dyrektor musi ja zainicjowac"<<"\n";
+            sleep(10);
+        }
+        std::cout<<"Udalo sie podlaczyc do kolejki\n";
+        return msid;
+    }
+
+    int usun_kolejke(int id)
+    {
+        if(msgctl(id, 0, IPC_RMID) == -1)
+        {
+            perror("Nie udalo sie usunac kolejki komunikatow");
+            return -1;
+        }
+        return 0;
+    }
+
 
     // random
     int random_number(int min, int max)
@@ -102,5 +142,8 @@ namespace utils
         // Zwracamy losową liczbę w zadanym zakresie
         return dis(gen);
     }
+
+
+
 
 }

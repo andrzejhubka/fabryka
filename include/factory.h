@@ -3,28 +3,11 @@
 
 #include <sys/types.h>
 #include <iostream>
-class Factory {
-  public:
-    Factory();
-    ~Factory();
-
-
-private:
-
-    // dane do ipc
-    key_t m_key_ipc;
-    int m_sem_id;
-
-    // watki maszyn
-    int thread_worker_a();
-    int thread_worker_b();
-
-};
 
 class warehouse
 {
 public:
-    warehouse(int capacity, int occupancy);
+    warehouse(int capacity=0, int occupancy=0);
     ~warehouse();
 
     int m_capacity;
@@ -38,5 +21,26 @@ public:
     void expand(int newCapacity);
 
 };
+
+class Factory {
+  public:
+    Factory();
+    ~Factory();
+
+    private:
+
+    // dane do ipc
+    key_t m_key_ipc;
+    int m_sem_id;
+
+    // zarzadzanie magazynem
+    warehouse m_magazyn;
+
+    // watki maszyn
+    int thread_worker_a();
+    int thread_worker_b();
+
+};
+
 
 #endif //FACTORY_H

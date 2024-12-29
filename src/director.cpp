@@ -16,7 +16,7 @@ director::director()
     key_ipc = ftok("/tmp", 32);
     std::cout << "key_ipc: " << key_ipc << std::endl;
     // zainicjuj zbior semaforow
-    if ((semid = utils::utworz_zbior_semaforow(key_ipc, 6)) < 0)
+    if ((semid = utils::utworz_zbior_semaforow(key_ipc, 8)) < 0)
     {
         std::cerr << "Error in key_ipc" << std::endl;
         exit(-1);
@@ -24,10 +24,20 @@ director::director()
 
     std::cout << "semid: " << semid << std::endl;
 
+    // stworz kolejke komunikatow miedzy fabryka a dostawca
+    if ((memid= utils::utworz_kolejke(key_ipc)) < 0)
+    {
+        std::cerr << "Error in key_ipc" << std::endl;
+        exit(-1);
+    }
+
+    std::cout << "memid: " << memid << std::endl;
+
 }
 director::~director()
 {
     utils::usun_zbior_semaforow(this->semid);
+    utils::usun_kolejke(this->memid);
 }
 
 

@@ -15,6 +15,7 @@ class director
     // klucz ipc
     key_t key_ipc;
     int semid;
+    int memid;
     // zamkniecie magazynu
     void polecenie_1();
 
