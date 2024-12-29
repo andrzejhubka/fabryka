@@ -1,5 +1,10 @@
+// notatki pisane tylko dla mnie i pomocniczo
+// prosze nie zwracac uwagi na skróty myslowe
+// Andrzej
 
 1. Potencjalne zakleszczenia
 - magazyn bedzie pelny i nie bedzie przechowywal kazdego rodzaju zasobu: x, y, z.
 Wtedy pracownicy nie beda mogli go oproznic.
 -
+2. blad do sprawdzenia
+- chyba supplier tworzy sam kolejke ze zlymi flagami i potem dyrektor nie mogl utworzyc zbioru semaforow??

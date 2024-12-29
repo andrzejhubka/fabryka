@@ -48,7 +48,45 @@ namespace utils
     // usuniecie kolejki
     int usun_kolejke(int id);
 
+    // losowanie numeru z zakresu a, b
+    int random_number(int min, int max);
+
+    enum product_type
+    {
+        X,
+        Y,
+        Z
+    };
+
+    class Product
+    {
+        public:
+
+        Product(int id, product_type type, int weight);
+
+        enum product_type m_type;
+        int m_id;
+        int m_weight;
+
+        void set_weight(int weight);
+        void set_id(int id);
+        void set_type(product_type type);
+        void describe() const;
+
+    };
+
+    struct Message
+    {
+        long mtype;                     // Typ wiadomości
+        char data[sizeof(Product)];
+    };
+
+    void send_product_to_queue(int msgid, const Product& prod, long type);
+
+    Product receive_product_from_queue(int msgid, long type);
 }
+
+
 
 
 #endif //UTILITIES_H

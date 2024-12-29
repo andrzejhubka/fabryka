@@ -8,6 +8,7 @@
 #include <random>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+#include <cstring>
 
 namespace utils
 {
@@ -142,6 +143,43 @@ namespace utils
         // Zwracamy losową liczbę w zadanym zakresie
         return dis(gen);
     }
+
+    Product::Product(int id, product_type type, int weight)
+        : m_id(id), m_type(type), m_weight(weight)
+    {
+
+    }
+
+    void Product::set_id(int id)
+    {
+        m_id = id;
+    }
+    void Product::set_type(product_type type)
+    {
+        m_type = type;
+    }
+    void Product::set_weight(int weight)
+    {
+        m_weight = weight;
+    }
+    void Product::describe() const
+    {
+        std::cout<<"Sending Product ID: "<<m_id<<" Product type: "<<m_type<<" Product weight: "<<m_weight<<"\n";
+    }
+
+    void send_product_to_queue(int msgid, const Product& prod, long type)
+    {
+        Message msg;
+        msg.mtype = type;
+        std::memcpy(msg.data, &prod, sizeof(prod)); // Serializacja obiektu
+
+        if (msgsnd(msgid, &msg, sizeof(msg.data), 0) == -1)
+        {
+            perror("msgsnd blad");
+        }
+    }
+
+
 
 
 
