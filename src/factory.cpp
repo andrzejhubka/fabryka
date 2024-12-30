@@ -17,6 +17,7 @@ int main()
 }
 
 Factory::Factory()
+:   m_magazyn(warehouse(0, 0))
 {
     // generujemy klucz ipc
     m_key_ipc = ftok("/tmp", 32);
@@ -27,8 +28,6 @@ Factory::Factory()
     // probojemy podlaczyc sie do kolejki
     m_msg_id = utils::get_msid(m_key_ipc);
 
-    // utworz magazyn
-    m_magazyn = warehouse(0, 0);
     m_magazyn.load_state("/home/andrzej/Documents/SO/fabryka/data/warehouse_state");
 
 

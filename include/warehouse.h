@@ -2,6 +2,7 @@
 #define WAREHOUSE_H
 
 #include <iostream>
+#include <mutex>
 #include <sys/sem.h>
 #include <vector>
 #include <utilities.h>
@@ -15,6 +16,7 @@ public:
 
     int m_capacity;
     int m_occupancy;
+    std::mutex mutex_occupancy;
 
     // półki z produktami
     std::vector<utils::Product> m_products_x;
@@ -38,6 +40,10 @@ public:
     void grab_x(utils::Product& container);
     void grab_y(utils::Product& container);
     void grab_z(utils::Product& container);
+
+    // zamiana zajmowanego miejsca w magazynie
+    void increase_occupancy(int amount);
+    void decrease_occupancy(int amount);
 };
 
 

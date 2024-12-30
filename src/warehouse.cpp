@@ -136,6 +136,8 @@ void warehouse::insert_into_shelf(utils::Product& package)
             mutex_shelf_x.lock();
             m_products_x.emplace_back(package);
             std::cout<<"Magazyn: polozono produkt X na polce\n";
+            increase_occupancy(1);
+            std::cout<<"Nowa objetosc:"<<m_occupancy<<std::endl;
             mutex_shelf_x.unlock();
             utils::semafor_v(m_sem_id, sem_available_x, 1);
             break;
@@ -145,6 +147,8 @@ void warehouse::insert_into_shelf(utils::Product& package)
             mutex_shelf_y.lock();
             m_products_x.emplace_back(package);
             std::cout<<"Magazyn: polozono produkt Y na polce\n";
+            increase_occupancy(2);
+            std::cout<<"Nowa objetosc:"<<m_occupancy<<std::endl;
             mutex_shelf_y.unlock();
             utils::semafor_v(m_sem_id, sem_available_y, 1);
             break;
@@ -154,6 +158,8 @@ void warehouse::insert_into_shelf(utils::Product& package)
             mutex_shelf_z.lock();
             m_products_x.emplace_back(package);
             std::cout<<"Magazyn: polozono produkt Z na polce\n";
+            increase_occupancy(3);
+            std::cout<<"Nowa objetosc:"<<m_occupancy<<std::endl;
             mutex_shelf_z.unlock();
             utils::semafor_v(m_sem_id, sem_available_z, 1);
             break;
@@ -213,6 +219,18 @@ void warehouse::grab_z(utils::Product& container)
     }
 
     mutex_shelf_z.unlock();
+}
+
+void warehouse::decrease_occupancy(int amount)
+{
+    std::lock_guard<std::mutex> lock(mutex_occupancy);
+    m_occupancy-=amount;
+}
+
+void warehouse::increase_occupancy(int amount)
+{
+    std::lock_guard<std::mutex> lock(mutex_occupancy);
+    m_occupancy+=amount;
 }
 
 
