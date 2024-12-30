@@ -83,7 +83,7 @@ namespace utils
 
     void send_product_to_queue(int msgid, const Product& prod, long type);
 
-    void receive_product_from_queue(int msgid, long type);
+    void receive_product_from_queue(int msg_id, Product& prod, long type);
 }
 
 

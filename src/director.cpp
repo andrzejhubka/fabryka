@@ -6,7 +6,7 @@
 int main(int argc, char *argv[])
 {
     director zarzadca;
-    sleep(50);
+    sleep(500);
     return 0;
 }
 

@@ -11,3 +11,10 @@ Wtedy pracownicy nie beda mogli go oproznic.
 
 3.
 - magazyn jako watek w procesie fabryka tez sie dolacza do ipc, nie powinno to sprawiac problemow. DO przeanalizowania poxniej
+4.
+- gdy dyrektor skonczy prace to dzieja sie cuda,
+trzeba oprogramowac aby zawsze zamykal fabryke, i to zanim usunie mechanizmy ipc!!
+5.
+ sleep(0.2); // prawcownik magazynu tez potrzebuje czasu
+ sleep pobiera inta, z doubla robi sie zero
+ - przez to magazyn od razu rozladowywal dostawy

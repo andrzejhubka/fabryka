@@ -104,12 +104,14 @@ void warehouse::save_state(const std::string& filePath) const
 
 void warehouse::working_thread()
 {
+    utils::Product package = utils::Product(0,utils::X,2);
+
     while (true)
     {
 
         // pobierz to co przyszlo z kolejki
-        sleep(0.2); // prawcownik magazynu tez potrzebuje czasu
-        utils::Product package = utils::Product(0,utils::X,2); //utils::receive_product_from_queue(m_msg_id, 1);
+        sleep(1); // prawcownik magazynu tez potrzebuje czasu
+        utils::receive_product_from_queue(m_msg_id, package, 1);
         // umiesc to na polce (nie blokuj innych polek!)
 
         switch (package.m_type)
