@@ -33,8 +33,8 @@ class Factory {
     std::thread warehouse_THREAD;
 
     // funckje maszyn
-    int thread_worker_a();
-    int thread_worker_b();
+    void thread_worker_a();
+    void thread_worker_b();
 
 };
 

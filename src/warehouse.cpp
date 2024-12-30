@@ -27,6 +27,10 @@ warehouse::warehouse(int capacity, int occupancy)
     utils::semafor_set(m_sem_id, sem_available_y, 0);
     utils::semafor_set(m_sem_id, sem_available_z, 0);
 
+    utils::semafor_set(m_sem_id, sem_ordered_x, 3);
+    utils::semafor_set(m_sem_id, sem_ordered_y, 6);
+    utils::semafor_set(m_sem_id, sem_ordered_z, 3);
+
     std::cout << "Utworzono magazyn o pojemnosci " << m_capacity << " jednostek" << std::endl;
 
 
@@ -104,47 +108,114 @@ void warehouse::save_state(const std::string& filePath) const
 
 void warehouse::working_thread()
 {
-    utils::Product package = utils::Product(0,utils::X,2);
+    // lepiej inicjowac pojemnik na przychodzace produkty tutaj; gdyby trzebabylo przerabiac program i tworzyc wiecej pracownikow magazynu
+    utils::Product package = utils::Product(0, utils::X, 10);
 
     while (true)
     {
-
-        // pobierz to co przyszlo z kolejki
-        sleep(1); // prawcownik magazynu tez potrzebuje czasu
-        utils::receive_product_from_queue(m_msg_id, package, 1);
-        // umiesc to na polce (nie blokuj innych polek!)
-
-        switch (package.m_type)
+        // jesli jest cos w kolejce
+        if (utils::receive_product_from_queue(m_msg_id, package, 1) == 0)
         {
-            case utils::X:
-                {
-                    mutex_shelf_x.lock();
-                    m_products_x.emplace_back(package);
-                    std::cout<<"Magazyn: polozono produkt X na polce\n";
-                    mutex_shelf_x.unlock();
-                    break;
-                };
-            case utils::Y:
-                {
-                    mutex_shelf_y.lock();
-                    m_products_x.emplace_back(package);
-                    std::cout<<"Magazyn: polozono produkt Y na polce\n";
-                    mutex_shelf_y.unlock();
-                    break;
-                };
-            case utils::Z:
-                {
-                    mutex_shelf_z.lock();
-                    m_products_x.emplace_back(package);
-                    std::cout<<"Magazyn: polozono produkt Z na polce\n";
-                    mutex_shelf_z.unlock();
-                    break;
-                };
+            insert_into_shelf(package);
         }
 
+        // gdy bedzie pusta to nic!, idz dalej i zloz zamowienie do producenta - kiedys do okodowania inteligentny system; np co 10 pobran z magazynu.
+        make_order();
     }
 
 }
+
+void warehouse::insert_into_shelf(utils::Product& package)
+{
+    // umiesc to na polce (nie blokuj innych polek!)
+    sleep(1); // czas dzialania pracownika
+    switch (package.m_type)
+    {
+    case utils::X:
+        {
+            mutex_shelf_x.lock();
+            m_products_x.emplace_back(package);
+            std::cout<<"Magazyn: polozono produkt X na polce\n";
+            mutex_shelf_x.unlock();
+            utils::semafor_v(m_sem_id, sem_available_x, 1);
+            break;
+        };
+    case utils::Y:
+        {
+            mutex_shelf_y.lock();
+            m_products_x.emplace_back(package);
+            std::cout<<"Magazyn: polozono produkt Y na polce\n";
+            mutex_shelf_y.unlock();
+            utils::semafor_v(m_sem_id, sem_available_y, 1);
+            break;
+        };
+    case utils::Z:
+        {
+            mutex_shelf_z.lock();
+            m_products_x.emplace_back(package);
+            std::cout<<"Magazyn: polozono produkt Z na polce\n";
+            mutex_shelf_z.unlock();
+            utils::semafor_v(m_sem_id, sem_available_z, 1);
+            break;
+        };
+    }
+}
+
+
+void warehouse::make_order()
+{
+    return;
+}
+void warehouse::grab_x(utils::Product& container)
+{
+    mutex_shelf_x.lock();
+
+    if (!m_products_x.empty())
+    {
+        container = m_products_x.back();
+        m_products_x.pop_back();
+    }
+    else
+    {
+        throw std::runtime_error("Brak produktów w magazynie");
+    }
+
+    mutex_shelf_x.unlock();
+}
+void warehouse::grab_y(utils::Product& container)
+{
+    mutex_shelf_y.lock();
+
+    if (!m_products_y.empty())
+    {
+        container = m_products_y.back();
+        m_products_y.pop_back();
+    }
+    else
+    {
+        throw std::runtime_error("Brak produktów w magazynie");
+    }
+
+    mutex_shelf_y.unlock();
+}
+void warehouse::grab_z(utils::Product& container)
+{
+    mutex_shelf_z.lock();
+
+    if (!m_products_z.empty())
+    {
+        container = m_products_z.back();
+        m_products_z.pop_back();
+    }
+    else
+    {
+        throw std::runtime_error("Brak produktów w magazynie");
+    }
+
+    mutex_shelf_z.unlock();
+}
+
+
 
 
 

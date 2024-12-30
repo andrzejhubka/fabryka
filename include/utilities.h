@@ -16,7 +16,7 @@
     #define sem_available_z 5
 
     #define sem_warehouse 6
-    #define sem_queue 7
+
 
 namespace utils
 {
@@ -83,7 +83,7 @@ namespace utils
 
     void send_product_to_queue(int msgid, const Product& prod, long type);
 
-    void receive_product_from_queue(int msg_id, Product& prod, long type);
+    int receive_product_from_queue(int msg_id, Product& prod, long type);
 }
 
 

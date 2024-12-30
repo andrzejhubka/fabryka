@@ -25,12 +25,21 @@ public:
     int m_sem_id;
     int m_msg_id;
 
+
+
     void save_state(const std::string& filePath) const;
     void load_state(const std::string& filePath);
     void expand(int newCapacity);
     void working_thread();
+    void insert_into_shelf(utils::Product& package);
+    void make_order();
 
+    // wydawanie produktow pracownikom
+    void grab_x(utils::Product& container);
+    void grab_y(utils::Product& container);
+    void grab_z(utils::Product& container);
 };
+
 
 
 

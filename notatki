@@ -18,3 +18,13 @@ trzeba oprogramowac aby zawsze zamykal fabryke, i to zanim usunie mechanizmy ipc
  sleep(0.2); // prawcownik magazynu tez potrzebuje czasu
  sleep pobiera inta, z doubla robi sie zero
  - przez to magazyn od razu rozladowywal dostawy
+
+6. sposob zarzadzania zamowieniami
+- magazyn ma m pojemnosci (definiowane w kodzie, ale polecenie dyrektora docelowo bedzie moglo go rozbudowac/skurczyc)
+m >= 6
+: rozbudowa; bez problemu
+: skurczenie; nie mozna wyrzucac produktow i nie mozna skurczyc go ponizej minimalnej wartosci
+- mamy trzy polki. gdy zamawiamy towar (zwiekszamy konkretny semafor uzywany przez odpowiednie watki dostawcy) nie mozemy dopuscic do zapchania magazynu w taki sposob ze nie bedzie ktoregos z produktow: x, y, z -> moze powodowac do zakleszcxzenie
+Sposobem na walke z tym problemem jest
+
+7. festiwal debugowania

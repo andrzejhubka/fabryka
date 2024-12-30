@@ -33,8 +33,8 @@ Factory::Factory()
 
 
     // utworz watki dla maszyn A i B
-   // std::thread worker_a_THREAD(thread_worker_a);
-   // std::thread worker_b_THREAD(thread_worker_b);
+    worker_a_THREAD = std::thread(&Factory::thread_worker_a, this);
+    //std::thread worker_b_THREAD(&Factory::thread_worker_b, this);
 
     // utworz watek dla magazynu
     warehouse_THREAD = std::thread (&warehouse::working_thread, &m_magazyn);
@@ -44,37 +44,78 @@ Factory::Factory()
 
 Factory::~Factory()
 {
-   // worker_a_THREAD.join();
+    worker_a_THREAD.join();
     //worker_b_THREAD.join();
     warehouse_THREAD.join();
 }
 
 
-int Factory::thread_worker_a()
+void Factory::thread_worker_a()
 {
+    // gdy pobierzemy produkty przechowywujemy je tutaj
+    utils::Product containter_x = utils::Product(0, utils::X, 10 );
+    utils::Product containter_y = utils::Product(0, utils::Y, 10 );
+    utils::Product containter_z = utils::Product(0, utils::Z, 10);
+
     while (true)
     {
-        utils::semafor_p(this->m_sem_id, 7, 1);
-        // pobierz cos z magazynu
-        utils::semafor_v(this->m_sem_id, 7, 1);
-        // wyprodokuj
-        std::cout<<"Wyprodukowalem produkt: ";
-        sleep(1);
+        // pobieramy X
+        utils::semafor_p(m_sem_id, sem_available_x, 1);
+
+        //m_magazyn.grab_x(containter_x);
+
+
+        // pobieramy y
+        utils::semafor_p(m_sem_id, sem_available_y, 1);
+
+        //m_magazyn.grab_y(containter_y);
+
+
+        // pobieramy z
+        utils::semafor_p(m_sem_id, sem_available_z, 1);
+
+       // m_magazyn.grab_z(containter_z);
+
+
+        // gdy masz juz produkty wyprodokuj cos i napisz na konsoli
+        sleep(4);
+        std::cout<<"Maszyna A. Wyprodukowano produkt z x, y, z. Wazy: ";//<<containter_x.m_weight+containter_y.m_weight+containter_z.m_weight<<" kg.\n";
     }
 
 }
-int Factory::thread_worker_b()
+void Factory::thread_worker_b()
 {
+    // gdy pobierzemy produkty przechowywujemy je tutaj
+    utils::Product containter_x = utils::Product(0, utils::X, 10 );
+    utils::Product containter_y = utils::Product(0, utils::Y, 10 );
+    utils::Product containter_z = utils::Product(0, utils::Z, 10);
+
     while (true)
     {
-        utils::semafor_p(this->m_sem_id, 7, 1);
-        // x =
-        // y =
-        // z =
-        utils::semafor_v(this->m_sem_id, 7, 1);
-        // wyprodokuj
-        std::cout<<"Wyprodukowalem produkt: ";
-        sleep(1);
+        // pobieramy X
+        utils::semafor_p(m_sem_id, sem_available_x, 1);
+        mutex_shelf_x.lock();
+        // pobierz cos z magazynu
+        this->m_magazyn.grab_x(containter_x);
+        mutex_shelf_x.unlock();
+
+        // pobieramy y
+        utils::semafor_p(m_sem_id, sem_available_y, 1);
+        mutex_shelf_y.lock();
+        // pobierz cos z magazynu
+        this->m_magazyn.grab_y(containter_y);
+        mutex_shelf_y.unlock();
+
+        // pobieramy z
+        utils::semafor_p(m_sem_id, sem_available_z, 1);
+        mutex_shelf_z.lock();
+        // pobierz cos z magazynu
+        this->m_magazyn.grab_z(containter_z);
+        mutex_shelf_z.unlock();
+
+        // gdy masz juz produkty wyprodokuj cos i napisz na konsoli
+        sleep(8);
+        std::cout<<"Maszyna B. Wyprodukowano produkt z x, y, z. Wazy: "<<containter_x.m_weight+containter_y.m_weight+containter_z.m_weight<<" kg.\n";
     }
 }
 
