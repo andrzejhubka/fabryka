@@ -8,9 +8,6 @@
 #include <mutex>
 #include <thread>
 
-extern std::mutex mutex_shelf_x;
-extern std::mutex mutex_shelf_y;
-extern std::mutex mutex_shelf_z;
 
 class Factory {
   public:
@@ -33,8 +30,8 @@ class Factory {
     std::thread warehouse_THREAD;
 
     // funckje maszyn
-    int thread_worker_a();
-    int thread_worker_b();
+    void thread_worker_a();
+    void thread_worker_b();
 
 };
 

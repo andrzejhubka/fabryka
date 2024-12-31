@@ -57,8 +57,7 @@ void Supplier::supply_x()
     {
         // UWAGA: SEMAFORP W ODWROTNEJ KOLEJNOSCI: POTENCJALNY DEADLOCK.
         // DOSTAWCA MOZE ZAJAC KOLEJKE, FABRYKA BEDZIE CZEKALA NA PRODUKTY I NIE DA ZAMOWIEN, A DOSTAWCA BEDZIE TEZ NA NIE CZEKAL
-        //utils::semafor_p(m_sem_id, sem_ordered_x, 1);
-        //utils::semafor_p(m_sem_id, sem_queue, 1);
+        utils::semafor_p(m_sem_id, sem_ordered_x, 1);
 
         sleep(1); // trwa produkcja
 
@@ -76,8 +75,6 @@ void Supplier::supply_x()
 
         fflush(stdout);
         mutex_send.unlock();
-
-      //  utils::semafor_v(m_sem_id, sem_queue, 1);
     }
 }
 void Supplier::supply_y()
@@ -91,8 +88,7 @@ void Supplier::supply_y()
     {
         // UWAGA: SEMAFORP W ODWROTNEJ KOLEJNOSCI: POTENCJALNY DEADLOCK.
         // DOSTAWCA MOZE ZAJAC KOLEJKE, FABRYKA BEDZIE CZEKALA NA PRODUKTY I NIE DA ZAMOWIEN, A DOSTAWCA BEDZIE TEZ NA NIE CZEKAL
-        //utils::semafor_p(m_sem_id, sem_ordered_x, 1);
-        //utils::semafor_p(m_sem_id, sem_queue, 1);
+        utils::semafor_p(m_sem_id, sem_ordered_y, 1);
 
         sleep(1); // trwa produkcja
 
@@ -107,8 +103,6 @@ void Supplier::supply_y()
         towar.describe();
         fflush(stdout);
         mutex_send.unlock();
-
-        //  utils::semafor_v(m_sem_id, sem_queue, 1);
     }
 }
 void Supplier::supply_z()
@@ -122,7 +116,7 @@ void Supplier::supply_z()
     {
         // UWAGA: SEMAFORP W ODWROTNEJ KOLEJNOSCI: POTENCJALNY DEADLOCK.
         // DOSTAWCA MOZE ZAJAC KOLEJKE, FABRYKA BEDZIE CZEKALA NA PRODUKTY I NIE DA ZAMOWIEN, A DOSTAWCA BEDZIE TEZ NA NIE CZEKAL
-        //utils::semafor_p(m_sem_id, sem_ordered_x, 1);
+        utils::semafor_p(m_sem_id, sem_ordered_z, 1);
         //utils::semafor_p(m_sem_id, sem_queue, 1);
 
         sleep(1); // trwa produkcja
@@ -138,7 +132,5 @@ void Supplier::supply_z()
         towar.describe();
         fflush(stdout);
         mutex_send.unlock();
-
-        //  utils::semafor_v(m_sem_id, sem_queue, 1);
     }
 }

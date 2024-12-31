@@ -178,17 +178,22 @@ namespace utils
             perror("msgsnd blad");
         }
     }
-    void receive_product_from_queue(int msg_id, Product& prod, long type)
+    int receive_product_from_queue(int msg_id, Product& prod, long type)
     {
         Message msg;
 
         // Odbieranie wiadomości
-        if (msgrcv(msg_id, &msg, sizeof(msg.data), type, 0) == -1) {
-            perror("msgrcv error");
-        } else {
+        if (msgrcv(msg_id, &msg, sizeof(msg.data), type, IPC_NOWAIT) == -1)
+        {
+            //perror("msgrcv error/pustakolejka");
+            return  -1;
+        }
+        else
+        {
             // Deserializacja obiektu
             std::memcpy(&prod, msg.data, sizeof(prod));
-            std::cout << "Product received successfully.\n";
+           // std::cout << "Product received successfully.\n";
+            return 0;
         }
     }
 
