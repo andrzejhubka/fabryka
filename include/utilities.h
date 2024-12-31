@@ -51,38 +51,44 @@ namespace utils
     // losowanie numeru z zakresu a, b
     int random_number(int min, int max);
 
+    // typ produktu
     enum product_type
     {
-        X,
-        Y,
-        Z
+        X, Y, Z
     };
 
+    // klasa reprezentujaca produkt; przesylana jako bity przez supplier i odkodowywana w factory
     class Product
     {
         public:
-
         Product(int id, product_type type, int weight);
 
+        // paramety produktu
         enum product_type m_type;
         int m_id;
         int m_weight;
 
+        // settery
         void set_weight(int weight);
         void set_id(int id);
         void set_type(product_type type);
+
+        // wyswietlenie w konsoli informacji
         void describe() const;
 
     };
 
+    // struktura wiadomosci w kolejce ipc
     struct Message
     {
         long mtype;                     // Typ wiadomości
         char data[sizeof(Product)];
     };
 
+    // umiesczenie produktu w kolejce
     void send_product_to_queue(int msgid, const Product& prod, long type);
 
+    // otrzymanie produktu z kolejki
     int receive_product_from_queue(int msg_id, Product& prod, long type);
 }
 

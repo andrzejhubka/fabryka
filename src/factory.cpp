@@ -6,10 +6,6 @@
 #include <utilities.h>
 #include <warehouse.h>
 
-std::mutex mutex_shelf_x;
-std::mutex mutex_shelf_y;
-std::mutex mutex_shelf_z;
-
 int main()
 {
     Factory fabryka;
@@ -17,7 +13,7 @@ int main()
 }
 
 Factory::Factory()
-:   m_magazyn(warehouse(0, 0))
+:   m_magazyn(warehouse(20, 0))
 {
     // generujemy klucz ipc
     m_key_ipc = ftok("/tmp", 32);
@@ -28,6 +24,7 @@ Factory::Factory()
     // probojemy podlaczyc sie do kolejki
     m_msg_id = utils::get_msid(m_key_ipc);
 
+    // ladujemy magazyn z pliku
     m_magazyn.load_state("/home/andrzej/Documents/SO/fabryka/data/warehouse_state");
 
 
@@ -59,26 +56,19 @@ void Factory::thread_worker_a()
     while (true)
     {
         // pobieramy X
-        utils::semafor_p(m_sem_id, sem_available_x, 1);
-
-        //m_magazyn.grab_x(containter_x);
+        m_magazyn.grab_x(containter_x);
 
 
         // pobieramy y
-        utils::semafor_p(m_sem_id, sem_available_y, 1);
-
-        //m_magazyn.grab_y(containter_y);
-
+        m_magazyn.grab_y(containter_y);
 
         // pobieramy z
-        utils::semafor_p(m_sem_id, sem_available_z, 1);
-
-       // m_magazyn.grab_z(containter_z);
+        m_magazyn.grab_z(containter_z);
 
 
         // gdy masz juz produkty wyprodokuj cos i napisz na konsoli
         sleep(4);
-        std::cout<<"Maszyna A. Wyprodukowano produkt z x, y, z. Wazy: ";//<<containter_x.m_weight+containter_y.m_weight+containter_z.m_weight<<" kg.\n";
+        std::cout<<"Maszyna A. Wyprodukowano produkt z x, y, z. Wazy: \n";//<<containter_x.m_weight+containter_y.m_weight+containter_z.m_weight<<" kg.\n";
     }
 
 }
@@ -93,24 +83,23 @@ void Factory::thread_worker_b()
     {
         // pobieramy X
         utils::semafor_p(m_sem_id, sem_available_x, 1);
-        mutex_shelf_x.lock();
         // pobierz cos z magazynu
         this->m_magazyn.grab_x(containter_x);
-        mutex_shelf_x.unlock();
+
 
         // pobieramy y
         utils::semafor_p(m_sem_id, sem_available_y, 1);
-        mutex_shelf_y.lock();
+
         // pobierz cos z magazynu
         this->m_magazyn.grab_y(containter_y);
-        mutex_shelf_y.unlock();
+
 
         // pobieramy z
         utils::semafor_p(m_sem_id, sem_available_z, 1);
-        mutex_shelf_z.lock();
+
         // pobierz cos z magazynu
         this->m_magazyn.grab_z(containter_z);
-        mutex_shelf_z.unlock();
+
 
         // gdy masz juz produkty wyprodokuj cos i napisz na konsoli
         sleep(8);

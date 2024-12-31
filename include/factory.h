@@ -8,9 +8,6 @@
 #include <mutex>
 #include <thread>
 
-extern std::mutex mutex_shelf_x;
-extern std::mutex mutex_shelf_y;
-extern std::mutex mutex_shelf_z;
 
 class Factory {
   public:

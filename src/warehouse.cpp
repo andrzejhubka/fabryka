@@ -23,17 +23,15 @@ warehouse::warehouse(int capacity, int occupancy)
     this->load_state("/home/andrzej/Documents/SO/fabryka/data/warehouse_state");
 
     // inicjujemy semafory
-    utils::semafor_set(m_sem_id, sem_available_x, 0);
-    utils::semafor_set(m_sem_id, sem_available_y, 0);
-    utils::semafor_set(m_sem_id, sem_available_z, 0);
+    utils::semafor_set(m_sem_id, sem_ordered_x, 10);
+    utils::semafor_set(m_sem_id, sem_ordered_y, 10);
+    utils::semafor_set(m_sem_id, sem_ordered_z, 10);
 
-    utils::semafor_set(m_sem_id, sem_ordered_x, 3);
-    utils::semafor_set(m_sem_id, sem_ordered_y, 6);
-    utils::semafor_set(m_sem_id, sem_ordered_z, 3);
-
-    std::cout << "Utworzono magazyn o pojemnosci " << m_capacity << " jednostek" << std::endl;
-
-
+    // domyslnie magazyn jest maly i bedzie rosl wedlug zapotrzebowania
+    m_max_x = capacity / 6;
+    m_max_y = capacity / 6;
+    m_max_z = capacity / 6;
+    std::cout << "Utworzono magazyn o pojemnosci " << m_capacity << " jednostek. Maksymalna pojemnosc X" << m_max_x << " Y" << m_max_y << " Z" << m_max_z << std::endl;
 }
 
 warehouse::~warehouse()
@@ -108,7 +106,7 @@ void warehouse::save_state(const std::string& filePath) const
 
 void warehouse::working_thread()
 {
-    // lepiej inicjowac pojemnik na przychodzace produkty tutaj; gdyby trzebabylo przerabiac program i tworzyc wiecej pracownikow magazynu
+    // lepiej inicjowac pojemnik na przychodzace produkty na stosie watku gdyby trzebabylo przerabiac program i tworzyc wiecej pracownikow magazynu
     utils::Product package = utils::Product(0, utils::X, 10);
 
     while (true)
@@ -120,7 +118,6 @@ void warehouse::working_thread()
         }
 
         // gdy bedzie pusta to nic!, idz dalej i zloz zamowienie do producenta - kiedys do okodowania inteligentny system; np co 10 pobran z magazynu.
-        make_order();
     }
 
 }
@@ -133,105 +130,84 @@ void warehouse::insert_into_shelf(utils::Product& package)
     {
     case utils::X:
         {
-            mutex_shelf_x.lock();
+            std::lock_guard<std::mutex> lock(mutex_shelf_x);
             m_products_x.emplace_back(package);
-            std::cout<<"Magazyn: polozono produkt X na polce\n";
-            increase_occupancy(1);
+            std::cout<<"Magazyn: polozono produkt X na polce";
+            change_occupancy(1);
             std::cout<<"Nowa objetosc:"<<m_occupancy<<std::endl;
-            mutex_shelf_x.unlock();
-            utils::semafor_v(m_sem_id, sem_available_x, 1);
+            cv_shelf_x.notify_one();
             break;
         };
     case utils::Y:
         {
-            mutex_shelf_y.lock();
-            m_products_x.emplace_back(package);
-            std::cout<<"Magazyn: polozono produkt Y na polce\n";
-            increase_occupancy(2);
+            std::lock_guard<std::mutex> lock(mutex_shelf_y);
+            m_products_y.emplace_back(package);
+            std::cout<<"Magazyn: polozono produkt Y na polce";
+            change_occupancy(2);
             std::cout<<"Nowa objetosc:"<<m_occupancy<<std::endl;
-            mutex_shelf_y.unlock();
-            utils::semafor_v(m_sem_id, sem_available_y, 1);
+            cv_shelf_y.notify_one();
             break;
         };
     case utils::Z:
         {
-            mutex_shelf_z.lock();
-            m_products_x.emplace_back(package);
-            std::cout<<"Magazyn: polozono produkt Z na polce\n";
-            increase_occupancy(3);
+            std::lock_guard<std::mutex> lock(mutex_shelf_z);
+            m_products_z.emplace_back(package);
+            std::cout<<"Magazyn: polozono produkt Z na polce";
+            change_occupancy(3);
             std::cout<<"Nowa objetosc:"<<m_occupancy<<std::endl;
-            mutex_shelf_z.unlock();
-            utils::semafor_v(m_sem_id, sem_available_z, 1);
+            cv_shelf_z.notify_one();
             break;
         };
     }
 }
 
-
-void warehouse::make_order()
-{
-    return;
-}
 void warehouse::grab_x(utils::Product& container)
 {
-    mutex_shelf_x.lock();
+    // Blokujemy mutex używając std::unique_lock
+    std::unique_lock<std::mutex> lock(mutex_shelf_x);
 
-    if (!m_products_x.empty())
-    {
-        container = m_products_x.back();
-        m_products_x.pop_back();
-    }
-    else
-    {
-        throw std::runtime_error("Brak produktów w magazynie");
-    }
+    // Czekamy tylko, jeśli półka jest pusta
+    cv_shelf_x.wait(lock, [this] { return !m_products_x.empty(); });
 
-    mutex_shelf_x.unlock();
+    container = m_products_x.back();
+    m_products_x.pop_back();
+    change_occupancy(-1);
+    std::cout<<"PObrano X";
 }
 void warehouse::grab_y(utils::Product& container)
 {
-    mutex_shelf_y.lock();
+    // Blokujemy mutex używając std::unique_lock
+    std::unique_lock<std::mutex> lock(mutex_shelf_y);
 
-    if (!m_products_y.empty())
-    {
-        container = m_products_y.back();
-        m_products_y.pop_back();
-    }
-    else
-    {
-        throw std::runtime_error("Brak produktów w magazynie");
-    }
+    // Czekamy tylko, jeśli półka jest pusta
+    cv_shelf_x.wait(lock, [this] { return !m_products_y.empty(); });
 
-    mutex_shelf_y.unlock();
+    container = m_products_y.back();
+    m_products_y.pop_back();
+    change_occupancy(-1);
+    std::cout<<"PObrano y";
 }
 void warehouse::grab_z(utils::Product& container)
 {
-    mutex_shelf_z.lock();
+    // Blokujemy mutex używając std::unique_lock
+    std::unique_lock<std::mutex> lock(mutex_shelf_z);
 
-    if (!m_products_z.empty())
-    {
-        container = m_products_z.back();
-        m_products_z.pop_back();
-    }
-    else
-    {
-        throw std::runtime_error("Brak produktów w magazynie");
-    }
+    // Czekamy tylko, jeśli półka jest pusta
+    cv_shelf_x.wait(lock, [this] { return !m_products_z.empty(); });
 
-    mutex_shelf_z.unlock();
+    container = m_products_z.back();
+    m_products_z.pop_back();
+    change_occupancy(-1);
+    std::cout<<"PObrano z";
 }
 
-void warehouse::decrease_occupancy(int amount)
+
+void warehouse::change_occupancy(int add_value)
 {
     std::lock_guard<std::mutex> lock(mutex_occupancy);
-    m_occupancy-=amount;
+    m_occupancy+=add_value;
 }
 
-void warehouse::increase_occupancy(int amount)
-{
-    std::lock_guard<std::mutex> lock(mutex_occupancy);
-    m_occupancy+=amount;
-}
 
 
 
