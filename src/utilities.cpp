@@ -45,6 +45,20 @@ namespace utils
         }
     }
 
+    int semafor_value(int semid, int sem)
+    {
+        // Odczytanie wartości semafora
+        int value = semctl(semid, sem, GETVAL);
+
+        // Jeśli operacja zwróci -1, oznacza to błąd
+        if (value == -1)
+        {
+            throw std::runtime_error("Błąd odczytu wartości semafora.");
+        }
+
+        return value;
+    }
+
     void semafor_set(int semid, int sem, int value)
     {
         // inicjacja semafora
@@ -196,10 +210,4 @@ namespace utils
             return 0;
         }
     }
-
-
-
-
-
-
 }

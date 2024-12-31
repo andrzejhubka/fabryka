@@ -2,14 +2,15 @@
 #include "utilities.h"
 #include  <iostream>
 #include <fstream>
-#include <sstream>
 #include <sys/sem.h>
 #include <unistd.h>
 #include <factory.h>
 
+
 warehouse::warehouse(int capacity, int occupancy)
     : m_capacity(capacity), m_occupancy(occupancy)
 {
+    std::cout<<"\n=============== Warehouse: inicjalizacja ==============="<<std::endl;
     // generujemy klucz ipc
     m_key_ipc = ftok("/tmp", 32);
 
@@ -23,16 +24,20 @@ warehouse::warehouse(int capacity, int occupancy)
     this->load_state("/home/andrzej/Documents/SO/fabryka/data/warehouse_state");
 
     // inicjujemy semafory
-    utils::semafor_set(m_sem_id, sem_ordered_x, 10);
-    utils::semafor_set(m_sem_id, sem_ordered_y, 10);
-    utils::semafor_set(m_sem_id, sem_ordered_z, 10);
+    utils::semafor_set(m_sem_id, sem_ordered_x, 0);
+    utils::semafor_set(m_sem_id, sem_ordered_y, 0);
+    utils::semafor_set(m_sem_id, sem_ordered_z, 0);
 
     // domyslnie magazyn jest maly i bedzie rosl wedlug zapotrzebowania
     m_max_x = capacity / 6;
     m_max_y = capacity / 6;
     m_max_z = capacity / 6;
     std::cout << "Utworzono magazyn o pojemnosci " << m_capacity << " jednostek. Maksymalna pojemnosc X" << m_max_x << " Y" << m_max_y << " Z" << m_max_z << std::endl;
+
+    std::cout<<"======================= SUKCES =======================\n"<<std::endl;
 }
+
+
 
 warehouse::~warehouse()
 {
@@ -117,7 +122,8 @@ void warehouse::working_thread()
             insert_into_shelf(package);
         }
 
-        // gdy bedzie pusta to nic!, idz dalej i zloz zamowienie do producenta - kiedys do okodowania inteligentny system; np co 10 pobran z magazynu.
+        // zloz zamowienie
+        make_order();
     }
 
 }
@@ -125,16 +131,15 @@ void warehouse::working_thread()
 void warehouse::insert_into_shelf(utils::Product& package)
 {
     // umiesc to na polce (nie blokuj innych polek!)
-    sleep(1); // czas dzialania pracownika
+    sleep(5); // czas dzialania pracownika
     switch (package.m_type)
     {
     case utils::X:
         {
             std::lock_guard<std::mutex> lock(mutex_shelf_x);
             m_products_x.emplace_back(package);
-            std::cout<<"Magazyn: polozono produkt X na polce";
             change_occupancy(1);
-            std::cout<<"Nowa objetosc:"<<m_occupancy<<std::endl;
+            std::cout<<"Magazyn: polozono produkt X na polce. Nowa objetosc: "<<m_occupancy<<std::endl;
             cv_shelf_x.notify_one();
             break;
         };
@@ -142,9 +147,8 @@ void warehouse::insert_into_shelf(utils::Product& package)
         {
             std::lock_guard<std::mutex> lock(mutex_shelf_y);
             m_products_y.emplace_back(package);
-            std::cout<<"Magazyn: polozono produkt Y na polce";
             change_occupancy(2);
-            std::cout<<"Nowa objetosc:"<<m_occupancy<<std::endl;
+            std::cout<<"Magazyn: polozono produkt Y na polce. Nowa objetosc: "<<m_occupancy<<std::endl;
             cv_shelf_y.notify_one();
             break;
         };
@@ -152,9 +156,8 @@ void warehouse::insert_into_shelf(utils::Product& package)
         {
             std::lock_guard<std::mutex> lock(mutex_shelf_z);
             m_products_z.emplace_back(package);
-            std::cout<<"Magazyn: polozono produkt Z na polce";
             change_occupancy(3);
-            std::cout<<"Nowa objetosc:"<<m_occupancy<<std::endl;
+            std::cout<<"Magazyn: polozono produkt Z na polce. Nowa objetosc: "<<m_occupancy<<std::endl;
             cv_shelf_z.notify_one();
             break;
         };
@@ -172,7 +175,7 @@ void warehouse::grab_x(utils::Product& container)
     container = m_products_x.back();
     m_products_x.pop_back();
     change_occupancy(-1);
-    std::cout<<"PObrano X";
+    std::cout<<"Magazyn: pobrano X\n";
 }
 void warehouse::grab_y(utils::Product& container)
 {
@@ -185,7 +188,7 @@ void warehouse::grab_y(utils::Product& container)
     container = m_products_y.back();
     m_products_y.pop_back();
     change_occupancy(-1);
-    std::cout<<"PObrano y";
+    std::cout<<"Magazyn: pobrano Y\n";
 }
 void warehouse::grab_z(utils::Product& container)
 {
@@ -198,7 +201,7 @@ void warehouse::grab_z(utils::Product& container)
     container = m_products_z.back();
     m_products_z.pop_back();
     change_occupancy(-1);
-    std::cout<<"PObrano z";
+    std::cout<<"Magazyn: pobrano Z\n";
 }
 
 
@@ -206,6 +209,40 @@ void warehouse::change_occupancy(int add_value)
 {
     std::lock_guard<std::mutex> lock(mutex_occupancy);
     m_occupancy+=add_value;
+}
+
+void warehouse::make_order()
+{
+    int new_order_x, new_order_y, new_order_z;
+    {
+        std::lock_guard<std::mutex> lock(mutex_shelf_x);
+        sleep(1);
+        new_order_x = m_max_x -  utils::semafor_value(m_sem_id, sem_ordered_x) - m_products_x.size();
+        new_order_x = (new_order_x  < 0) ? 0 : new_order_x ;
+        std::cout<<"Zamawiam x"<<new_order_x<<std::endl;
+
+        utils::semafor_v(m_sem_id, sem_ordered_x, new_order_x);
+    }
+    {
+        std::lock_guard<std::mutex> lock(mutex_shelf_y);
+        sleep(1);
+
+        new_order_y =  m_max_y-  utils::semafor_value(m_sem_id, sem_ordered_y) - m_products_y.size();
+        new_order_y = (new_order_y  < 0) ? 0 : new_order_y ;
+        std::cout<<"Zamawiam y"<<new_order_y<<std::endl;
+
+        utils::semafor_v(m_sem_id, sem_ordered_y, new_order_y);
+    }
+    {
+        std::lock_guard<std::mutex> lock(mutex_shelf_x);
+        sleep(1);
+
+        new_order_z = m_max_z -  utils::semafor_value(m_sem_id, sem_ordered_z) - m_products_z.size();
+        std::cout<<"Zamawiam z"<<new_order_z<<std::endl;
+        new_order_z = (new_order_z  < 0) ? 0 : new_order_z ;
+
+        utils::semafor_v(m_sem_id, sem_ordered_z, new_order_z);
+    }
 }
 
 

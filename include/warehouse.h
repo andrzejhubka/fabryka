@@ -61,20 +61,20 @@ public:
     // zamiana zajmowanego miejsca w magazynie
     void increase_occupancy(int amount);
     void decrease_occupancy(int amount);
-
     // zwiekszenie pojemnosci magazynu
     void expand(int newCapacity);
 
     // zwiekszenie zajetosci calego magazynu (suma kazdej półki)
     void change_occupancy(int add_value);
 
+    // zamow produkty
+    void make_order();
 
     // zapisanie stanu do pliku
     void save_state(const std::string& filePath) const;
 
     // wczytanie stanu z pliku
     void load_state(const std::string& filePath);
-
 };
 
 

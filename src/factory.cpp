@@ -15,6 +15,7 @@ int main()
 Factory::Factory()
 :   m_magazyn(warehouse(20, 0))
 {
+    std::cout<<"\n=============== Factory: inicjalizacja ==============="<<std::endl;
     // generujemy klucz ipc
     m_key_ipc = ftok("/tmp", 32);
 
@@ -28,12 +29,17 @@ Factory::Factory()
     m_magazyn.load_state("/home/andrzej/Documents/SO/fabryka/data/warehouse_state");
 
 
+    // watek managera
+    manager_THREAD = std::thread(&Factory::thread_manager, this);
+
     // utworz watki dla maszyn A i B
     worker_a_THREAD = std::thread(&Factory::thread_worker_a, this);
-    //std::thread worker_b_THREAD(&Factory::thread_worker_b, this);
+    worker_b_THREAD = std::thread(&Factory::thread_worker_b, this);
 
     // utworz watek dla magazynu
     warehouse_THREAD = std::thread (&warehouse::working_thread, &m_magazyn);
+
+    std::cout<<"======================= SUKCES =======================\n"<<std::endl;
 
 
 }
@@ -41,8 +47,9 @@ Factory::Factory()
 Factory::~Factory()
 {
     worker_a_THREAD.join();
-    //worker_b_THREAD.join();
+    worker_b_THREAD.join();
     warehouse_THREAD.join();
+    manager_THREAD.join();
 }
 
 
@@ -58,20 +65,19 @@ void Factory::thread_worker_a()
         // pobieramy X
         m_magazyn.grab_x(containter_x);
 
-
         // pobieramy y
         m_magazyn.grab_y(containter_y);
 
         // pobieramy z
         m_magazyn.grab_z(containter_z);
 
-
         // gdy masz juz produkty wyprodokuj cos i napisz na konsoli
         sleep(4);
-        std::cout<<"Maszyna A. Wyprodukowano produkt z x, y, z. Wazy: \n";//<<containter_x.m_weight+containter_y.m_weight+containter_z.m_weight<<" kg.\n";
+        std::cout<<"Maszyna A: Wyprodukowano produkt z x, y, z. Wazy: "<<containter_x.m_weight+containter_y.m_weight+containter_z.m_weight<<" kg.\n";
     }
 
 }
+
 void Factory::thread_worker_b()
 {
     // gdy pobierzemy produkty przechowywujemy je tutaj
@@ -82,30 +88,57 @@ void Factory::thread_worker_b()
     while (true)
     {
         // pobieramy X
-        utils::semafor_p(m_sem_id, sem_available_x, 1);
-        // pobierz cos z magazynu
-        this->m_magazyn.grab_x(containter_x);
-
+        m_magazyn.grab_x(containter_x);
 
         // pobieramy y
-        utils::semafor_p(m_sem_id, sem_available_y, 1);
-
-        // pobierz cos z magazynu
-        this->m_magazyn.grab_y(containter_y);
-
+        m_magazyn.grab_y(containter_y);
 
         // pobieramy z
-        utils::semafor_p(m_sem_id, sem_available_z, 1);
-
-        // pobierz cos z magazynu
-        this->m_magazyn.grab_z(containter_z);
-
+        m_magazyn.grab_z(containter_z);
 
         // gdy masz juz produkty wyprodokuj cos i napisz na konsoli
-        sleep(8);
-        std::cout<<"Maszyna B. Wyprodukowano produkt z x, y, z. Wazy: "<<containter_x.m_weight+containter_y.m_weight+containter_z.m_weight<<" kg.\n";
+        sleep(7);
+        std::cout<<"Maszyna B: Wyprodukowano produkt z x, y, z. Wazy: "<<containter_x.m_weight+containter_y.m_weight+containter_z.m_weight<<" kg.\n";
+    }
+
+}
+void Factory::thread_manager()
+{
+    int command;
+    while (true)
+    {
+        // czekaj az semafor polecenia zostanie zmieniony
+        utils::semafor_p(m_sem_id, sem_command, 1);
+
+        command = utils::semafor_value(m_sem_id, sem_command);
+
+        switch (command)
+        {
+            case 0:
+                {
+                    std::cout<<"POLECENIE 1!!\n";
+                    break;
+                }
+            case 1:
+                {
+                    std::cout<<"POLECENIE 2!!\n";
+                    break;
+                }
+            case 2:
+                {
+                    std::cout<<"POLECENIE 3!!\n";
+                    break;
+                }
+            case 3:
+                {
+                    std::cout<<"POLECENIE 4!!\n";
+                    break;
+                }
+        }
+        utils::semafor_set(m_sem_id, sem_command, 0);
     }
 }
+
 
 
 

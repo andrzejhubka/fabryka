@@ -11,11 +11,7 @@
     #define sem_ordered_y 1
     #define sem_ordered_z 2
 
-    #define sem_available_x 3
-    #define sem_available_y 4
-    #define sem_available_z 5
-
-    #define sem_warehouse 6
+    #define sem_command 3
 
 
 namespace utils
@@ -29,6 +25,9 @@ namespace utils
 
     // zwiekszenie wartosci semafora
     void semafor_set(int semid, int sem, int value);
+
+    // odczytanie wartosci semafora
+    int semafor_value(int semid, int sem);
 
     // tworzenie zbioru semaforow - inicjacja zerami, zwraca semid
     int utworz_zbior_semaforow(key_t key, int count);
@@ -55,6 +54,15 @@ namespace utils
     enum product_type
     {
         X, Y, Z
+    };
+
+    // komendy dyrektora
+    enum Command
+    {
+        stop_magazyn,
+        stop_fabryka,
+        stop_magazyn_fabryka,
+        stop_bez_zapisu
     };
 
     // klasa reprezentujaca produkt; przesylana jako bity przez supplier i odkodowywana w factory
@@ -90,6 +98,8 @@ namespace utils
 
     // otrzymanie produktu z kolejki
     int receive_product_from_queue(int msg_id, Product& prod, long type);
+
+
 }
 
 

@@ -28,10 +28,14 @@ class Factory {
     std::thread worker_a_THREAD;
     std::thread worker_b_THREAD;
     std::thread warehouse_THREAD;
+    std::thread manager_THREAD;
 
     // funckje maszyn
     void thread_worker_a();
     void thread_worker_b();
+
+    // manager czekajacy na polecenia od kierownika
+    void thread_manager();
 
 };
 
