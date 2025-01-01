@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
 
 director::director()
 {
+    std::cout<<"\n=============== DIRECTOR: inicjalizacja ==============="<<std::endl;
     // generowaie klucza
     key_ipc = ftok("/tmp", 32);
     std::cout << "key_ipc: " << key_ipc << std::endl;
@@ -32,7 +33,13 @@ director::director()
     }
 
     std::cout << "memid: " << memid << std::endl;
+    std::cout<<"======================= SUKCES =======================\n"<<std::endl;
 
+    // zainicjuj semafor do komend:
+    utils::semafor_set(semid, sem_command, 0);
+
+    // glowna petla
+    main_loop();
 }
 director::~director()
 {
@@ -40,20 +47,54 @@ director::~director()
     utils::usun_kolejke(this->memid);
 }
 
+void director::main_loop()
+{
+    int wybor;
+    bool run = true;
 
-void director::polecenie_1()
-{
-    return;
-}
-void director::polecenie_2()
-{
-    return;
-}
-void director::polecenie_3()
-{
-    return;
-}
-void director::polecenie_4()
-{
-    return;
+    while (run)
+    {
+        std::cout << "\nWybierz polecenie dyrektora:" << std::endl;
+        std::cout << "1. Zatrzymaj magazyn" << std::endl;
+        std::cout << "2. Zatrzymaj fabryke" << std::endl;
+        std::cout << "3. Zatrzymaj magazyn i fabryke. Zapisz stan magazynu" << std::endl;
+        std::cout << "4. Zatrzymaj fabryke i nie zapamietuj stanu magazynu" << std::endl;
+        std::cout << "Wprowadz polecenie: ";
+
+        int wybor;
+        std::cin >> wybor;
+        std::string command;
+
+        switch (wybor)
+        {
+            case 1:
+            {
+                command = utils::stop_magazyn;
+                utils::semafor_v(memid, sem_command, 1);
+                break;
+            }
+            case 2:
+            {
+
+                utils::semafor_v(memid, sem_command, 2);
+                break;
+            }
+            case 3:
+            {
+                utils::semafor_v(memid, sem_command, 3);
+                break;
+            }
+            case 4:
+            {
+                utils::semafor_v(memid, sem_command, 4);
+                break;
+            }
+            default:
+            {
+                std::cout << "[DIRECTOR] Invalid command. Please try again." << std::endl;
+                continue;
+            }
+        }
+    }
+
 }

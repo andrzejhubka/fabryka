@@ -7,6 +7,11 @@
 #include <warehouse.h>
 #include <mutex>
 #include <thread>
+#include <atomic>
+
+// Deklaracja zmiennych atomowych
+extern bool machine_a_run;
+extern bool machine_b_run;
 
 
 class Factory {
@@ -28,10 +33,17 @@ class Factory {
     std::thread worker_a_THREAD;
     std::thread worker_b_THREAD;
     std::thread warehouse_THREAD;
+    std::thread manager_THREAD;
 
     // funckje maszyn
     void thread_worker_a();
     void thread_worker_b();
+
+    // manager czekajacy na polecenia od kierownika
+    void thread_manager();
+
+    // zakonczenie pracy tylko fabryki; maszyny a i b;
+    void stop_workring();
 
 };
 
