@@ -38,3 +38,6 @@ W fabryce znajduje sie uspiony watek ktory czeka az semafor zostanie podniesiony
 - chyba dziala dobrze.
 10. wylaczanie maszyn (zmiana machine_X_run na false)
 Czasami moga byc zablokowane gdy czekaja na produkt X/Y/Z z magazynu;
+11. za duza ilosc produktow
+gdy magazyn zamawial produkt zwiekszał semafor z zamowionym produktem x/y/z. DOstawca od razu go zmniejszal i wytwarzał towar i zanim magazyn go odebrał to mogl zrobic nowe zamowienie z pominieciem tego dodatkowego produktu.
+Rozwiazanie: 3 semafory kontrolujace ilosci wyslanych produktow; inkrementowane przez wysylajacego dekrementowane przez

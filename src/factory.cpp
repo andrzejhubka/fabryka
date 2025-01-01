@@ -18,7 +18,7 @@ int main()
 }
 
 Factory::Factory()
-:   m_magazyn(warehouse(20, 0))
+:   m_magazyn(warehouse(60, 0))
 {
     std::cout<<"\n=============== Factory: inicjalizacja ==============="<<std::endl;
 
@@ -90,7 +90,7 @@ void Factory::thread_worker_a()
         }
 
         // gdy masz juz produkty wyprodokuj cos i napisz na konsoli
-        sleep(1);
+        sleep(speed_machine_a);
         std::cout<<"Maszyna A: Wyprodukowano produkt z x, y, z. Wazy: "<<containter_x.m_weight+containter_y.m_weight+containter_z.m_weight<<" kg.\n";
     }
 
@@ -129,7 +129,7 @@ void Factory::thread_worker_b()
         }
 
         // gdy masz juz produkty wyprodokuj cos i napisz na konsoli
-        sleep(1);
+        sleep(speed_machine_b);
         std::cout<<"Maszyna B: Wyprodukowano produkt z x, y, z. Wazy: "<<containter_x.m_weight+containter_y.m_weight+containter_z.m_weight<<" kg.\n";
     }
 

@@ -11,7 +11,19 @@
     #define sem_ordered_y 1
     #define sem_ordered_z 2
 
-    #define sem_command 3
+    #define sem_sended_x 3
+    #define sem_sended_y 4
+    #define sem_sended_z 5
+    #define sem_command 6
+
+// czasy wykonywania czynnosci
+#define speed_machine_a 30
+#define speed_machine_b 20
+#define speed_supply_x 1
+#define speed_supply_y 1
+#define speed_supply_z 1
+#define speed_recieving_package 1
+#define speed_making_order 1
 
 
 namespace utils
