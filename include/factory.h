@@ -7,6 +7,11 @@
 #include <warehouse.h>
 #include <mutex>
 #include <thread>
+#include <atomic>
+
+// Deklaracja zmiennych atomowych
+extern bool machine_a_run;
+extern bool machine_b_run;
 
 
 class Factory {
@@ -36,6 +41,9 @@ class Factory {
 
     // manager czekajacy na polecenia od kierownika
     void thread_manager();
+
+    // zakonczenie pracy tylko fabryki; maszyny a i b;
+    void stop_workring();
 
 };
 

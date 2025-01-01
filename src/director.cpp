@@ -56,15 +56,15 @@ void director::main_loop()
     {
         std::cout << "\nWybierz polecenie dyrektora:" << std::endl;
         std::cout << "1. Zatrzymaj magazyn" << std::endl;
-        std::cout << "2. Zatrzymaj fabryke i magazyn" << std::endl;
-        std::cout << "3. Zapisz stan do pliku" << std::endl;
+        std::cout << "2. Zatrzymaj fabryke" << std::endl;
+        std::cout << "3. Zatrzymaj magazyn i fabryke. Zapisz stan magazynu" << std::endl;
         std::cout << "4. Zatrzymaj fabryke i nie zapamietuj stanu magazynu" << std::endl;
         std::cout << "Wprowadz polecenie: ";
 
         int wybor;
         std::cin >> wybor;
-
         std::string command;
+
         switch (wybor)
         {
             case 1:
@@ -75,19 +75,17 @@ void director::main_loop()
             }
             case 2:
             {
-                command = utils::stop_fabryka;
+
                 utils::semafor_v(memid, sem_command, 2);
                 break;
             }
             case 3:
             {
-                command = utils::stop_magazyn_fabryka;
                 utils::semafor_v(memid, sem_command, 3);
                 break;
             }
             case 4:
             {
-                command = utils::stop_bez_zapisu;
                 utils::semafor_v(memid, sem_command, 4);
                 break;
             }

@@ -5,6 +5,11 @@
 #include <sys/types.h>
 #include <utilities.h>
 #include <warehouse.h>
+#include <atomic>
+
+// Definicja zmiennych atomowych
+bool machine_a_run{true}; // Flaga zatrzymania maszyny A
+bool machine_b_run{true}; // Flaga zatrzymania maszyny B
 
 int main()
 {
@@ -16,6 +21,7 @@ Factory::Factory()
 :   m_magazyn(warehouse(20, 0))
 {
     std::cout<<"\n=============== Factory: inicjalizacja ==============="<<std::endl;
+
     // generujemy klucz ipc
     m_key_ipc = ftok("/tmp", 32);
 
@@ -60,21 +66,35 @@ void Factory::thread_worker_a()
     utils::Product containter_y = utils::Product(0, utils::Y, 10 );
     utils::Product containter_z = utils::Product(0, utils::Z, 10);
 
-    while (true)
+    while (machine_a_run)
     {
-        // pobieramy X
-        m_magazyn.grab_x(containter_x);
+        //pobieramy X
+        if (m_magazyn.grab_x(containter_x) == -1)
+        {
+            // gdy dostaniesz odmowe/nie uda sie proboj dalej lub sie wylacz
+            continue;
+        }
 
         // pobieramy y
-        m_magazyn.grab_y(containter_y);
+        if (m_magazyn.grab_y(containter_y) == -1)
+        {
+            // gdy dostaniesz odmowe/nie uda sie proboj dalej lub sie wylacz
+            continue;
+        }
 
         // pobieramy z
-        m_magazyn.grab_z(containter_z);
+        if (m_magazyn.grab_z(containter_z) == -1)
+        {
+            // gdy dostaniesz odmowe/nie uda sie proboj dalej lub sie wylacz
+            continue;
+        }
 
         // gdy masz juz produkty wyprodokuj cos i napisz na konsoli
-        sleep(4);
+        sleep(1);
         std::cout<<"Maszyna A: Wyprodukowano produkt z x, y, z. Wazy: "<<containter_x.m_weight+containter_y.m_weight+containter_z.m_weight<<" kg.\n";
     }
+
+    std::cout<<"Maszyna A: zakonczono produkcje\n";
 
 }
 
@@ -85,22 +105,35 @@ void Factory::thread_worker_b()
     utils::Product containter_y = utils::Product(0, utils::Y, 10 );
     utils::Product containter_z = utils::Product(0, utils::Z, 10);
 
-    while (true)
+    while (machine_b_run)
     {
-        // pobieramy X
-        m_magazyn.grab_x(containter_x);
+        //pobieramy X
+        if (m_magazyn.grab_x(containter_x) == -1)
+        {
+            // gdy dostaniesz odmowe/nie uda sie proboj dalej lub sie wylacz
+            continue;
+        }
 
         // pobieramy y
-        m_magazyn.grab_y(containter_y);
+        if (m_magazyn.grab_y(containter_y) == -1)
+        {
+            // gdy dostaniesz odmowe/nie uda sie proboj dalej lub sie wylacz
+            continue;
+        }
 
         // pobieramy z
-        m_magazyn.grab_z(containter_z);
+        if (m_magazyn.grab_z(containter_z) == -1)
+        {
+            // gdy dostaniesz odmowe/nie uda sie proboj dalej lub sie wylacz
+            continue;
+        }
 
         // gdy masz juz produkty wyprodokuj cos i napisz na konsoli
-        sleep(7);
+        sleep(1);
         std::cout<<"Maszyna B: Wyprodukowano produkt z x, y, z. Wazy: "<<containter_x.m_weight+containter_y.m_weight+containter_z.m_weight<<" kg.\n";
     }
 
+    std::cout<<"Maszyna B: zakonczono produkcje!\n";
 }
 void Factory::thread_manager()
 {
@@ -116,28 +149,44 @@ void Factory::thread_manager()
         {
             case 0:
                 {
-                    std::cout<<"POLECENIE 1!!\n";
+                    std::cout<<"Fabryka: otrzymano polecenie 1\n";
+                    m_magazyn.stop_working(true);
                     break;
                 }
             case 1:
                 {
-                    std::cout<<"POLECENIE 2!!\n";
+                    std::cout<<"Fabryka: otrzymano polecenie 2\n";
+                    stop_workring();
                     break;
                 }
             case 2:
                 {
-                    std::cout<<"POLECENIE 3!!\n";
+                    std::cout<<"Fabryka: otrzymano polecenie 3\n";
+                    stop_workring(); // KOLEJNOSC JEST WAZNA! gdybym zapisal magazyn do pliku i maszyna zdazyla pobrac produkt, po odczytaiu stanu magazynu od nowa ten produkt by sie zdublowal
+                    m_magazyn.stop_working(true);
                     break;
                 }
             case 3:
                 {
-                    std::cout<<"POLECENIE 4!!\n";
+                    std::cout<<"Fabryka: otrzymano polecenie 4\n";
                     break;
                 }
         }
         utils::semafor_set(m_sem_id, sem_command, 0);
     }
 }
+
+void Factory::stop_workring()
+{
+    std::cout<<"Fabryka: proba zakonczenia pracy maszyn\n";
+    // maszyny moga czekac na surowce!! trzeba je zwolnic
+    machine_a_run = false;
+    machine_b_run = false;
+
+    // obudz te maszyny ktore czekaja na produkt
+    m_magazyn.wake_machines();
+}
+
 
 
 

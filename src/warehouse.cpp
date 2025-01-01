@@ -11,6 +11,9 @@ warehouse::warehouse(int capacity, int occupancy)
     : m_capacity(capacity), m_occupancy(occupancy)
 {
     std::cout<<"\n=============== Warehouse: inicjalizacja ==============="<<std::endl;
+
+    m_run = true;
+
     // generujemy klucz ipc
     m_key_ipc = ftok("/tmp", 32);
 
@@ -114,7 +117,7 @@ void warehouse::working_thread()
     // lepiej inicjowac pojemnik na przychodzace produkty na stosie watku gdyby trzebabylo przerabiac program i tworzyc wiecej pracownikow magazynu
     utils::Product package = utils::Product(0, utils::X, 10);
 
-    while (true)
+    while (m_run)
     {
         // jesli jest cos w kolejce
         if (utils::receive_product_from_queue(m_msg_id, package, 1) == 0)
@@ -126,12 +129,14 @@ void warehouse::working_thread()
         make_order();
     }
 
+    std::cout<<"\nMagazyn zakonczyl prace!"<<std::endl;
+
 }
 
 void warehouse::insert_into_shelf(utils::Product& package)
 {
     // umiesc to na polce (nie blokuj innych polek!)
-    sleep(5); // czas dzialania pracownika
+    sleep(2); // czas dzialania pracownika
     switch (package.m_type)
     {
     case utils::X:
@@ -164,44 +169,64 @@ void warehouse::insert_into_shelf(utils::Product& package)
     }
 }
 
-void warehouse::grab_x(utils::Product& container)
+int warehouse::grab_x(utils::Product& container)
 {
     // Blokujemy mutex używając std::unique_lock
     std::unique_lock<std::mutex> lock(mutex_shelf_x);
 
-    // Czekamy tylko, jeśli półka jest pusta
-    cv_shelf_x.wait(lock, [this] { return !m_products_x.empty(); });
+    // maszyna moze pobrac produkt. Zaczyna czekac. Trzeba sprawdzic czy sygnal dotyczy konca pracy czy pojawienia sie prudktu
+    cv_shelf_x.wait(lock, [this] { return !m_products_x.empty() || !machine_a_run;});
+
+    if (!machine_a_run)
+    {
+        std::cout << "Magazyn: maszyna przeznaczona do wylaczenia. Odmowiono wydania produktu z\n";
+        return -1;
+    }
 
     container = m_products_x.back();
     m_products_x.pop_back();
     change_occupancy(-1);
-    std::cout<<"Magazyn: pobrano X\n";
+    std::cout << "Magazyn: wydano produkt x.\n";
+    return 1;
 }
-void warehouse::grab_y(utils::Product& container)
+int warehouse::grab_y(utils::Product& container)
 {
     // Blokujemy mutex używając std::unique_lock
     std::unique_lock<std::mutex> lock(mutex_shelf_y);
 
-    // Czekamy tylko, jeśli półka jest pusta
-    cv_shelf_x.wait(lock, [this] { return !m_products_y.empty(); });
+    // maszyna moze pobrac produkt. Zaczyna czekac. Trzeba sprawdzic czy sygnal dotyczy konca pracy czy pojawienia sie prudktu
+    cv_shelf_y.wait(lock, [this] { return !m_products_y.empty() || !machine_a_run;});
+
+    if (!machine_a_run)
+    {
+        std::cout<<"Magazyn: maszyna przeznaczona do wylaczenia. Odmowiono wydania produktu y\n";
+        return -1;
+    }
 
     container = m_products_y.back();
     m_products_y.pop_back();
     change_occupancy(-1);
-    std::cout<<"Magazyn: pobrano Y\n";
+    return 1;
 }
-void warehouse::grab_z(utils::Product& container)
+int warehouse::grab_z(utils::Product& container)
 {
     // Blokujemy mutex używając std::unique_lock
     std::unique_lock<std::mutex> lock(mutex_shelf_z);
 
-    // Czekamy tylko, jeśli półka jest pusta
-    cv_shelf_x.wait(lock, [this] { return !m_products_z.empty(); });
+    // maszyna moze pobrac produkt. Zaczyna czekac. Trzeba sprawdzic czy sygnal dotyczy konca pracy czy pojawienia sie prudktu
+    cv_shelf_z.wait(lock, [this] { return !m_products_z.empty() || !machine_a_run;});
+
+    if (!machine_a_run)
+    {
+        std::cout<<"Magazyn: maszyna przeznaczona do wylaczenia. Odmowiono wydania produktu z\n";
+        return -1;
+    }
 
     container = m_products_z.back();
     m_products_z.pop_back();
     change_occupancy(-1);
-    std::cout<<"Magazyn: pobrano Z\n";
+    std::cout << "Magazyn: wydano produkt z.\n";
+    return 1;
 }
 
 
@@ -218,34 +243,58 @@ void warehouse::make_order()
         std::lock_guard<std::mutex> lock(mutex_shelf_x);
         sleep(1);
         new_order_x = m_max_x -  utils::semafor_value(m_sem_id, sem_ordered_x) - m_products_x.size();
-        new_order_x = (new_order_x  < 0) ? 0 : new_order_x ;
-        std::cout<<"Zamawiam x"<<new_order_x<<std::endl;
 
-        utils::semafor_v(m_sem_id, sem_ordered_x, new_order_x);
+        if (new_order_x > 0)
+        {
+            std::cout<<"Magazyn: Zamawiam x: "<<new_order_x<<std::endl;
+            utils::semafor_v(m_sem_id, sem_ordered_x, new_order_x);
+        }
+
     }
     {
         std::lock_guard<std::mutex> lock(mutex_shelf_y);
         sleep(1);
 
         new_order_y =  m_max_y-  utils::semafor_value(m_sem_id, sem_ordered_y) - m_products_y.size();
-        new_order_y = (new_order_y  < 0) ? 0 : new_order_y ;
-        std::cout<<"Zamawiam y"<<new_order_y<<std::endl;
 
-        utils::semafor_v(m_sem_id, sem_ordered_y, new_order_y);
+        if (new_order_y > 0)
+        {
+            std::cout<<"Magazyn: zamawiam y: "<<new_order_y<<std::endl;
+            utils::semafor_v(m_sem_id, sem_ordered_y, new_order_y+1);
+        }
     }
     {
-        std::lock_guard<std::mutex> lock(mutex_shelf_x);
+        std::lock_guard<std::mutex> lock(mutex_shelf_z);
         sleep(1);
 
         new_order_z = m_max_z -  utils::semafor_value(m_sem_id, sem_ordered_z) - m_products_z.size();
-        std::cout<<"Zamawiam z"<<new_order_z<<std::endl;
-        new_order_z = (new_order_z  < 0) ? 0 : new_order_z ;
 
-        utils::semafor_v(m_sem_id, sem_ordered_z, new_order_z);
+        if (new_order_z > 0)
+        {
+            std::cout<<"Magazyn: zamawiam z: "<<new_order_z<<std::endl;
+            utils::semafor_v(m_sem_id, sem_ordered_z, new_order_z+1);
+        }
     }
 }
 
+void warehouse::stop_working(bool save)
+{
+    // wycofaj wszystkie dostawy
+    utils::semafor_set(m_sem_id, sem_ordered_x, 0);
+    utils::semafor_set(m_sem_id, sem_ordered_y, 0);
+    utils::semafor_set(m_sem_id, sem_ordered_z, 0);
 
+
+    //
+}
+
+void warehouse::wake_machines()
+{
+    cv_shelf_x.notify_all();
+    cv_shelf_y.notify_all();
+    cv_shelf_z.notify_all();
+    std::cout<<"Magazyn: wybudzono maszyny. Sprawdza czy nie maja sie wyslaczyc\n";
+}
 
 
 

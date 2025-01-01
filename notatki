@@ -36,3 +36,5 @@ https://www.youtube.com/watch?v=XZDx41woDoI
 plan jest taki: mamy semafor polecenia dyrektora: domyslnie 0.
 W fabryce znajduje sie uspiony watek ktory czeka az semafor zostanie podniesiony i gdy odczyta polecenie wykonuje je.
 - chyba dziala dobrze.
+10. wylaczanie maszyn (zmiana machine_X_run na false)
+Czasami moga byc zablokowane gdy czekaja na produkt X/Y/Z z magazynu;

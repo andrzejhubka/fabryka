@@ -15,6 +15,9 @@ public:
     warehouse(int capacity=20, int occupancy=0);
     ~warehouse();
 
+    // czy magazyn pracuje
+    bool m_run;
+
     // pojemnosc i rozmiar
     int m_capacity;
     int m_occupancy;
@@ -54,9 +57,9 @@ public:
     void insert_into_shelf(utils::Product& package);
 
     // wydawanie produktow pracownikom
-    void grab_x(utils::Product& container);
-    void grab_y(utils::Product& container);
-    void grab_z(utils::Product& container);
+    int grab_x(utils::Product& container);
+    int grab_y(utils::Product& container);
+    int grab_z(utils::Product& container);
 
     // zamiana zajmowanego miejsca w magazynie
     void increase_occupancy(int amount);
@@ -75,6 +78,12 @@ public:
 
     // wczytanie stanu z pliku
     void load_state(const std::string& filePath);
+
+    // zatrzymanie magazynu (pracownika rozlawowywujacego dostawy; maszyny dalej moga pobierac produkty z magazynu)
+    void stop_working(bool save);
+
+    // obudz czekajace na produkty maszyny, zeby sprawdzily czy sa tez wylaczone
+    void wake_machines();
 };
 
 
