@@ -13,11 +13,15 @@ class director
         ~director();
 
     // klucz ipc
-    key_t key_ipc;
-    int semid;
-    int memid;
+    key_t m_key_ipc;
+    int m_semid;
+    int m_memid;
+
+    // informajca czy dyrektor pracuje
+    bool m_run;
 
     void main_loop();
+    void stop_working();
 
 };
 
