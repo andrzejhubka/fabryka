@@ -1,20 +1,27 @@
 #ifndef UTILITIES_H
 #define UTILITIES_H
-
-#include <sys/sem.h>
 #include <sys/ipc.h>
 #include <sys/types.h>
 #include <iostream>
 
-// definicja semaforow
-    #define sem_ordered_x 0
-    #define sem_ordered_y 1
-    #define sem_ordered_z 2
 
-    #define sem_sended_x 3
-    #define sem_sended_y 4
-    #define sem_sended_z 5
-    #define sem_command 6
+// rodzaje bledow
+#define IPC_RESULT_ERROR -1
+
+// definicja semaforow
+#define sem_do_odczytania_x 0
+#define sem_do_odczytania_y 1
+#define sem_do_odczytania_z 2
+
+#define sem_wolne_miejsca_x 3
+#define sem_wolne_miejsca_y 4
+#define sem_wolne_miejsca_z 5
+
+#define sem_shelf_x 7
+#define sem_shelf_y 8
+#define sem_shelf_z 9
+
+#define sem_command 6
 
 // czasy wykonywania czynnosci
 #define speed_machine_a 30
@@ -29,6 +36,7 @@
 namespace utils
 {
 
+    // ---------------------------- SEMAFORY ----------------------------- //
     // zwiekszenie wartosci semafora
     void semafor_p(int semid, int sem, int value);
 
@@ -50,6 +58,7 @@ namespace utils
     // uzysknanie semid gdy zbior semaforow istnieje; inaczej -1
     int get_semid(key_t);
 
+    // ---------------------------- KOLEJKI ----------------------------- //
     // tworzenie kolejki komunikatow
     int utworz_kolejke(key_t key);
 
@@ -58,16 +67,67 @@ namespace utils
 
     // usuniecie kolejki
     int usun_kolejke(int id);
+    // ---------------------------- PAMIEC ----------------------------- //
+    typedef struct PamiecWspoldzielona
+    {
+        int id;
+        size_t size;
+        int flg;
+        char *adres;
+    } PamiecWspoldzielona;
 
-    // losowanie numeru z zakresu a, b
-    int random_number(int min, int max);
+    // tworzenie segmentu pamieci
+    int utworz_segment_pamieci_dzielonej(PamiecWspoldzielona *pDzielona, key_t klucz, long size);
 
+    // dolaczenie segmentu pamieci -> zwraca adres
+    char* dolacz_segment_pamieci(int shared_id);
+
+    // pobranie id segmentu pamieci
+    int get_shared_id(key_t klucz);
+
+    // odlaczenie segmentu z biezacego procesu
+    int odlacz_segment_pamieci_dzielonej(PamiecWspoldzielona *pDzielona);
+
+    // ustawienie do usuniecia segmnetu
+    int ustaw_do_usuniecia_segment(PamiecWspoldzielona *pDzielona);
+
+    // pobranie informajci o rozmiarze segmentu
+    size_t pobierz_rozmiar_pamieci(int shared_id);
+
+
+    // ---------------------------- WSPOLNE OBIEKTY ----------------------------- //
+    // ------------- PRODUKTY
+    class ProductX
+    {
+    public:
+        ProductX(short weight);
+        // paramety produktu // 2 bajty -> jedna jednostka
+        short m_weight;
+    };
+
+    class ProductY
+    {
+    public:
+        ProductY(int weight);
+        // paramety produktu 4 bajty -> dwie jednostki
+        int m_weight;
+    };
+
+    class ProductZ
+    {
+    public:
+        ProductZ(int weight, short pojemnosc);
+        // paramety produktu 4+2 bajty -> trzy jednostki
+        int m_weight;
+        short m_pojemnosc;
+    };
+
+    // ----------ENUMY
     // typ produktu
     enum product_type
     {
         X, Y, Z
     };
-
     // komendy dyrektora
     enum Command
     {
@@ -77,40 +137,9 @@ namespace utils
         stop_bez_zapisu
     };
 
-    // klasa reprezentujaca produkt; przesylana jako bity przez supplier i odkodowywana w factory
-    class Product
-    {
-        public:
-        Product(int id, product_type type, int weight);
-
-        // paramety produktu
-        enum product_type m_type;
-        int m_id;
-        int m_weight;
-
-        // settery
-        void set_weight(int weight);
-        void set_id(int id);
-        void set_type(product_type type);
-
-        // wyswietlenie w konsoli informacji
-        void describe() const;
-
-    };
-
-    // struktura wiadomosci w kolejce ipc
-    struct Message
-    {
-        long mtype;                     // Typ wiadomości
-        char data[sizeof(Product)];
-    };
-
-    // umiesczenie produktu w kolejce
-    void send_product_to_queue(int msgid, const Product& prod, long type);
-
-    // otrzymanie produktu z kolejki
-    int receive_product_from_queue(int msg_id, Product& prod, long type);
-
+    // ----------------- FUNKCJE POMOCNICZE -----------------------------
+    // losowanie numeru z zakresu a, b
+    int random_number(int min, int max);
 
 }
 

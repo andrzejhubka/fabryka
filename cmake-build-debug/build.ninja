@@ -63,6 +63,13 @@ build CMakeFiles/supplier.dir/src/utilities.cpp.o: CXX_COMPILER__supplier_unscan
   OBJECT_DIR = CMakeFiles/supplier.dir
   OBJECT_FILE_DIR = CMakeFiles/supplier.dir/src
 
+build CMakeFiles/supplier.dir/src/warehouse.cpp.o: CXX_COMPILER__supplier_unscanned_Debug /home/andrzej/Documents/SO/fabryka/src/warehouse.cpp || cmake_object_order_depends_target_supplier
+  DEP_FILE = CMakeFiles/supplier.dir/src/warehouse.cpp.o.d
+  FLAGS = -g -fdiagnostics-color=always
+  INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
+  OBJECT_DIR = CMakeFiles/supplier.dir
+  OBJECT_FILE_DIR = CMakeFiles/supplier.dir/src
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target supplier
@@ -71,7 +78,7 @@ build CMakeFiles/supplier.dir/src/utilities.cpp.o: CXX_COMPILER__supplier_unscan
 #############################################
 # Link the executable bin/supplier
 
-build bin/supplier: CXX_EXECUTABLE_LINKER__supplier_Debug CMakeFiles/supplier.dir/src/supplier.cpp.o CMakeFiles/supplier.dir/src/utilities.cpp.o
+build bin/supplier: CXX_EXECUTABLE_LINKER__supplier_Debug CMakeFiles/supplier.dir/src/supplier.cpp.o CMakeFiles/supplier.dir/src/utilities.cpp.o CMakeFiles/supplier.dir/src/warehouse.cpp.o
   FLAGS = -g
   OBJECT_DIR = CMakeFiles/supplier.dir
   POST_BUILD = :
@@ -164,6 +171,38 @@ build bin/director: CXX_EXECUTABLE_LINKER__director_Debug CMakeFiles/director.di
   TARGET_FILE = bin/director
   TARGET_PDB = director.dbg
 
+# =============================================================================
+# Object build statements for EXECUTABLE target utils
+
+
+#############################################
+# Order-only phony target for utils
+
+build cmake_object_order_depends_target_utils: phony || .
+
+build CMakeFiles/utils.dir/src/utilities.cpp.o: CXX_COMPILER__utils_unscanned_Debug /home/andrzej/Documents/SO/fabryka/src/utilities.cpp || cmake_object_order_depends_target_utils
+  DEP_FILE = CMakeFiles/utils.dir/src/utilities.cpp.o.d
+  FLAGS = -g -fdiagnostics-color=always
+  INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
+  OBJECT_DIR = CMakeFiles/utils.dir
+  OBJECT_FILE_DIR = CMakeFiles/utils.dir/src
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target utils
+
+
+#############################################
+# Link the executable bin/utils
+
+build bin/utils: CXX_EXECUTABLE_LINKER__utils_Debug CMakeFiles/utils.dir/src/utilities.cpp.o
+  FLAGS = -g
+  OBJECT_DIR = CMakeFiles/utils.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = bin/utils
+  TARGET_PDB = utils.dbg
+
 
 #############################################
 # Utility command for edit_cache
@@ -196,6 +235,8 @@ build factory: phony bin/factory
 
 build supplier: phony bin/supplier
 
+build utils: phony bin/utils
+
 # =============================================================================
 # Folder targets.
 
@@ -204,7 +245,7 @@ build supplier: phony bin/supplier
 #############################################
 # Folder: /home/andrzej/Documents/SO/fabryka/cmake-build-debug
 
-build all: phony bin/supplier bin/factory bin/director
+build all: phony bin/supplier bin/factory bin/director bin/utils
 
 # =============================================================================
 # Built-in targets

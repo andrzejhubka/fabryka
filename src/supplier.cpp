@@ -5,9 +5,9 @@
 #include <mutex>
 #include <unistd.h>
 
-// definicja semaforow
-
-std::mutex mutex_send;
+bool supplier_x_run{true};
+bool supplier_y_run{true};
+bool supplier_z_run{true};
 
 int main()
 {
@@ -23,18 +23,14 @@ Supplier::Supplier()
     // probojemy podlaczyc sie do semaforow:
     m_sem_id = utils::get_semid(m_key_ipc);
 
-    // probojemy podlaczyc sie do kolejki
-    m_msg_id = utils::get_msid(m_key_ipc);
+    // api magazynu
+    m_warehouse = warehouse::WarehouseManager(m_key_ipc);
 
     // domyslnie producent nic nie wyprodukowal
     m_produced = 0;
 
-    // i nie wyslal
-    utils::semafor_set(m_sem_id, sem_sended_x, 0);
-    utils::semafor_set(m_sem_id, sem_sended_y, 0);
-    utils::semafor_set(m_sem_id, sem_sended_z, 0);
 
-    // utworzenie trzech źrodel (watkow) wysylania produktow
+    // watki
     m_threads.emplace_back(&Supplier::supply_x, this);
     m_threads.emplace_back(&Supplier::supply_y, this);
     m_threads.emplace_back(&Supplier::supply_z, this);
@@ -55,88 +51,69 @@ Supplier::~Supplier()
 void Supplier::supply_x()
 {
     // generuj produkt x
-    utils::Product towar(0, utils::X, 0);
+    utils::ProductX towar(0);
     int id = 0;
     int waga = 10;
 
-    while (true)
+    while (supplier_x_run)
     {
-        // UWAGA: SEMAFORP W ODWROTNEJ KOLEJNOSCI: POTENCJALNY DEADLOCK.
-        // DOSTAWCA MOZE ZAJAC KOLEJKE, FABRYKA BEDZIE CZEKALA NA PRODUKTY I NIE DA ZAMOWIEN, A DOSTAWCA BEDZIE TEZ NA NIE CZEKAL
-        utils::semafor_v(m_sem_id, sem_sended_x, 1);
-        utils::semafor_p(m_sem_id, sem_ordered_x, 1);
 
         sleep(speed_supply_x); // trwa produkcja
 
         // generuj produkt
-        waga = utils::random_number(1, 20);
-        towar.set_id(0);
-        towar.set_weight(waga);
+        towar.m_weight = utils::random_number(1, 20);
 
         // wyslij produkt
         {
-            std::lock_guard<std::mutex> lock(mutex_send);
-            utils::send_product_to_queue(m_msg_id, towar, 1);
-            towar.describe();
+            utils::semafor_p(m_sem_id, sem_shelf_x, 1);
+            m_warehouse.insert_x(towar);
+            utils::semafor_v(m_sem_id, sem_shelf_x, 1);
         }
     }
 }
 void Supplier::supply_y()
 {
-    // generuj produkt y
-    utils::Product towar(0, utils::Y, 0);
+    // generuj produkt x
+    utils::ProductY towar(0);
     int id = 0;
     int waga = 10;
 
-    while (true)
+    while (supplier_y_run)
     {
-        // UWAGA: SEMAFORP W ODWROTNEJ KOLEJNOSCI: POTENCJALNY DEADLOCK.
-        // DOSTAWCA MOZE ZAJAC KOLEJKE, FABRYKA BEDZIE CZEKALA NA PRODUKTY I NIE DA ZAMOWIEN, A DOSTAWCA BEDZIE TEZ NA NIE CZEKAL
-        utils::semafor_v(m_sem_id, sem_sended_y, 1);
-        utils::semafor_p(m_sem_id, sem_ordered_y, 1);
 
-        sleep(speed_supply_y); // trwa produkcja
+        sleep(speed_supply_x); // trwa produkcja
 
         // generuj produkt
-        waga = utils::random_number(1, 20);
-        towar.set_id(0);
-        towar.set_weight(waga);
+        towar.m_weight = utils::random_number(1, 20);
 
         // wyslij produkt
         {
-            std::lock_guard<std::mutex> lock(mutex_send);
-            utils::send_product_to_queue(m_msg_id, towar, 1);
-            towar.describe();
+            utils::semafor_p(m_sem_id, sem_shelf_y, 1);
+            m_warehouse.insert_y(towar);
+            utils::semafor_v(m_sem_id, sem_shelf_y, 1);
         }
     }
 }
 void Supplier::supply_z()
 {
-    // generuj produkt y
-    utils::Product towar(0, utils::Z, 0);
+    // generuj produkt x
+    utils::ProductZ towar(0, 0);
     int id = 0;
     int waga = 10;
 
-    while (true)
+    while (supplier_z_run)
     {
-        // UWAGA: SEMAFORP W ODWROTNEJ KOLEJNOSCI: POTENCJALNY DEADLOCK.
-        // DOSTAWCA MOZE ZAJAC KOLEJKE, FABRYKA BEDZIE CZEKALA NA PRODUKTY I NIE DA ZAMOWIEN, A DOSTAWCA BEDZIE TEZ NA NIE CZEKAL
-        utils::semafor_v(m_sem_id, sem_sended_z, 1);
-        utils::semafor_p(m_sem_id, sem_ordered_z, 1);
-        //utils::semafor_p(m_sem_id, sem_queue, 1);
 
-        sleep(speed_supply_z); // trwa produkcja
+        sleep(speed_supply_x); // trwa produkcja
 
         // generuj produkt
-        waga = utils::random_number(1, 20);
-        towar.set_id(0);
-        towar.set_weight(waga);
-
+        towar.m_weight = utils::random_number(1, 20);
+        towar.m_weight = utils::random_number(1, 20);
         // wyslij produkt
         {
-            std::lock_guard<std::mutex> lock(mutex_send);
-            utils::send_product_to_queue(m_msg_id, towar, 1);
-            towar.describe();
+            utils::semafor_p(m_sem_id, sem_shelf_z, 1);
+            m_warehouse.insert_z(towar);
+            utils::semafor_v(m_sem_id, sem_shelf_z, 1);
         }
     }
 }

@@ -18,7 +18,6 @@ int main()
 }
 
 Factory::Factory()
-:   m_magazyn(warehouse(60, 0))
 {
     std::cout<<"\n=============== Factory: inicjalizacja ==============="<<std::endl;
 
@@ -28,25 +27,15 @@ Factory::Factory()
     // probojemy podlaczyc sie do semaforow:
     m_sem_id = utils::get_semid(m_key_ipc);
 
-    // probojemy podlaczyc sie do kolejki
-    m_msg_id = utils::get_msid(m_key_ipc);
+    // api do zarzadzzania magazynem
+    m_magazyn = warehouse::WarehouseManager(m_key_ipc);
 
-    // ladujemy magazyn z pliku
-    m_magazyn.load_state("/home/andrzej/Documents/SO/fabryka/data/warehouse_state");
-
-
-    // watek managera
+    // watki
     manager_THREAD = std::thread(&Factory::thread_manager, this);
-
-    // utworz watki dla maszyn A i B
     worker_a_THREAD = std::thread(&Factory::thread_worker_a, this);
     worker_b_THREAD = std::thread(&Factory::thread_worker_b, this);
 
-    // utworz watek dla magazynu
-    warehouse_THREAD = std::thread (&warehouse::working_thread, &m_magazyn);
-
     std::cout<<"======================= SUKCES =======================\n"<<std::endl;
-
 
 }
 
@@ -54,7 +43,6 @@ Factory::~Factory()
 {
     worker_a_THREAD.join();
     worker_b_THREAD.join();
-    warehouse_THREAD.join();
     manager_THREAD.join();
 }
 
@@ -62,10 +50,11 @@ Factory::~Factory()
 void Factory::thread_worker_a()
 {
     // gdy pobierzemy produkty przechowywujemy je tutaj
-    utils::Product containter_x = utils::Product(0, utils::X, 10 );
-    utils::Product containter_y = utils::Product(0, utils::Y, 10 );
-    utils::Product containter_z = utils::Product(0, utils::Z, 10);
+    auto containter_x = utils::ProductX(0);
+    auto containter_y = utils::ProductY(0);
+    auto containter_z = utils::ProductZ(0, 0);
 
+    //
     while (machine_a_run)
     {
         //pobieramy X
@@ -101,11 +90,11 @@ void Factory::thread_worker_a()
 void Factory::thread_worker_b()
 {
     // gdy pobierzemy produkty przechowywujemy je tutaj
-    utils::Product containter_x = utils::Product(0, utils::X, 10 );
-    utils::Product containter_y = utils::Product(0, utils::Y, 10 );
-    utils::Product containter_z = utils::Product(0, utils::Z, 10);
-
-    while (machine_b_run)
+    auto containter_x = utils::ProductX(0);
+    auto containter_y = utils::ProductY(0);
+    auto containter_z = utils::ProductZ(0, 0);
+    //
+    while (machine_a_run)
     {
         //pobieramy X
         if (m_magazyn.grab_x(containter_x) == -1)
@@ -120,7 +109,6 @@ void Factory::thread_worker_b()
             // gdy dostaniesz odmowe/nie uda sie proboj dalej lub sie wylacz
             continue;
         }
-
         // pobieramy z
         if (m_magazyn.grab_z(containter_z) == -1)
         {
@@ -133,7 +121,8 @@ void Factory::thread_worker_b()
         std::cout<<"Maszyna B: Wyprodukowano produkt z x, y, z. Wazy: "<<containter_x.m_weight+containter_y.m_weight+containter_z.m_weight<<" kg.\n";
     }
 
-    std::cout<<"Maszyna B: zakonczono produkcje!\n";
+    std::cout<<"Maszyna A: zakonczono produkcje\n";
+
 }
 void Factory::thread_manager()
 {
@@ -150,7 +139,6 @@ void Factory::thread_manager()
             case 0:
                 {
                     std::cout<<"Fabryka: otrzymano polecenie 1\n";
-                    m_magazyn.stop_working(true);
                     break;
                 }
             case 1:
@@ -163,7 +151,6 @@ void Factory::thread_manager()
                 {
                     std::cout<<"Fabryka: otrzymano polecenie 3\n";
                     stop_workring(); // KOLEJNOSC JEST WAZNA! gdybym zapisal magazyn do pliku i maszyna zdazyla pobrac produkt, po odczytaiu stanu magazynu od nowa ten produkt by sie zdublowal
-                    m_magazyn.stop_working(true);
                     break;
                 }
             case 3:
@@ -184,7 +171,6 @@ void Factory::stop_workring()
     machine_b_run = false;
 
     // obudz te maszyny ktore czekaja na produkt
-    m_magazyn.wake_machines();
 }
 
 

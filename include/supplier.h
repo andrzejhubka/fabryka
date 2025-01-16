@@ -3,7 +3,14 @@
 #include <thread>
 #include <vector>
 #include <sys/types.h>
+#include "warehouse.h"
 #include <mutex>
+
+// praca dostawcow
+extern bool supplier_x_run;
+extern bool supplier_y_run;
+extern bool supplier_z_run;
+
 
 class Supplier
 {
@@ -18,13 +25,12 @@ class Supplier
     // dane do ipc
     key_t m_key_ipc;
     int m_sem_id;
-    int m_msg_id;
+
+    // api do magazynu
+    warehouse::WarehouseManager m_warehouse;
 
     // ilosc wyprodukowanych sztuk
     int m_produced;
-
-    // OCHRONA SYNCHRNOIZACJI
-    std::mutex mutex_send;
 
     private:
         std::vector<std::thread> m_threads;
