@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 
 }
 
-director::director(long warehouse_capacity)
+director::director(long warehouse_capacity_units)
 {
     std::cout<<"\n=============== DIRECTOR: inicjalizacja ==============="<<std::endl;
     // generowaie klucza
@@ -57,15 +57,15 @@ director::director(long warehouse_capacity)
     }
     std::cout << "semid: " << m_semid << std::endl;
 
-    // pojemnosc magazynu musi byc podzielna przez 12 ;
-    if (warehouse_capacity % 12 != 0)
+    // ilosc jednostek pojemnosci magazynu musi byc podzielna przez 6 ;
+    if (warehouse_capacity_units % 6 != 0)
     {
-        warehouse_capacity = (warehouse_capacity / 12) * 12;
+        warehouse_capacity_units = (warehouse_capacity_units / 6) * 6;
     }
-    int shelf_capacity = warehouse_capacity / 12;
 
     // otworz segment pamieciwspoldzielonej dla magazynu
-    if  (utils::utworz_segment_pamieci_dzielonej(&m_shared, m_key_ipc, warehouse_capacity) == IPC_RESULT_ERROR)
+    long segment_size = warehouse_capacity_units*UNIT_SIZE + sizeof(warehouse::warehouse_data);
+    if  (utils::utworz_segment_pamieci_dzielonej(&m_shared, m_key_ipc, segment_size) == IPC_RESULT_ERROR)
     {
         std::cerr << "Blad tworzenia segmentu" << std::endl;
         exit(-1);
@@ -73,10 +73,11 @@ director::director(long warehouse_capacity)
     std::cout << "pamiec wspoldzielona id: " << m_shared.id << std::endl;
 
     // dolacz segment
-    m_shared.adres = utils::dolacz_segment_pamieci(m_shared.id);
+    m_warehouse = warehouse::WarehouseManager(m_key_ipc);
 
     // zainicjuj dane magazynu
-    //memcpy(m_shared)
+    m_warehouse.initiailze(warehouse_capacity_units);
+
 
 
     std::cout<<"======================= SUKCES =======================\n"<<std::endl;
@@ -117,23 +118,23 @@ void director::main_loop()
             case 1:
             {
                 command = utils::stop_magazyn;
-                utils::semafor_v(m_memid, sem_command, 1);
+                utils::semafor_v(m_semid, sem_command, 1);
                 break;
             }
             case 2:
             {
 
-                utils::semafor_v(m_memid, sem_command, 2);
+                utils::semafor_v(m_semid, sem_command, 2);
                 break;
             }
             case 3:
             {
-                utils::semafor_v(m_memid, sem_command, 3);
+                utils::semafor_v(m_semid, sem_command, 3);
                 break;
             }
             case 4:
             {
-                utils::semafor_v(m_memid, sem_command, 4);
+                utils::semafor_v(m_semid, sem_command, 4);
                 break;
             }
             case 5:

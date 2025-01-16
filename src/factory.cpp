@@ -32,7 +32,7 @@ Factory::Factory()
 
     // watki
     manager_THREAD = std::thread(&Factory::thread_manager, this);
-    worker_a_THREAD = std::thread(&Factory::thread_worker_a, this);
+    worker_a_THREAD = std::thread(&Factory::thread_worker_a,  this);
     worker_b_THREAD = std::thread(&Factory::thread_worker_b, this);
 
     std::cout<<"======================= SUKCES =======================\n"<<std::endl;
