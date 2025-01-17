@@ -15,22 +15,22 @@ namespace warehouse
         long capacity;
         int products_per_shelf;
         // dane polki x
-        int x_offset;
-        char* x_pisanie;
-        char* x_czytanie;
+        int x_offset; // wzgledem poczatku zegmentu pamieci wspoldzielnej
+        int x_offset_pisanie; // ozgledem poczatku tablicy;
+        int x_offset_czytanie; // wzgledem poczatku polki x; zeby modulo dzialalo
         int x_wolne;
         int x_zajete;
 
         // dane polki y
         int y_offset;
-        char* y_pisanie;
-        char* y_czytanie;
+        int y_offset_pisanie;
+        int y_offset_czytanie;
         int y_wolne;
         int y_zajete;
         // dane polki z
         int z_offset;
-        char* z_pisanie;
-        char* z_czytanie;
+        int z_offset_pisanie;
+        int z_offset_czytanie;
         int z_wolne;
         int z_zajete;
     };
@@ -39,29 +39,38 @@ namespace warehouse
     {
     public:
         // konstruktory & destruktory
-        WarehouseManager(key_t ipckey);
+        WarehouseManager(key_t ipckey, int semid);
         WarehouseManager();
         ~WarehouseManager();
 
-        // kontrola pamieci wszpoldzielonej
+        // ipc
+        int m_semid;
         int m_sharedid ;
         char* m_sharedptr;
 
         // stan magazynu
         warehouse_data *m_data;
 
+        // indywidualne adresy polek dla kazdego procesu
+        char* x_shelf_adress;
+        char* y_shelf_adress;
+        char* z_shelf_adress;
+
+        // po zapisaniu/odczytaniu przesuwamy wskaznik odczytu/zapisu na kolejny objekt
+        int offset_move_to_next(int &offset, size_t object_size, int shelf_capacity);
+
         // inicjalizacja wskaznikow i danych o magazynie -> raczej tylko dyrektor jej uzywa
         int initiailze(long capacity);
 
         // dodanie czegos do magazynu
-        int insert_x(utils::ProductX container);
-        int insert_y(utils::ProductY container);
-        int insert_z(utils::ProductZ container);
+        int insert_x(utils::ProductX* container);
+        int insert_y(utils::ProductY* container);
+        int insert_z(utils::ProductZ* container);
 
         // wydawanie produktow pracownikom
-        int grab_x(utils::ProductX container);
-        int grab_y(utils::ProductY container);
-        int grab_z(utils::ProductZ container);
+        int grab_x(utils::ProductX* container);
+        int grab_y(utils::ProductY* container);
+        int grab_z(utils::ProductZ* container);
 
         // zapisanie stanu do pliku
         void save_state(const std::string& filePath) const;

@@ -9,9 +9,9 @@
 #define IPC_RESULT_ERROR -1
 
 // definicja semaforow
-#define sem_do_odczytania_x 0
-#define sem_do_odczytania_y 1
-#define sem_do_odczytania_z 2
+#define sem_dostepne_x 0
+#define sem_dostepne_y 1
+#define sem_dostepne_z 2
 
 #define sem_wolne_miejsca_x 3
 #define sem_wolne_miejsca_y 4
@@ -24,8 +24,8 @@
 #define sem_command 6
 
 // czasy wykonywania czynnosci
-#define speed_machine_a 30
-#define speed_machine_b 20
+#define speed_machine_a 1
+#define speed_machine_b 1
 #define speed_supply_x 1
 #define speed_supply_y 1
 #define speed_supply_z 1

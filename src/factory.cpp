@@ -28,7 +28,7 @@ Factory::Factory()
     m_sem_id = utils::get_semid(m_key_ipc);
 
     // api do zarzadzzania magazynem
-    m_magazyn = warehouse::WarehouseManager(m_key_ipc);
+    m_magazyn = warehouse::WarehouseManager(m_key_ipc, m_sem_id);
 
     // watki
     manager_THREAD = std::thread(&Factory::thread_manager, this);
@@ -58,21 +58,21 @@ void Factory::thread_worker_a()
     while (machine_a_run)
     {
         //pobieramy X
-        if (m_magazyn.grab_x(containter_x) == -1)
+        if (m_magazyn.grab_x(&containter_x) == -1)
         {
             // gdy dostaniesz odmowe/nie uda sie proboj dalej lub sie wylacz
             continue;
         }
 
         // pobieramy y
-        if (m_magazyn.grab_y(containter_y) == -1)
+        if (m_magazyn.grab_y(&containter_y) == -1)
         {
             // gdy dostaniesz odmowe/nie uda sie proboj dalej lub sie wylacz
             continue;
         }
 
         // pobieramy z
-        if (m_magazyn.grab_z(containter_z) == -1)
+        if (m_magazyn.grab_z(&containter_z) == -1)
         {
             // gdy dostaniesz odmowe/nie uda sie proboj dalej lub sie wylacz
             continue;
@@ -97,20 +97,20 @@ void Factory::thread_worker_b()
     while (machine_a_run)
     {
         //pobieramy X
-        if (m_magazyn.grab_x(containter_x) == -1)
+        if (m_magazyn.grab_x(&containter_x) == -1)
         {
             // gdy dostaniesz odmowe/nie uda sie proboj dalej lub sie wylacz
             continue;
         }
 
         // pobieramy y
-        if (m_magazyn.grab_y(containter_y) == -1)
+        if (m_magazyn.grab_y(&containter_y) == -1)
         {
             // gdy dostaniesz odmowe/nie uda sie proboj dalej lub sie wylacz
             continue;
         }
         // pobieramy z
-        if (m_magazyn.grab_z(containter_z) == -1)
+        if (m_magazyn.grab_z(&containter_z) == -1)
         {
             // gdy dostaniesz odmowe/nie uda sie proboj dalej lub sie wylacz
             continue;

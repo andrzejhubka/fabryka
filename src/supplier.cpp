@@ -24,7 +24,7 @@ Supplier::Supplier()
     m_sem_id = utils::get_semid(m_key_ipc);
 
     // api magazynu
-    m_warehouse = warehouse::WarehouseManager(m_key_ipc);
+    m_warehouse = warehouse::WarehouseManager(m_key_ipc, m_sem_id);
 
     // domyslnie producent nic nie wyprodukowal
     m_produced = 0;
@@ -52,8 +52,7 @@ void Supplier::supply_x()
 {
     // generuj produkt x
     utils::ProductX towar(0);
-    int id = 0;
-    int waga = 10;
+
 
     while (supplier_x_run)
     {
@@ -61,14 +60,10 @@ void Supplier::supply_x()
         sleep(speed_supply_x); // trwa produkcja
 
         // generuj produkt
-        towar.m_weight = utils::random_number(1, 20);
-
+        towar.m_weight = utils::random_number(1, 20);;
         // wyslij produkt
-        {
-            utils::semafor_p(m_sem_id, sem_shelf_x, 1);
-            m_warehouse.insert_x(towar);
-            utils::semafor_v(m_sem_id, sem_shelf_x, 1);
-        }
+        m_warehouse.insert_x(&towar);
+
     }
 }
 void Supplier::supply_y()
@@ -80,18 +75,10 @@ void Supplier::supply_y()
 
     while (supplier_y_run)
     {
-
-        sleep(speed_supply_x); // trwa produkcja
-
+        sleep(speed_supply_y); // trwa produkcja
         // generuj produkt
         towar.m_weight = utils::random_number(1, 20);
-
-        // wyslij produkt
-        {
-            utils::semafor_p(m_sem_id, sem_shelf_y, 1);
-            m_warehouse.insert_y(towar);
-            utils::semafor_v(m_sem_id, sem_shelf_y, 1);
-        }
+        m_warehouse.insert_y(&towar);
     }
 }
 void Supplier::supply_z()
@@ -103,17 +90,11 @@ void Supplier::supply_z()
 
     while (supplier_z_run)
     {
-
-        sleep(speed_supply_x); // trwa produkcja
+        sleep(speed_supply_z); // trwa produkcja
 
         // generuj produkt
         towar.m_weight = utils::random_number(1, 20);
         towar.m_weight = utils::random_number(1, 20);
-        // wyslij produkt
-        {
-            utils::semafor_p(m_sem_id, sem_shelf_z, 1);
-            m_warehouse.insert_z(towar);
-            utils::semafor_v(m_sem_id, sem_shelf_z, 1);
-        }
+        m_warehouse.insert_z(&towar);
     }
 }

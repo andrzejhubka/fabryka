@@ -73,7 +73,7 @@ director::director(long warehouse_capacity_units)
     std::cout << "pamiec wspoldzielona id: " << m_shared.id << std::endl;
 
     // dolacz segment
-    m_warehouse = warehouse::WarehouseManager(m_key_ipc);
+    m_warehouse = warehouse::WarehouseManager(m_key_ipc, m_semid);
 
     // zainicjuj dane magazynu
     m_warehouse.initiailze(warehouse_capacity_units);
