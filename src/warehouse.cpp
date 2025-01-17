@@ -1,5 +1,7 @@
 #include "warehouse.h"
 #include <cstring>
+#include <director.h>
+
 #include "utilities.h"
 #include  <iostream>
 #include <fstream>
@@ -37,7 +39,7 @@ namespace warehouse
     WarehouseManager::~WarehouseManager()
     {
         // zapisujemy stan do pliku
-        save_state("/home/andrzej/Documents/SO/fabryka/data/warehouse_state");
+
     }
 
     int WarehouseManager::initiailze(long capacity)
@@ -74,15 +76,6 @@ namespace warehouse
         m_data->z_offset_czytanie = 0;
         m_data->z_offset_pisanie  = 0;
 
-
-        // testowanie offsetów
-        std::cout << "Adres pamieci: " << std::dec << reinterpret_cast<uintptr_t>(m_sharedptr) << std::endl;
-        std::cout << "Adres pisania z: " << std::dec << reinterpret_cast<uintptr_t>(m_sharedptr+m_data->z_offset_pisanie) << std::endl;
-
-        std::cout<<"Waga danych:"<<sizeof(warehouse_data)<<std::endl;
-        std::cout<<"Offset X:"<<m_data->x_offset<<std::endl;
-        std::cout<<"Offset y:"<<m_data->y_offset<<std::endl;
-        std::cout<<"Offset z:"<<m_data->z_offset<<std::endl;
         std::cout<<"Pomyslnie zainicjowano pojemnosc magazynu: " << capacity<<std::endl;
 
         // ustawienie miejsca w magazynie
@@ -94,14 +87,32 @@ namespace warehouse
 
 
     // --------------------------ZAPIS/ODCZYT DO PLIKU --------------------------
-    void WarehouseManager::load_state(const std::string& filePath)
+    void WarehouseManager::save_to_file(const std::string& filePath) const
     {
+        std::ofstream file(filePath, std::ios::binary);
+        std::cout<<"Sciezka:"<<WAREHOUSE_PATH<<std::endl;
+        if (!file)
+        {
+            utils::odlacz_segment_pamieci_dzielonej(m_sharedptr); // Odłącz segment pamięci przed zgłoszeniem błędu
+            throw std::runtime_error("Nie udało się otworzyć pliku do zapisu.");
+        }
 
+        long memory_size = sizeof(warehouse_data) + m_data->capacity * sizeof(UNIT_SIZE);
+        file.write(m_sharedptr, memory_size);
+        file.close();
     }
 
-    void WarehouseManager::save_state(const std::string& filePath) const
+    void WarehouseManager::load_from_file(const std::string& filePath)
     {
+        std::ifstream file(filePath, std::ios::binary);
+        if (!file)
+        {
+            utils::odlacz_segment_pamieci_dzielonej(m_sharedptr);
+            throw std::runtime_error("Nie udało się otworzyć pliku do odczytu.");
+        }
 
+        long memory_size = sizeof(warehouse_data) + m_data->capacity * sizeof(UNIT_SIZE);
+        file.read(m_sharedptr, memory_size);
     }
     // --------------------------Zarzadzanie wskaznikami--------------------------
     int WarehouseManager::offset_move_to_next(int& offset, size_t object_size, int shelf_capacity)
@@ -131,6 +142,7 @@ namespace warehouse
         }
         std::cout<<"MAGAZYN: pobrano produkt X"<<std::endl;
         offset_move_to_next(m_data->x_offset_czytanie, sizeof(utils::ProductX), m_data->products_per_shelf);
+        m_data->x_wolne += 1;
         utils::semafor_v(m_semid, sem_shelf_x, 1);
         utils::semafor_v(m_semid, sem_wolne_miejsca_x, 1);
         return 1;
@@ -152,6 +164,7 @@ namespace warehouse
         }
         std::cout<<"MAGAZYN: pobrano produkt Y"<<std::endl;
         offset_move_to_next(m_data->y_offset_czytanie, sizeof(utils::ProductY), m_data->products_per_shelf);
+        m_data->y_wolne += 1;
         utils::semafor_v(m_semid, sem_shelf_y, 1);
         utils::semafor_v(m_semid, sem_wolne_miejsca_y, 1);
         return 1;
@@ -172,6 +185,7 @@ namespace warehouse
         }
         std::cout<<"MAGAZYN: pobrano produkt Z"<<std::endl;
         offset_move_to_next(m_data->z_offset_czytanie, sizeof(utils::ProductZ), m_data->products_per_shelf);
+        m_data->z_wolne += 1;
         utils::semafor_v(m_semid, sem_shelf_z, 1);
         utils::semafor_v(m_semid, sem_wolne_miejsca_z, 1);
         return 1;
@@ -192,6 +206,7 @@ namespace warehouse
         }
         std::cout<<"MAGAZYN: dostarczono produkt X"<<std::endl;
         offset_move_to_next(m_data->x_offset_pisanie, sizeof(utils::ProductX), m_data->products_per_shelf);
+        m_data->x_zajete += 1;
         utils::semafor_v(m_semid, sem_shelf_x, 1);
         utils::semafor_v(m_semid, sem_dostepne_x, 1);
         return 1;
@@ -204,6 +219,7 @@ namespace warehouse
         memcpy(y_shelf_adress+m_data->y_offset_pisanie, container, sizeof(utils::ProductY));
         std::cout<<"MAGAZYN: dostarczono produkt Y"<<std::endl;
         offset_move_to_next(m_data->y_offset_pisanie, sizeof(utils::ProductY), m_data->products_per_shelf);
+        m_data->y_zajete += 1;
         utils::semafor_v(m_semid, sem_shelf_y, 1);
         utils::semafor_v(m_semid, sem_dostepne_y, 1);
         return 1;
@@ -216,6 +232,7 @@ namespace warehouse
         memcpy(z_shelf_adress+m_data->z_offset_pisanie, container, sizeof(utils::ProductZ));
         std::cout<<"MAGAZYN: dostarczono produkt Z"<<std::endl;
         offset_move_to_next(m_data->z_offset_pisanie, sizeof(utils::ProductZ), m_data->products_per_shelf);
+        m_data->z_zajete += 1;
         utils::semafor_v(m_semid, sem_shelf_z, 1);
         utils::semafor_v(m_semid, sem_dostepne_z, 1);
         return 1;
@@ -223,7 +240,13 @@ namespace warehouse
     // --------------------------DIAGNOSTYKA --------------------------
     void WarehouseManager::info()
     {
-        std::cout<<"Warehouse Capacity: "<<m_data->capacity<<std::endl;
+        std::cout<<"-----------INFORMACJE O MAGAZYNIE---------------- "<<std::endl;
+        std::cout<<"Pojemnosc : "<<m_data->capacity<<" jednostek"<<std::endl;
+        std::cout<<"Pojemnosc polek: "<<m_data->products_per_shelf<<std::endl;
+        std::cout<<"Przechowywane produkty x: "<<m_data->x_zajete<<std::endl;
+        std::cout<<"Przechowywane produkty y: "<<m_data->y_zajete<<std::endl;
+        std::cout<<"Przechowywane produkty z: "<<m_data->z_zajete<<std::endl;
+        std::cout<<"-------------------------------------------------"<<std::endl;
     }
 
 

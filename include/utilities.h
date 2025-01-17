@@ -4,6 +4,8 @@
 #include <sys/types.h>
 #include <iostream>
 
+// sciezka do pliku z magazynem
+#define WAREHOUSE_PATH "/home/andrzej/Documents/SO/fabryka/data/warehouse_state"
 
 // rodzaje bledow
 #define IPC_RESULT_ERROR -1
@@ -86,7 +88,7 @@ namespace utils
     int get_shared_id(key_t klucz);
 
     // odlaczenie segmentu z biezacego procesu
-    int odlacz_segment_pamieci_dzielonej(PamiecWspoldzielona *pDzielona);
+    int odlacz_segment_pamieci_dzielonej(char *adres);
 
     // ustawienie do usuniecia segmnetu
     int ustaw_do_usuniecia_segment(PamiecWspoldzielona *pDzielona);

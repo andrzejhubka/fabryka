@@ -73,9 +73,9 @@ namespace warehouse
         int grab_z(utils::ProductZ* container);
 
         // zapisanie stanu do pliku
-        void save_state(const std::string& filePath) const;
+        void save_to_file(const std::string& filePath) const;
         // wczytanie stanu z pliku
-        void load_state(const std::string& filePath);
+        void load_from_file(const std::string& filePath);
 
         // informacje o magazynie
         void info();

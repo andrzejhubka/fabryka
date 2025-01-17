@@ -9,6 +9,11 @@ bool supplier_x_run{true};
 bool supplier_y_run{true};
 bool supplier_z_run{true};
 
+#define test_sended_x_count 10
+#define test_sended_y_count 10
+#define test_sended_z_count 10
+
+
 int main()
 {
     Supplier Supplier;
@@ -53,17 +58,14 @@ void Supplier::supply_x()
     // generuj produkt x
     utils::ProductX towar(0);
 
-
-    while (supplier_x_run)
+    for (int i = 0; i < test_sended_x_count; i++)
+   // while (supplier_x_run)
     {
-
         sleep(speed_supply_x); // trwa produkcja
-
         // generuj produkt
         towar.m_weight = utils::random_number(1, 20);;
         // wyslij produkt
         m_warehouse.insert_x(&towar);
-
     }
 }
 void Supplier::supply_y()
@@ -73,7 +75,8 @@ void Supplier::supply_y()
     int id = 0;
     int waga = 10;
 
-    while (supplier_y_run)
+    for (int i = 0; i < test_sended_y_count; i++)
+    //while (supplier_y_run)
     {
         sleep(speed_supply_y); // trwa produkcja
         // generuj produkt
@@ -88,7 +91,8 @@ void Supplier::supply_z()
     int id = 0;
     int waga = 10;
 
-    while (supplier_z_run)
+    for (int i = 0; i < test_sended_z_count; i++)
+    //while (supplier_z_run)
     {
         sleep(speed_supply_z); // trwa produkcja
 

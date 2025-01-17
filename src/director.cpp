@@ -4,6 +4,7 @@
 #include "utilities.h"
 #include "warehouse.h"
 #include <unistd.h>
+#include <cstdlib>
 
 
 int main(int argc, char *argv[])
@@ -65,6 +66,8 @@ director::director(long warehouse_capacity_units)
 
     // otworz segment pamieciwspoldzielonej dla magazynu
     long segment_size = warehouse_capacity_units*UNIT_SIZE + sizeof(warehouse::warehouse_data);
+    std::cout<<sizeof(warehouse::warehouse_data)<<std::endl;
+    std::cout<<sizeof(warehouse_capacity_units*UNIT_SIZE)<<std::endl;
     if  (utils::utworz_segment_pamieci_dzielonej(&m_shared, m_key_ipc, segment_size) == IPC_RESULT_ERROR)
     {
         std::cerr << "Blad tworzenia segmentu" << std::endl;
@@ -106,7 +109,8 @@ void director::main_loop()
         std::cout << "2. Zatrzymaj fabryke" << std::endl;
         std::cout << "3. Zatrzymaj magazyn i fabryke. Zapisz stan magazynu" << std::endl;
         std::cout << "4. Zatrzymaj fabryke i nie zapamietuj stanu magazynu" << std::endl;
-        std::cout << "5. Zakoncz prace dyrektora" << std::endl;
+        std::cout << "5. Uruchom tryb monitorowania magazynu" << std::endl;
+        std::cout << "6. Zakoncz prace dyrektora" << std::endl;
         std::cout << "Wprowadz polecenie: ";
 
         int wybor;
@@ -117,14 +121,15 @@ void director::main_loop()
         {
             case 1:
             {
-                command = utils::stop_magazyn;
-                utils::semafor_v(m_semid, sem_command, 1);
+                m_warehouse.save_to_file(WAREHOUSE_PATH);
+                //command = utils::stop_magazyn;
+                //utils::semafor_v(m_semid, sem_command, 1);
                 break;
             }
             case 2:
             {
-
-                utils::semafor_v(m_semid, sem_command, 2);
+                m_warehouse.load_from_file(WAREHOUSE_PATH);
+               // utils::semafor_v(m_semid, sem_command, 2);
                 break;
             }
             case 3:
@@ -139,6 +144,11 @@ void director::main_loop()
             }
             case 5:
             {
+                m_warehouse.info();
+                break;
+            }
+            case 6:
+            {
                 m_run = false;
                 break;
             }
@@ -150,4 +160,7 @@ void director::main_loop()
         }
     }
 }
+
+
+
 

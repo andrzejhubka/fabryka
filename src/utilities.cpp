@@ -178,9 +178,9 @@ namespace utils
         pDzielona->adres = adres;
         return 0;
     }
-    int odlacz_segment_pamieci_dzielonej(PamiecWspoldzielona *pDzielona)
+    int odlacz_segment_pamieci_dzielonej(char *adres)
     {
-        int result = shmdt(pDzielona->adres);
+        int result = shmdt(adres);
         if(result == -1)
         {
             perror("Blad odlaczania segmentu\n");

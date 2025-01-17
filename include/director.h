@@ -6,7 +6,7 @@
 
 // ------ ustawienia ---------
 #define MAX_SHARED_RAM 0.1 // procentowo, 1 to calosc
-#define UNIT_SIZE 2; // wielkoscc jednej jednostki magazynowej w bajtach
+#define UNIT_SIZE 2 // wielkoscc jednej jednostki magazynowej w bajtach
 
 class director
 {
@@ -25,6 +25,7 @@ class director
 
     void main_loop();
     void stop_working();
+
 
 };
 
