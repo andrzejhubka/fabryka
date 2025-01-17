@@ -55,6 +55,8 @@ build CMakeFiles/supplier.dir/src/supplier.cpp.o: CXX_COMPILER__supplier_unscann
   INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
   OBJECT_DIR = CMakeFiles/supplier.dir
   OBJECT_FILE_DIR = CMakeFiles/supplier.dir/src
+  TARGET_COMPILE_PDB = CMakeFiles/supplier.dir/
+  TARGET_PDB = bin/supplier.pdb
 
 build CMakeFiles/supplier.dir/src/utilities.cpp.o: CXX_COMPILER__supplier_unscanned_Debug /home/andrzej/Documents/SO/fabryka/src/utilities.cpp || cmake_object_order_depends_target_supplier
   DEP_FILE = CMakeFiles/supplier.dir/src/utilities.cpp.o.d
@@ -62,6 +64,17 @@ build CMakeFiles/supplier.dir/src/utilities.cpp.o: CXX_COMPILER__supplier_unscan
   INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
   OBJECT_DIR = CMakeFiles/supplier.dir
   OBJECT_FILE_DIR = CMakeFiles/supplier.dir/src
+  TARGET_COMPILE_PDB = CMakeFiles/supplier.dir/
+  TARGET_PDB = bin/supplier.pdb
+
+build CMakeFiles/supplier.dir/src/warehouse.cpp.o: CXX_COMPILER__supplier_unscanned_Debug /home/andrzej/Documents/SO/fabryka/src/warehouse.cpp || cmake_object_order_depends_target_supplier
+  DEP_FILE = CMakeFiles/supplier.dir/src/warehouse.cpp.o.d
+  FLAGS = -g -fdiagnostics-color=always
+  INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
+  OBJECT_DIR = CMakeFiles/supplier.dir
+  OBJECT_FILE_DIR = CMakeFiles/supplier.dir/src
+  TARGET_COMPILE_PDB = CMakeFiles/supplier.dir/
+  TARGET_PDB = bin/supplier.pdb
 
 
 # =============================================================================
@@ -71,13 +84,14 @@ build CMakeFiles/supplier.dir/src/utilities.cpp.o: CXX_COMPILER__supplier_unscan
 #############################################
 # Link the executable bin/supplier
 
-build bin/supplier: CXX_EXECUTABLE_LINKER__supplier_Debug CMakeFiles/supplier.dir/src/supplier.cpp.o CMakeFiles/supplier.dir/src/utilities.cpp.o
+build bin/supplier: CXX_EXECUTABLE_LINKER__supplier_Debug CMakeFiles/supplier.dir/src/supplier.cpp.o CMakeFiles/supplier.dir/src/utilities.cpp.o CMakeFiles/supplier.dir/src/warehouse.cpp.o
   FLAGS = -g
   OBJECT_DIR = CMakeFiles/supplier.dir
   POST_BUILD = :
   PRE_LINK = :
+  TARGET_COMPILE_PDB = CMakeFiles/supplier.dir/
   TARGET_FILE = bin/supplier
-  TARGET_PDB = supplier.dbg
+  TARGET_PDB = bin/supplier.pdb
 
 # =============================================================================
 # Object build statements for EXECUTABLE target factory
@@ -94,6 +108,8 @@ build CMakeFiles/factory.dir/src/factory.cpp.o: CXX_COMPILER__factory_unscanned_
   INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
   OBJECT_DIR = CMakeFiles/factory.dir
   OBJECT_FILE_DIR = CMakeFiles/factory.dir/src
+  TARGET_COMPILE_PDB = CMakeFiles/factory.dir/
+  TARGET_PDB = bin/factory.pdb
 
 build CMakeFiles/factory.dir/src/utilities.cpp.o: CXX_COMPILER__factory_unscanned_Debug /home/andrzej/Documents/SO/fabryka/src/utilities.cpp || cmake_object_order_depends_target_factory
   DEP_FILE = CMakeFiles/factory.dir/src/utilities.cpp.o.d
@@ -101,6 +117,8 @@ build CMakeFiles/factory.dir/src/utilities.cpp.o: CXX_COMPILER__factory_unscanne
   INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
   OBJECT_DIR = CMakeFiles/factory.dir
   OBJECT_FILE_DIR = CMakeFiles/factory.dir/src
+  TARGET_COMPILE_PDB = CMakeFiles/factory.dir/
+  TARGET_PDB = bin/factory.pdb
 
 build CMakeFiles/factory.dir/src/warehouse.cpp.o: CXX_COMPILER__factory_unscanned_Debug /home/andrzej/Documents/SO/fabryka/src/warehouse.cpp || cmake_object_order_depends_target_factory
   DEP_FILE = CMakeFiles/factory.dir/src/warehouse.cpp.o.d
@@ -108,6 +126,8 @@ build CMakeFiles/factory.dir/src/warehouse.cpp.o: CXX_COMPILER__factory_unscanne
   INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
   OBJECT_DIR = CMakeFiles/factory.dir
   OBJECT_FILE_DIR = CMakeFiles/factory.dir/src
+  TARGET_COMPILE_PDB = CMakeFiles/factory.dir/
+  TARGET_PDB = bin/factory.pdb
 
 
 # =============================================================================
@@ -122,8 +142,9 @@ build bin/factory: CXX_EXECUTABLE_LINKER__factory_Debug CMakeFiles/factory.dir/s
   OBJECT_DIR = CMakeFiles/factory.dir
   POST_BUILD = :
   PRE_LINK = :
+  TARGET_COMPILE_PDB = CMakeFiles/factory.dir/
   TARGET_FILE = bin/factory
-  TARGET_PDB = factory.dbg
+  TARGET_PDB = bin/factory.pdb
 
 # =============================================================================
 # Object build statements for EXECUTABLE target director
@@ -140,6 +161,8 @@ build CMakeFiles/director.dir/src/director.cpp.o: CXX_COMPILER__director_unscann
   INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
   OBJECT_DIR = CMakeFiles/director.dir
   OBJECT_FILE_DIR = CMakeFiles/director.dir/src
+  TARGET_COMPILE_PDB = CMakeFiles/director.dir/
+  TARGET_PDB = bin/director.pdb
 
 build CMakeFiles/director.dir/src/utilities.cpp.o: CXX_COMPILER__director_unscanned_Debug /home/andrzej/Documents/SO/fabryka/src/utilities.cpp || cmake_object_order_depends_target_director
   DEP_FILE = CMakeFiles/director.dir/src/utilities.cpp.o.d
@@ -147,6 +170,17 @@ build CMakeFiles/director.dir/src/utilities.cpp.o: CXX_COMPILER__director_unscan
   INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
   OBJECT_DIR = CMakeFiles/director.dir
   OBJECT_FILE_DIR = CMakeFiles/director.dir/src
+  TARGET_COMPILE_PDB = CMakeFiles/director.dir/
+  TARGET_PDB = bin/director.pdb
+
+build CMakeFiles/director.dir/src/warehouse.cpp.o: CXX_COMPILER__director_unscanned_Debug /home/andrzej/Documents/SO/fabryka/src/warehouse.cpp || cmake_object_order_depends_target_director
+  DEP_FILE = CMakeFiles/director.dir/src/warehouse.cpp.o.d
+  FLAGS = -g -fdiagnostics-color=always
+  INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
+  OBJECT_DIR = CMakeFiles/director.dir
+  OBJECT_FILE_DIR = CMakeFiles/director.dir/src
+  TARGET_COMPILE_PDB = CMakeFiles/director.dir/
+  TARGET_PDB = bin/director.pdb
 
 
 # =============================================================================
@@ -156,20 +190,56 @@ build CMakeFiles/director.dir/src/utilities.cpp.o: CXX_COMPILER__director_unscan
 #############################################
 # Link the executable bin/director
 
-build bin/director: CXX_EXECUTABLE_LINKER__director_Debug CMakeFiles/director.dir/src/director.cpp.o CMakeFiles/director.dir/src/utilities.cpp.o
+build bin/director: CXX_EXECUTABLE_LINKER__director_Debug CMakeFiles/director.dir/src/director.cpp.o CMakeFiles/director.dir/src/utilities.cpp.o CMakeFiles/director.dir/src/warehouse.cpp.o
   FLAGS = -g
   OBJECT_DIR = CMakeFiles/director.dir
   POST_BUILD = :
   PRE_LINK = :
+  TARGET_COMPILE_PDB = CMakeFiles/director.dir/
   TARGET_FILE = bin/director
-  TARGET_PDB = director.dbg
+  TARGET_PDB = bin/director.pdb
+
+# =============================================================================
+# Object build statements for EXECUTABLE target utils
+
+
+#############################################
+# Order-only phony target for utils
+
+build cmake_object_order_depends_target_utils: phony || .
+
+build CMakeFiles/utils.dir/src/utilities.cpp.o: CXX_COMPILER__utils_unscanned_Debug /home/andrzej/Documents/SO/fabryka/src/utilities.cpp || cmake_object_order_depends_target_utils
+  DEP_FILE = CMakeFiles/utils.dir/src/utilities.cpp.o.d
+  FLAGS = -g -fdiagnostics-color=always
+  INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
+  OBJECT_DIR = CMakeFiles/utils.dir
+  OBJECT_FILE_DIR = CMakeFiles/utils.dir/src
+  TARGET_COMPILE_PDB = CMakeFiles/utils.dir/
+  TARGET_PDB = bin/utils.pdb
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target utils
+
+
+#############################################
+# Link the executable bin/utils
+
+build bin/utils: CXX_EXECUTABLE_LINKER__utils_Debug CMakeFiles/utils.dir/src/utilities.cpp.o
+  FLAGS = -g
+  OBJECT_DIR = CMakeFiles/utils.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_COMPILE_PDB = CMakeFiles/utils.dir/
+  TARGET_FILE = bin/utils
+  TARGET_PDB = bin/utils.pdb
 
 
 #############################################
 # Utility command for edit_cache
 
 build CMakeFiles/edit_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /home/andrzej/Documents/SO/fabryka/cmake-build-debug && /snap/clion/310/bin/cmake/linux/x64/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+  COMMAND = cd /home/andrzej/Documents/SO/fabryka/cmake-build-debug && /snap/clion/314/bin/cmake/linux/x64/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
   DESC = No interactive CMake dialog available...
   restat = 1
 
@@ -180,7 +250,7 @@ build edit_cache: phony CMakeFiles/edit_cache.util
 # Utility command for rebuild_cache
 
 build CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /home/andrzej/Documents/SO/fabryka/cmake-build-debug && /snap/clion/310/bin/cmake/linux/x64/bin/cmake --regenerate-during-build -S/home/andrzej/Documents/SO/fabryka -B/home/andrzej/Documents/SO/fabryka/cmake-build-debug
+  COMMAND = cd /home/andrzej/Documents/SO/fabryka/cmake-build-debug && /snap/clion/314/bin/cmake/linux/x64/bin/cmake --regenerate-during-build -S/home/andrzej/Documents/SO/fabryka -B/home/andrzej/Documents/SO/fabryka/cmake-build-debug
   DESC = Running CMake to regenerate build system...
   pool = console
   restat = 1
@@ -196,6 +266,8 @@ build factory: phony bin/factory
 
 build supplier: phony bin/supplier
 
+build utils: phony bin/utils
+
 # =============================================================================
 # Folder targets.
 
@@ -204,7 +276,7 @@ build supplier: phony bin/supplier
 #############################################
 # Folder: /home/andrzej/Documents/SO/fabryka/cmake-build-debug
 
-build all: phony bin/supplier bin/factory bin/director
+build all: phony bin/supplier bin/factory bin/director bin/utils
 
 # =============================================================================
 # Built-in targets
@@ -213,14 +285,14 @@ build all: phony bin/supplier bin/factory bin/director
 #############################################
 # Re-run CMake if any of its inputs changed.
 
-build build.ninja: RERUN_CMAKE | /home/andrzej/Documents/SO/fabryka/CMakeLists.txt /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeCInformation.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeCXXInformation.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeCommonLanguageInclude.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeGenericSystem.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeInitializeConfigs.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeLanguageInformation.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeSystemSpecificInformation.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeSystemSpecificInitialize.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/CMakeCommonCompilerMacros.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/GNU-C.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/GNU-CXX.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/GNU.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/Linux-GNU-C.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/Linux-GNU-CXX.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/Linux-GNU.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/Linux-Initialize.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/Linux.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/UnixPaths.cmake CMakeCache.txt CMakeFiles/3.30.5/CMakeCCompiler.cmake CMakeFiles/3.30.5/CMakeCXXCompiler.cmake CMakeFiles/3.30.5/CMakeSystem.cmake
+build build.ninja: RERUN_CMAKE | /home/andrzej/Documents/SO/fabryka/CMakeLists.txt /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeCCompiler.cmake.in /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeCCompilerABI.c /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeCInformation.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeCXXCompiler.cmake.in /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeCXXCompilerABI.cpp /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeCXXInformation.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeCommonLanguageInclude.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeCompilerIdDetection.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeDetermineCCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeDetermineCXXCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeDetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeDetermineCompilerABI.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeDetermineCompilerId.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeDetermineCompilerSupport.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeDetermineSystem.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeFindBinUtils.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeGenericSystem.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeInitializeConfigs.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeLanguageInformation.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeParseImplicitIncludeInfo.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeParseImplicitLinkInfo.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeParseLibraryArchitecture.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeSystem.cmake.in /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeSystemSpecificInformation.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeSystemSpecificInitialize.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeTestCCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeTestCXXCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeTestCompilerCommon.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/ADSP-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/ARMCC-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/ARMClang-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/AppleClang-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/Borland-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/Bruce-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/CMakeCommonCompilerMacros.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/Clang-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/Clang-DetermineCompilerInternal.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/Compaq-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/Compaq-CXX-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/Cray-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/CrayClang-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/Embarcadero-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/Fujitsu-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/FujitsuClang-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/GHS-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/GNU-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/GNU-C.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/GNU-CXX-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/GNU-CXX.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/GNU-FindBinUtils.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/GNU.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/HP-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/HP-CXX-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/IAR-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/IBMCPP-C-DetermineVersionInternal.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/IBMCPP-CXX-DetermineVersionInternal.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/IBMClang-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/IBMClang-CXX-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/Intel-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/IntelLLVM-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/LCC-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/LCC-CXX-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/MSVC-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/NVHPC-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/NVIDIA-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/OpenWatcom-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/OrangeC-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/PGI-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/PathScale-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/SCO-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/SDCC-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/SunPro-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/SunPro-CXX-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/TI-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/TIClang-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/Tasking-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/TinyCC-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/VisualAge-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/VisualAge-CXX-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/Watcom-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/XL-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/XL-CXX-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/XLClang-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/XLClang-CXX-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/zOS-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/zOS-CXX-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Internal/CMakeDetermineLinkerId.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Internal/FeatureTesting.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/Linux-Determine-CXX.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/Linux-GNU-C.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/Linux-GNU-CXX.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/Linux-GNU.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/Linux-Initialize.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/Linux.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/UnixPaths.cmake CMakeCache.txt CMakeFiles/3.30.5/CMakeCCompiler.cmake CMakeFiles/3.30.5/CMakeCXXCompiler.cmake CMakeFiles/3.30.5/CMakeSystem.cmake
   pool = console
 
 
 #############################################
 # A missing CMake input file is not an error.
 
-build /home/andrzej/Documents/SO/fabryka/CMakeLists.txt /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeCInformation.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeCXXInformation.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeCommonLanguageInclude.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeGenericSystem.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeInitializeConfigs.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeLanguageInformation.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeSystemSpecificInformation.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeSystemSpecificInitialize.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/CMakeCommonCompilerMacros.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/GNU-C.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/GNU-CXX.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/GNU.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/Linux-GNU-C.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/Linux-GNU-CXX.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/Linux-GNU.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/Linux-Initialize.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/Linux.cmake /snap/clion/310/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/UnixPaths.cmake CMakeCache.txt CMakeFiles/3.30.5/CMakeCCompiler.cmake CMakeFiles/3.30.5/CMakeCXXCompiler.cmake CMakeFiles/3.30.5/CMakeSystem.cmake: phony
+build /home/andrzej/Documents/SO/fabryka/CMakeLists.txt /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeCCompiler.cmake.in /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeCCompilerABI.c /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeCInformation.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeCXXCompiler.cmake.in /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeCXXCompilerABI.cpp /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeCXXInformation.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeCommonLanguageInclude.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeCompilerIdDetection.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeDetermineCCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeDetermineCXXCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeDetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeDetermineCompilerABI.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeDetermineCompilerId.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeDetermineCompilerSupport.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeDetermineSystem.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeFindBinUtils.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeGenericSystem.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeInitializeConfigs.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeLanguageInformation.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeParseImplicitIncludeInfo.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeParseImplicitLinkInfo.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeParseLibraryArchitecture.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeSystem.cmake.in /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeSystemSpecificInformation.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeSystemSpecificInitialize.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeTestCCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeTestCXXCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/CMakeTestCompilerCommon.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/ADSP-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/ARMCC-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/ARMClang-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/AppleClang-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/Borland-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/Bruce-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/CMakeCommonCompilerMacros.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/Clang-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/Clang-DetermineCompilerInternal.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/Compaq-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/Compaq-CXX-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/Cray-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/CrayClang-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/Embarcadero-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/Fujitsu-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/FujitsuClang-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/GHS-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/GNU-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/GNU-C.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/GNU-CXX-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/GNU-CXX.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/GNU-FindBinUtils.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/GNU.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/HP-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/HP-CXX-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/IAR-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/IBMCPP-C-DetermineVersionInternal.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/IBMCPP-CXX-DetermineVersionInternal.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/IBMClang-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/IBMClang-CXX-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/Intel-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/IntelLLVM-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/LCC-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/LCC-CXX-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/MSVC-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/NVHPC-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/NVIDIA-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/OpenWatcom-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/OrangeC-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/PGI-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/PathScale-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/SCO-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/SDCC-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/SunPro-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/SunPro-CXX-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/TI-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/TIClang-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/Tasking-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/TinyCC-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/VisualAge-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/VisualAge-CXX-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/Watcom-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/XL-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/XL-CXX-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/XLClang-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/XLClang-CXX-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/zOS-C-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Compiler/zOS-CXX-DetermineCompiler.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Internal/CMakeDetermineLinkerId.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Internal/FeatureTesting.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/Linux-Determine-CXX.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/Linux-GNU-C.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/Linux-GNU-CXX.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/Linux-GNU.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/Linux-Initialize.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/Linux.cmake /snap/clion/314/bin/cmake/linux/x64/share/cmake-3.30/Modules/Platform/UnixPaths.cmake CMakeCache.txt CMakeFiles/3.30.5/CMakeCCompiler.cmake CMakeFiles/3.30.5/CMakeCXXCompiler.cmake CMakeFiles/3.30.5/CMakeSystem.cmake: phony
 
 
 #############################################

@@ -2,7 +2,7 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "bin/director"
+			"path" : "bin/supplier"
 		}
 	],
 	"backtrace" : 1,
@@ -25,7 +25,7 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 17,
+				"line" : 14,
 				"parent" : 0
 			},
 			{
@@ -56,11 +56,12 @@
 			"sourceIndexes" : 
 			[
 				0,
-				1
+				1,
+				2
 			]
 		}
 	],
-	"id" : "director::@6890427a1f51a3e7e1df",
+	"id" : "supplier::@6890427a1f51a3e7e1df",
 	"link" : 
 	{
 		"commandFragments" : 
@@ -76,8 +77,8 @@
 		],
 		"language" : "CXX"
 	},
-	"name" : "director",
-	"nameOnDisk" : "director",
+	"name" : "supplier",
+	"nameOnDisk" : "supplier",
 	"paths" : 
 	{
 		"build" : ".",
@@ -90,7 +91,8 @@
 			"sourceIndexes" : 
 			[
 				0,
-				1
+				1,
+				2
 			]
 		}
 	],
@@ -99,13 +101,19 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "src/director.cpp",
+			"path" : "src/supplier.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "src/utilities.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/warehouse.cpp",
 			"sourceGroupIndex" : 0
 		}
 	],

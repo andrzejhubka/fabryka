@@ -1,299 +1,258 @@
 #include "warehouse.h"
+#include <cstring>
+#include <director.h>
+
 #include "utilities.h"
 #include  <iostream>
 #include <fstream>
-#include <sys/sem.h>
 #include <unistd.h>
-#include <factory.h>
-
-
-warehouse::warehouse(int capacity, int occupancy)
-    : m_capacity(capacity), m_occupancy(occupancy)
+#include <iomanip>
+namespace warehouse
 {
-    std::cout<<"\n=============== Warehouse: inicjalizacja ==============="<<std::endl;
+    // --------------------------KONSTRUKTURY/DESTRUKTORY--------------------------
 
-    m_run = true;
-
-    // generujemy klucz ipc
-    m_key_ipc = ftok("/tmp", 32);
-
-    // probojemy podlaczyc sie do semaforow:
-    m_sem_id = utils::get_semid(m_key_ipc);
-
-    // probojemy podlaczyc sie do kolejki
-    m_msg_id = utils::get_msid(m_key_ipc);
-
-    // ladujemy stan z pliku
-    this->load_state("/home/andrzej/Documents/SO/fabryka/data/warehouse_state");
-
-    // inicjujemy semafory
-    utils::semafor_set(m_sem_id, sem_ordered_x, 0);
-    utils::semafor_set(m_sem_id, sem_ordered_y, 0);
-    utils::semafor_set(m_sem_id, sem_ordered_z, 0);
-
-    // domyslnie magazyn jest maly i bedzie rosl wedlug zapotrzebowania
-    m_max_x = capacity / 6;
-    m_max_y = capacity / 6;
-    m_max_z = capacity / 6;
-    std::cout << "Utworzono magazyn o pojemnosci " << m_capacity << " jednostek. Maksymalna pojemnosc X" << m_max_x << " Y" << m_max_y << " Z" << m_max_z << std::endl;
-
-    std::cout<<"======================= SUKCES =======================\n"<<std::endl;
-}
-
-
-
-warehouse::~warehouse()
-{
-    // zapisujemy stan do pliku
-    save_state("/home/andrzej/Documents/SO/fabryka/data/warehouse_state");
-}
-
-void warehouse::load_state(const std::string& filePath)
-{
-    return;
-    /*std::ifstream file(filePath);
-
-    // sprawdzenie poprawnosci otwarcia pliku
-    if (!file.is_open())
+    WarehouseManager::WarehouseManager(key_t ipckey, int semid)
     {
-        std::cerr << "Nie można otworzyć pliku: " << filePath << std::endl;
-        return;
+        // inicjacja ipc
+        m_sharedid = utils::get_shared_id(ipckey);
+        m_sharedptr = utils::dolacz_segment_pamieci(m_sharedid);
+        m_semid = semid;
+
+        std::cout << "Shared ptr: " << m_sharedptr << std::endl;
+        // gdy mamy adres odczytujemy informacje
+        m_data = reinterpret_cast<warehouse_data*>(m_sharedptr);
+
+        std::cout << "Na polce x jest "<<m_data->x_wolne << " wolnych miejsc"<<std::endl;
+        std::cout << "Na polce y jest "<<m_data->y_wolne << " wolnych miejsc"<<std::endl;
+        std::cout << "Na polce z jest "<<m_data->z_wolne << " wolnych miejsc"<<std::endl;
+
+        x_shelf_adress = m_sharedptr+m_data->x_offset;
+        y_shelf_adress = m_sharedptr+m_data->y_offset;
+        z_shelf_adress = m_sharedptr+m_data->z_offset;
+    }
+    WarehouseManager::WarehouseManager()
+    {
+        m_sharedid = -1;
+        m_sharedptr = NULL;
     }
 
-    //bufor na linie w pliku
-    std::string line;
-
-    // wczytujemy naglowki, ale niz z nimi nie robimy
-    std::getline(file, line);
-
-    // wczutujemy pojemnosc magazynu, ilosc produktow x, y, z
-
-    if (std::getline(file, line))
+    WarehouseManager::~WarehouseManager()
     {
-        // klasa umozliwiajaca parsowanie danych
-        std::istringstream ss(line);
-        char comma; // dane z magazynu zapisalem jako csv
-        std::cout<<line<<std::endl;
-        // Odczytujemy dane z pliku (capacity, X, Y, Z)
-        if (ss >> m_capacity >> comma >> m_X >> comma >> m_Y >> comma >> m_Z)
+        // zapisujemy stan do pliku
+
+    }
+
+    int WarehouseManager::initiailze(long capacity)
+    {
+        // inicjalizacja semaforow
+        utils::semafor_set(m_semid, sem_shelf_x, 1 );
+        utils::semafor_set(m_semid, sem_shelf_y, 1 );
+        utils::semafor_set(m_semid, sem_shelf_z, 1 );
+
+        m_data->capacity = capacity;
+        m_data->products_per_shelf = capacity / 6;
+
+        // obbliczamy ofssety, poczatki tablic
+        m_data->x_offset = sizeof(warehouse_data);
+        m_data->y_offset = m_data->x_offset + sizeof(utils::ProductX)*m_data->products_per_shelf;
+        m_data->z_offset = m_data->y_offset + sizeof(utils::ProductY)*m_data->products_per_shelf;
+
+        m_data->x_wolne = m_data->products_per_shelf;
+        m_data->x_zajete = 0;
+
+        m_data->y_wolne = m_data->products_per_shelf;
+        m_data->y_zajete = 0;
+
+        m_data->z_wolne = m_data->products_per_shelf;
+        m_data->z_zajete = 0;
+
+        //na poczatku ustawiamy czytanie i pisanie na poczatki tablic
+        m_data->x_offset_czytanie = 0;
+        m_data->x_offset_pisanie =  0;
+
+        m_data->y_offset_czytanie = 0;
+        m_data->y_offset_pisanie =  0;
+
+        m_data->z_offset_czytanie = 0;
+        m_data->z_offset_pisanie  = 0;
+
+        std::cout<<"Pomyslnie zainicjowano pojemnosc magazynu: " << capacity<<std::endl;
+
+        // ustawienie miejsca w magazynie
+        utils::semafor_set(m_semid, sem_wolne_miejsca_x, m_data->products_per_shelf );
+        utils::semafor_set(m_semid, sem_wolne_miejsca_y, m_data->products_per_shelf );
+        utils::semafor_set(m_semid, sem_wolne_miejsca_z, m_data->products_per_shelf );
+        return 0;
+    }
+
+
+    // --------------------------ZAPIS/ODCZYT DO PLIKU --------------------------
+    void WarehouseManager::save_to_file(const std::string& filePath) const
+    {
+        std::ofstream file(filePath, std::ios::binary);
+        std::cout<<"Sciezka:"<<WAREHOUSE_PATH<<std::endl;
+        if (!file)
         {
-            std::cout << "Stan magazynu załadowany.";
-            std::cout << "Pojemność: " << m_capacity;
-            std::cout << " X: " << m_X << ", Y: " << m_Y << ", Z: " << m_Z << std::endl;
+            utils::odlacz_segment_pamieci_dzielonej(m_sharedptr); // Odłącz segment pamięci przed zgłoszeniem błędu
+            throw std::runtime_error("Nie udało się otworzyć pliku do zapisu.");
+        }
+
+        long memory_size = sizeof(warehouse_data) + m_data->capacity * sizeof(UNIT_SIZE);
+        file.write(m_sharedptr, memory_size);
+        file.close();
+    }
+
+    void WarehouseManager::load_from_file(const std::string& filePath)
+    {
+        std::ifstream file(filePath, std::ios::binary);
+        if (!file)
+        {
+            utils::odlacz_segment_pamieci_dzielonej(m_sharedptr);
+            throw std::runtime_error("Nie udało się otworzyć pliku do odczytu.");
+        }
+
+        long memory_size = sizeof(warehouse_data) + m_data->capacity * sizeof(UNIT_SIZE);
+        file.read(m_sharedptr, memory_size);
+    }
+    // --------------------------Zarzadzanie wskaznikami--------------------------
+    int WarehouseManager::offset_move_to_next(int& offset, size_t object_size, int shelf_capacity)
+    {
+        int new_offset = (offset+object_size) % ( shelf_capacity*object_size);
+        offset = new_offset;
+        return 1;
+    }
+
+
+
+    // --------------------------POBIERANIE ZASOBOW --------------------------
+
+    int WarehouseManager::grab_x(utils::ProductX* container) //TODOSHARED
+    {
+        // jesli produkt jest dostepny:
+        utils::semafor_p(m_semid, sem_dostepne_x, 1);
+        utils::semafor_p(m_semid, sem_shelf_x, 1);
+        if (container != nullptr)
+        {
+            memcpy(container,x_shelf_adress+m_data->x_offset_czytanie, sizeof(utils::ProductX));
         }
         else
         {
-            std::cerr << "Błąd w formacie danych w pliku: " << filePath << std::endl;
+            std::cerr << "Błąd: Wskaźniki są niezainicjowane!" << std::endl;
+            return -1;
         }
-    }*/
-}
-
-void warehouse::save_state(const std::string& filePath) const
-{
-    return;
-    /*// ten tryb nadpisuje zawartosc pliku
-    std::ofstream file(filePath);
-
-    if (!file.is_open())
-    {
-        std::cerr << "Nie mozna otworzyc pliku do zapisu: " << filePath << std::endl;
-        return;
+        std::cout<<"MAGAZYN: pobrano produkt X"<<std::endl;
+        offset_move_to_next(m_data->x_offset_czytanie, sizeof(utils::ProductX), m_data->products_per_shelf);
+        m_data->x_wolne += 1;
+        utils::semafor_v(m_semid, sem_shelf_x, 1);
+        utils::semafor_v(m_semid, sem_wolne_miejsca_x, 1);
+        return 1;
     }
 
-    // zapis naglowkow
-    file << "capacity,X,Y,Z" << std::endl;
-
-    // zapis stanu magazunu
-    file << m_capacity << ',' << m_X << ',' << m_Y << ',' << m_Z << std::endl;
-
-    std::cout << "Zapisano stan magazynu" << std::endl;
-
-    // zamkniecie pliku
-    file.close();*/
-}
-
-void warehouse::working_thread()
-{
-    // lepiej inicjowac pojemnik na przychodzace produkty na stosie watku gdyby trzebabylo przerabiac program i tworzyc wiecej pracownikow magazynu
-    utils::Product package = utils::Product(0, utils::X, 10);
-
-    while (m_run)
+    int WarehouseManager::grab_y(utils::ProductY* container) //TODOSHARED
     {
-        // jesli jest cos w kolejce
-        if (utils::receive_product_from_queue(m_msg_id, package, 1) == 0)
+        // jesli produkt jest dostepny:
+        utils::semafor_p(m_semid, sem_dostepne_y, 1);
+        utils::semafor_p(m_semid, sem_shelf_y, 1);
+        if (container != nullptr)
         {
-            insert_into_shelf(package);
+            memcpy(container,y_shelf_adress+m_data->y_offset_czytanie, sizeof(utils::ProductY));
         }
-
-        // zloz zamowienie
-        make_order();
-    }
-
-    std::cout<<"\nMagazyn zakonczyl prace!"<<std::endl;
-
-}
-
-void warehouse::insert_into_shelf(utils::Product& package)
-{
-    // umiesc to na polce (nie blokuj innych polek!)
-    //sleep(speed_recieving_package); // czas dzialania pracownika
-    switch (package.m_type)
-    {
-    case utils::X:
+        else
         {
-            std::lock_guard<std::mutex> lock(mutex_shelf_x);
-            m_products_x.emplace_back(package);
-            change_occupancy(1);
-            utils::semafor_p(m_sem_id, sem_sended_x, 1);
-            std::cout<<"Magazyn: polozono produkt X na polce. Nowa objetosc: "<<m_occupancy<<std::endl;
-            cv_shelf_x.notify_one();
-            break;
-        };
-    case utils::Y:
-        {
-            std::lock_guard<std::mutex> lock(mutex_shelf_y);
-            m_products_y.emplace_back(package);
-            change_occupancy(2);
-            utils::semafor_p(m_sem_id, sem_sended_y, 1);
-            std::cout<<"Magazyn: polozono produkt Y na polce. Nowa objetosc: "<<m_occupancy<<std::endl;
-            cv_shelf_y.notify_one();
-            break;
-        };
-    case utils::Z:
-        {
-            std::lock_guard<std::mutex> lock(mutex_shelf_z);
-            m_products_z.emplace_back(package);
-            change_occupancy(3);
-            utils::semafor_p(m_sem_id, sem_sended_z, 1);
-            std::cout<<"Magazyn: polozono produkt Z na polce. Nowa objetosc: "<<m_occupancy<<std::endl;
-            cv_shelf_z.notify_one();
-            break;
-        };
-    }
-}
-
-int warehouse::grab_x(utils::Product& container)
-{
-    // Blokujemy mutex używając std::unique_lock
-    std::unique_lock<std::mutex> lock(mutex_shelf_x);
-
-    // maszyna moze pobrac produkt. Zaczyna czekac. Trzeba sprawdzic czy sygnal dotyczy konca pracy czy pojawienia sie prudktu
-    cv_shelf_x.wait(lock, [this] { return !m_products_x.empty() || !machine_a_run;});
-
-    if (!machine_a_run)
-    {
-        std::cout << "Magazyn: maszyna przeznaczona do wylaczenia. Odmowiono wydania produktu z\n";
-        return -1;
-    }
-
-    container = m_products_x.back();
-    m_products_x.pop_back();
-    change_occupancy(-1);
-    std::cout << "Magazyn: wydano produkt x.\n";
-    return 1;
-}
-int warehouse::grab_y(utils::Product& container)
-{
-    // Blokujemy mutex używając std::unique_lock
-    std::unique_lock<std::mutex> lock(mutex_shelf_y);
-
-    // maszyna moze pobrac produkt. Zaczyna czekac. Trzeba sprawdzic czy sygnal dotyczy konca pracy czy pojawienia sie prudktu
-    cv_shelf_y.wait(lock, [this] { return !m_products_y.empty() || !machine_a_run;});
-
-    if (!machine_a_run)
-    {
-        std::cout<<"Magazyn: maszyna przeznaczona do wylaczenia. Odmowiono wydania produktu y\n";
-        return -1;
-    }
-
-    container = m_products_y.back();
-    m_products_y.pop_back();
-    change_occupancy(-2);
-    std::cout << "Magazyn: wydano produkt y.\n";
-    return 1;
-}
-int warehouse::grab_z(utils::Product& container)
-{
-    // Blokujemy mutex używając std::unique_lock
-    std::unique_lock<std::mutex> lock(mutex_shelf_z);
-
-    // maszyna moze pobrac produkt. Zaczyna czekac. Trzeba sprawdzic czy sygnal dotyczy konca pracy czy pojawienia sie prudktu
-    cv_shelf_z.wait(lock, [this] { return !m_products_z.empty() || !machine_a_run;});
-
-    if (!machine_a_run)
-    {
-        std::cout<<"Magazyn: maszyna przeznaczona do wylaczenia. Odmowiono wydania produktu z\n";
-        return -1;
-    }
-
-    container = m_products_z.back();
-    m_products_z.pop_back();
-    change_occupancy(-3);
-    std::cout << "Magazyn: wydano produkt z.\n";
-    return 1;
-}
-
-
-void warehouse::change_occupancy(int add_value)
-{
-    std::lock_guard<std::mutex> lock(mutex_occupancy);
-    m_occupancy+=add_value;
-}
-
-void warehouse::make_order()
-{
-    int new_order_x, new_order_y, new_order_z;
-    {
-        std::lock_guard<std::mutex> lock(mutex_shelf_x);
-        new_order_x = m_max_x -  utils::semafor_value(m_sem_id, sem_ordered_x) - m_products_x.size() - utils::semafor_value(m_sem_id, sem_sended_x);
-
-        if (new_order_x > 0)
-        {
-            std::cout<<"Magazyn: Zamawiam x: "<<new_order_x<<std::endl;
-            utils::semafor_v(m_sem_id, sem_ordered_x, new_order_x);
+            std::cerr << "Błąd: Wskaźniki są niezainicjowane!" << std::endl;
+            return -1;
         }
-
+        std::cout<<"MAGAZYN: pobrano produkt Y"<<std::endl;
+        offset_move_to_next(m_data->y_offset_czytanie, sizeof(utils::ProductY), m_data->products_per_shelf);
+        m_data->y_wolne += 1;
+        utils::semafor_v(m_semid, sem_shelf_y, 1);
+        utils::semafor_v(m_semid, sem_wolne_miejsca_y, 1);
+        return 1;
     }
+    int WarehouseManager::grab_z(utils::ProductZ* container) //TODOSHARED
     {
-        std::lock_guard<std::mutex> lock(mutex_shelf_y);
-
-        new_order_y =  m_max_y-  utils::semafor_value(m_sem_id, sem_ordered_y) - m_products_y.size() - utils::semafor_value(m_sem_id, sem_sended_y);
-        if (new_order_y > 0)
+        // jesli produkt jest dostepny:
+        utils::semafor_p(m_semid, sem_dostepne_z, 1);
+        utils::semafor_p(m_semid, sem_shelf_z, 1);
+        if (container != nullptr)
         {
-            std::cout<<"Magazyn: zamawiam y: "<<new_order_y<<std::endl;
-            utils::semafor_v(m_sem_id, sem_ordered_y, new_order_y);
+            memcpy(container,z_shelf_adress+m_data->z_offset_czytanie, sizeof(utils::ProductZ));
         }
+        else
+        {
+            std::cerr << "Błąd: Wskaźniki są niezainicjowane!" << std::endl;
+            return -1;
+        }
+        std::cout<<"MAGAZYN: pobrano produkt Z"<<std::endl;
+        offset_move_to_next(m_data->z_offset_czytanie, sizeof(utils::ProductZ), m_data->products_per_shelf);
+        m_data->z_wolne += 1;
+        utils::semafor_v(m_semid, sem_shelf_z, 1);
+        utils::semafor_v(m_semid, sem_wolne_miejsca_z, 1);
+        return 1;
     }
+    // --------------------------DODAWANIE ZASOBOW --------------------------
+    int WarehouseManager::insert_x(utils::ProductX* container) //TODOSHARED
     {
-        std::lock_guard<std::mutex> lock(mutex_shelf_z);
-        new_order_z = m_max_z -  utils::semafor_value(m_sem_id, sem_ordered_z) - m_products_z.size() - utils::semafor_value(m_sem_id, sem_sended_z);
-
-        if (new_order_z > 0)
+        // sprawdz pierwsze czy w ogole masz miejsce!
+        utils::semafor_p(m_semid, sem_wolne_miejsca_x, 1);
+        utils::semafor_p(m_semid, sem_shelf_x, 1);
+        if (container != nullptr)
         {
-            std::cout<<"Magazyn: zamawiam z: "<<new_order_z<<std::endl;
-            utils::semafor_v(m_sem_id, sem_ordered_z, new_order_z);
+        memcpy(x_shelf_adress+m_data->x_offset_pisanie, container, sizeof(utils::ProductX));
         }
+        else
+        {
+            std::cerr << "Błąd: Wskaźniki są niezainicjowane!" << std::endl;
+        }
+        std::cout<<"MAGAZYN: dostarczono produkt X"<<std::endl;
+        offset_move_to_next(m_data->x_offset_pisanie, sizeof(utils::ProductX), m_data->products_per_shelf);
+        m_data->x_zajete += 1;
+        utils::semafor_v(m_semid, sem_shelf_x, 1);
+        utils::semafor_v(m_semid, sem_dostepne_x, 1);
+        return 1;
     }
+    int WarehouseManager::insert_y(utils::ProductY* container) //TODOSHARED
+    {
+        // sprawdz pierwsze czy w ogole masz miejsce!
+        utils::semafor_p(m_semid, sem_wolne_miejsca_y, 1);
+        utils::semafor_p(m_semid, sem_shelf_y, 1);
+        memcpy(y_shelf_adress+m_data->y_offset_pisanie, container, sizeof(utils::ProductY));
+        std::cout<<"MAGAZYN: dostarczono produkt Y"<<std::endl;
+        offset_move_to_next(m_data->y_offset_pisanie, sizeof(utils::ProductY), m_data->products_per_shelf);
+        m_data->y_zajete += 1;
+        utils::semafor_v(m_semid, sem_shelf_y, 1);
+        utils::semafor_v(m_semid, sem_dostepne_y, 1);
+        return 1;
+    }
+    int WarehouseManager::insert_z(utils::ProductZ* container) //TODOSHARED
+    {
+        // sprawdz pierwsze czy w ogole masz miejsce!
+        utils::semafor_p(m_semid, sem_wolne_miejsca_z, 1);
+        utils::semafor_p(m_semid, sem_shelf_z, 1);
+        memcpy(z_shelf_adress+m_data->z_offset_pisanie, container, sizeof(utils::ProductZ));
+        std::cout<<"MAGAZYN: dostarczono produkt Z"<<std::endl;
+        offset_move_to_next(m_data->z_offset_pisanie, sizeof(utils::ProductZ), m_data->products_per_shelf);
+        m_data->z_zajete += 1;
+        utils::semafor_v(m_semid, sem_shelf_z, 1);
+        utils::semafor_v(m_semid, sem_dostepne_z, 1);
+        return 1;
+    }
+    // --------------------------DIAGNOSTYKA --------------------------
+    void WarehouseManager::info()
+    {
+        std::cout<<"-----------INFORMACJE O MAGAZYNIE---------------- "<<std::endl;
+        std::cout<<"Pojemnosc : "<<m_data->capacity<<" jednostek"<<std::endl;
+        std::cout<<"Pojemnosc polek: "<<m_data->products_per_shelf<<std::endl;
+        std::cout<<"Przechowywane produkty x: "<<m_data->x_zajete<<std::endl;
+        std::cout<<"Przechowywane produkty y: "<<m_data->y_zajete<<std::endl;
+        std::cout<<"Przechowywane produkty z: "<<m_data->z_zajete<<std::endl;
+        std::cout<<"-------------------------------------------------"<<std::endl;
+    }
+
+
+
 }
 
-void warehouse::stop_working(bool save)
-{
-    // wycofaj wszystkie dostawy
-    utils::semafor_set(m_sem_id, sem_ordered_x, 0);
-    utils::semafor_set(m_sem_id, sem_ordered_y, 0);
-    utils::semafor_set(m_sem_id, sem_ordered_z, 0);
-
-
-    //
-}
-
-void warehouse::wake_machines()
-{
-    cv_shelf_x.notify_all();
-    cv_shelf_y.notify_all();
-    cv_shelf_z.notify_all();
-    std::cout<<"Magazyn: wybudzono maszyny. Sprawdza czy nie maja sie wyslaczyc\n";
-}
 
 
 

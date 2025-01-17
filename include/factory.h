@@ -9,7 +9,7 @@
 #include <thread>
 #include <atomic>
 
-// Deklaracja zmiennych atomowych
+// praca maszyn
 extern bool machine_a_run;
 extern bool machine_b_run;
 
@@ -24,10 +24,9 @@ class Factory {
     // dane do ipc
     key_t m_key_ipc;
     int m_sem_id;
-    int m_msg_id;
 
     // zarzadzanie magazynem
-    warehouse m_magazyn;
+    warehouse::WarehouseManager m_magazyn;
 
     // watki
     std::thread worker_a_THREAD;

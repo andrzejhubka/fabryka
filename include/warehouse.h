@@ -1,89 +1,88 @@
 #ifndef WAREHOUSE_H
 #define WAREHOUSE_H
-
 #include <iostream>
 #include <mutex>
-#include <sys/sem.h>
-#include <vector>
 #include <utilities.h>
 #include <condition_variable>
 
-
-class warehouse
+namespace warehouse
 {
-public:
-    warehouse(int capacity=20, int occupancy=0);
-    ~warehouse();
+    // ---------- STRUKTURA INFORMACJI O MAGAZYNIE
 
-    // czy magazyn pracuje
-    bool m_run;
+    // informacja o polce w magazynie
+    struct warehouse_data
+    {
+        long capacity;
+        int products_per_shelf;
+        // dane polki x
+        int x_offset; // wzgledem poczatku zegmentu pamieci wspoldzielnej
+        int x_offset_pisanie; // ozgledem poczatku tablicy;
+        int x_offset_czytanie; // wzgledem poczatku polki x; zeby modulo dzialalo
+        int x_wolne;
+        int x_zajete;
 
-    // pojemnosc i rozmiar
-    int m_capacity;
-    int m_occupancy;
+        // dane polki y
+        int y_offset;
+        int y_offset_pisanie;
+        int y_offset_czytanie;
+        int y_wolne;
+        int y_zajete;
+        // dane polki z
+        int z_offset;
+        int z_offset_pisanie;
+        int z_offset_czytanie;
+        int z_wolne;
+        int z_zajete;
+    };
 
-    // ochrona synchronizacji do pojemnosci/rozmiaru
-    std::mutex mutex_occupancy;
-    std::mutex mutex_capacity;
+    class WarehouseManager
+    {
+    public:
+        // konstruktory & destruktory
+        WarehouseManager(key_t ipckey, int semid);
+        WarehouseManager();
+        ~WarehouseManager();
 
-    // półki z produktami
-    std::vector<utils::Product> m_products_x;
-    std::vector<utils::Product> m_products_y;
-    std::vector<utils::Product> m_products_z;
+        // ipc
+        int m_semid;
+        int m_sharedid ;
+        char* m_sharedptr;
 
-    // ochrona polek
-    std::mutex mutex_shelf_x;
-    std::mutex mutex_shelf_y;
-    std::mutex mutex_shelf_z;
-    std::condition_variable cv_shelf_x;
-    std::condition_variable cv_shelf_y;
-    std::condition_variable cv_shelf_z;
+        // stan magazynu
+        warehouse_data *m_data;
 
+        // indywidualne adresy polek dla kazdego procesu
+        char* x_shelf_adress;
+        char* y_shelf_adress;
+        char* z_shelf_adress;
 
-    // domyslne limity na polce
-    int m_max_x;
-    int m_max_y;
-    int m_max_z;
+        // po zapisaniu/odczytaniu przesuwamy wskaznik odczytu/zapisu na kolejny objekt
+        int offset_move_to_next(int &offset, size_t object_size, int shelf_capacity);
 
-    // mechanizmy ipc
-    key_t m_key_ipc;
-    int m_sem_id;
-    int m_msg_id;
+        // inicjalizacja wskaznikow i danych o magazynie -> raczej tylko dyrektor jej uzywa
+        int initiailze(long capacity);
 
-    // glowna petla dzialajaca jako watek magazynu
-    void working_thread();
+        // dodanie czegos do magazynu
+        int insert_x(utils::ProductX* container);
+        int insert_y(utils::ProductY* container);
+        int insert_z(utils::ProductZ* container);
 
-    // pobranie produktu z kolejki i umieszczenie na polce
-    void insert_into_shelf(utils::Product& package);
+        // wydawanie produktow pracownikom
+        int grab_x(utils::ProductX* container);
+        int grab_y(utils::ProductY* container);
+        int grab_z(utils::ProductZ* container);
 
-    // wydawanie produktow pracownikom
-    int grab_x(utils::Product& container);
-    int grab_y(utils::Product& container);
-    int grab_z(utils::Product& container);
+        // zapisanie stanu do pliku
+        void save_to_file(const std::string& filePath) const;
+        // wczytanie stanu z pliku
+        void load_from_file(const std::string& filePath);
 
-    // zamiana zajmowanego miejsca w magazynie
-    void increase_occupancy(int amount);
-    void decrease_occupancy(int amount);
-    // zwiekszenie pojemnosci magazynu
-    void expand(int newCapacity);
+        // informacje o magazynie
+        void info();
+        // obudz czekajace na produkty maszyny, zeby sprawdzily czy sa tez wylaczone
+        void wake_machines();
+    };
 
-    // zwiekszenie zajetosci calego magazynu (suma kazdej półki)
-    void change_occupancy(int add_value);
-
-    // zamow produkty
-    void make_order();
-
-    // zapisanie stanu do pliku
-    void save_state(const std::string& filePath) const;
-
-    // wczytanie stanu z pliku
-    void load_state(const std::string& filePath);
-
-    // zatrzymanie magazynu (pracownika rozlawowywujacego dostawy; maszyny dalej moga pobierac produkty z magazynu)
-    void stop_working(bool save);
-
-    // obudz czekajace na produkty maszyny, zeby sprawdzily czy sa tez wylaczone
-    void wake_machines();
 };
 
 
