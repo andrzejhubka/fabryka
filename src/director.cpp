@@ -51,7 +51,7 @@ director::director(long warehouse_capacity_units)
     }
 
     // zainicjuj zbior semaforow
-    if ((m_semid = utils::utworz_zbior_semaforow(m_key_ipc, 10)) == IPC_RESULT_ERROR)
+    if ((m_semid = utils::utworz_zbior_semaforow(m_key_ipc, 11)) == IPC_RESULT_ERROR)
     {
         std::cerr << "Blad tworzenie zbioru semafgorow" << std::endl;
         exit(-1);

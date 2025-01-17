@@ -56,6 +56,9 @@ namespace warehouse
         char* y_shelf_adress;
         char* z_shelf_adress;
 
+        // zakonczenie pracy
+        int close(bool save);
+
         // po zapisaniu/odczytaniu przesuwamy wskaznik odczytu/zapisu na kolejny objekt
         int offset_move_to_next(int &offset, size_t object_size, int shelf_capacity);
 

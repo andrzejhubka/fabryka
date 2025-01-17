@@ -26,6 +26,7 @@ Factory::Factory()
 
     // probojemy podlaczyc sie do semaforow:
     m_sem_id = utils::get_semid(m_key_ipc);
+    utils::semafor_set(m_sem_id, sem_factory_working, 1);
 
     // api do zarzadzzania magazynem
     m_magazyn = warehouse::WarehouseManager(m_key_ipc, m_sem_id);
@@ -58,21 +59,21 @@ void Factory::thread_worker_a()
     while (machine_a_run)
     {
         //pobieramy X
-        if (m_magazyn.grab_x(&containter_x) == -1)
+        if (m_magazyn.grab_x(&containter_x) != MACHINE_RECIEVED_PRODUCT)
         {
             // gdy dostaniesz odmowe/nie uda sie proboj dalej lub sie wylacz
             continue;
         }
 
         // pobieramy y
-        if (m_magazyn.grab_y(&containter_y) == -1)
+        if (m_magazyn.grab_y(&containter_y) != MACHINE_RECIEVED_PRODUCT)
         {
             // gdy dostaniesz odmowe/nie uda sie proboj dalej lub sie wylacz
             continue;
         }
 
         // pobieramy z
-        if (m_magazyn.grab_z(&containter_z) == -1)
+        if (m_magazyn.grab_z(&containter_z) != MACHINE_RECIEVED_PRODUCT)
         {
             // gdy dostaniesz odmowe/nie uda sie proboj dalej lub sie wylacz
             continue;
@@ -97,20 +98,20 @@ void Factory::thread_worker_b()
     while (machine_a_run)
     {
         //pobieramy X
-        if (m_magazyn.grab_x(&containter_x) == -1)
+        if (m_magazyn.grab_x(&containter_x) != MACHINE_RECIEVED_PRODUCT)
         {
             // gdy dostaniesz odmowe/nie uda sie proboj dalej lub sie wylacz
             continue;
         }
 
         // pobieramy y
-        if (m_magazyn.grab_y(&containter_y) == -1)
+        if (m_magazyn.grab_y(&containter_y) != MACHINE_RECIEVED_PRODUCT)
         {
             // gdy dostaniesz odmowe/nie uda sie proboj dalej lub sie wylacz
             continue;
         }
         // pobieramy z
-        if (m_magazyn.grab_z(&containter_z) == -1)
+        if (m_magazyn.grab_z(&containter_z) != MACHINE_RECIEVED_PRODUCT)
         {
             // gdy dostaniesz odmowe/nie uda sie proboj dalej lub sie wylacz
             continue;
@@ -170,7 +171,15 @@ void Factory::stop_workring()
     machine_a_run = false;
     machine_b_run = false;
 
+
+    // daj znac ze fabryka juz nie dziala
+    utils::semafor_v(m_sem_id, sem_factory_working, 1);
+
     // obudz te maszyny ktore czekaja na produkt
+    utils::semafor_v(m_sem_id, sem_dostepne_x, 1);
+    utils::semafor_v(m_sem_id, sem_dostepne_x, 1);
+    utils::semafor_v(m_sem_id, sem_dostepne_x, 1);
+
 }
 
 

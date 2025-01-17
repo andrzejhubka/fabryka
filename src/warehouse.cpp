@@ -128,8 +128,14 @@ namespace warehouse
 
     int WarehouseManager::grab_x(utils::ProductX* container) //TODOSHARED
     {
-        // jesli produkt jest dostepny:
+        // ------------------------ CZEKANIE NA PRODUKT Z MOZLIWOSCIA WYBUDZENIA MASZYNY
         utils::semafor_p(m_semid, sem_dostepne_x, 1);
+        //UWAGA! MASZYNA MOGLA ZOSTAC WYBUDZONA GDY CZEKALA NA PRODUKT WIEC TRZRBA TO SPRAWDZIC
+        if (utils::semafor_value(m_semid, sem_factory_working)!=1)
+        {
+            return MACHINE_STOPPED;
+        }
+
         utils::semafor_p(m_semid, sem_shelf_x, 1);
         if (container != nullptr)
         {
@@ -145,13 +151,20 @@ namespace warehouse
         m_data->x_wolne += 1;
         utils::semafor_v(m_semid, sem_shelf_x, 1);
         utils::semafor_v(m_semid, sem_wolne_miejsca_x, 1);
-        return 1;
+        return MACHINE_RECIEVED_PRODUCT;
     }
 
     int WarehouseManager::grab_y(utils::ProductY* container) //TODOSHARED
     {
-        // jesli produkt jest dostepny:
+        // ------------------------ CZEKANIE NA PRODUKT Z MOZLIWOSCIA WYBUDZENIA MASZYNY
         utils::semafor_p(m_semid, sem_dostepne_y, 1);
+        // UWAGA! MASZYNA MOGLA ZOSTAC WYBUDZONA GDY CZEKALA NA PRODUKT WIEC TRZRBA TO SPRAWDZIC
+        if (utils::semafor_value(m_semid, sem_factory_working)!=1)
+        {
+            return MACHINE_STOPPED;
+        }
+
+        // ------------------------ TRZEBA JAKOS ZAPEWNIC ZEBY POLKI NIGDY SIE NIE ZATKALY
         utils::semafor_p(m_semid, sem_shelf_y, 1);
         if (container != nullptr)
         {
@@ -167,12 +180,24 @@ namespace warehouse
         m_data->y_wolne += 1;
         utils::semafor_v(m_semid, sem_shelf_y, 1);
         utils::semafor_v(m_semid, sem_wolne_miejsca_y, 1);
-        return 1;
+        return MACHINE_RECIEVED_PRODUCT;
     }
     int WarehouseManager::grab_z(utils::ProductZ* container) //TODOSHARED
     {
-        // jesli produkt jest dostepny:
+        // ------------------------ CZEKANIE NA PRODUKT Z MOZLIWOSCIA WYBUDZENIA MASZYNY
         utils::semafor_p(m_semid, sem_dostepne_z, 1);
+        // UWAGA! MASZYNA MOGLA ZOSTAC WYBUDZONA GDY CZEKALA NA PRODUKT WIEC TRZRBA TO SPRAWDZIC
+        if (utils::semafor_value(m_semid, sem_factory_working)!=1)
+        {
+            return MACHINE_STOPPED;
+        }
+
+        // UWAGA! MASZYNA MOGLA ZOSTAC WYBUDZONA GDY CZEKALA NA PRODUKT WIEC TRZRBA TO SPRAWDZIC
+        if (utils::semafor_value(m_semid, sem_factory_working)!=1)
+        {
+            return MACHINE_STOPPED;
+        }
+
         utils::semafor_p(m_semid, sem_shelf_z, 1);
         if (container != nullptr)
         {
@@ -188,7 +213,7 @@ namespace warehouse
         m_data->z_wolne += 1;
         utils::semafor_v(m_semid, sem_shelf_z, 1);
         utils::semafor_v(m_semid, sem_wolne_miejsca_z, 1);
-        return 1;
+        return MACHINE_RECIEVED_PRODUCT;
     }
     // --------------------------DODAWANIE ZASOBOW --------------------------
     int WarehouseManager::insert_x(utils::ProductX* container) //TODOSHARED
@@ -248,6 +273,27 @@ namespace warehouse
         std::cout<<"Przechowywane produkty z: "<<m_data->z_zajete<<std::endl;
         std::cout<<"-------------------------------------------------"<<std::endl;
     }
+    // --------------------------KONIEC PRACY --------------------------
+    int WarehouseManager::close(bool save)
+    {
+        // aby zamknac magazyn musimy zablokowac wszystkie polki
+        utils::semafor_p(m_semid, sem_shelf_x, 1);
+        utils::semafor_p(m_semid, sem_shelf_y, 1);
+        utils::semafor_p(m_semid, sem_shelf_z, 1);
+
+        // zapisujemy
+        if (save)
+        {
+            save_to_file(WAREHOUSE_PATH);
+        }
+
+
+
+        //
+
+
+    }
+
 
 
 

@@ -7,8 +7,10 @@
 // sciezka do pliku z magazynem
 #define WAREHOUSE_PATH "/home/andrzej/Documents/SO/fabryka/data/warehouse_state"
 
-// rodzaje bledow
+// rodzaje bledow & wynikow
 #define IPC_RESULT_ERROR -1
+#define MACHINE_STOPPED -2
+#define MACHINE_RECIEVED_PRODUCT 0
 
 // definicja semaforow
 #define sem_dostepne_x 0
@@ -24,6 +26,8 @@
 #define sem_shelf_z 9
 
 #define sem_command 6
+
+#define sem_factory_working 10
 
 // czasy wykonywania czynnosci
 #define speed_machine_a 1
