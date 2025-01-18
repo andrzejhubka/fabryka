@@ -31,9 +31,9 @@ class Supplier
 
     // ilosc wyprodukowanych sztuk
     int m_produced;
-
-    private:
-        std::vector<std::thread> m_threads;
+    std::thread supplier_x_THREAD;
+    std::thread supplier_y_THREAD;
+    std::thread supplier_z_THREAD;
 
 };
 

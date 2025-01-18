@@ -7,8 +7,15 @@
 // sciezka do pliku z magazynem
 #define WAREHOUSE_PATH "/home/andrzej/Documents/SO/fabryka/data/warehouse_state"
 
-// rodzaje bledow
+// rodzaje bledow & wynikow
 #define IPC_RESULT_ERROR -1
+#define MACHINE_STOPPED -2
+
+// zwracane przez warehouse
+#define MACHINE_RECIEVED_PRODUCT 0
+#define WAREHOUSE_SUCCESFUL_INSERT 0
+#define WAREHOUSE_CLOSED 1
+#define INSERT_DEADLOCK_RISK 2
 
 // definicja semaforow
 #define sem_dostepne_x 0
@@ -25,14 +32,22 @@
 
 #define sem_command 6
 
+#define sem_factory_working 10
+#define sem_wareohuse_working 11
+
+// rodzaje komend dyrektora
+#define COMMAND_STOP_WAREHOUSE 1
+#define COMMAND_STOP_FACTORY 2
+#define COMMAND_STOP_WAREHOUSE_FACTORY_AND_SAVE 3
+#define COMMAND_STOP_WAREHOUSE_FACTORY_NO_SAVE 4
+
 // czasy wykonywania czynnosci
-#define speed_machine_a 1
-#define speed_machine_b 1
-#define speed_supply_x 1
-#define speed_supply_y 1
-#define speed_supply_z 1
-#define speed_recieving_package 1
-#define speed_making_order 1
+#define speed_machine_a 0
+#define speed_machine_b 0
+#define speed_supply_x 0
+#define speed_supply_y 0
+#define speed_supply_z 0
+
 
 
 namespace utils
@@ -118,11 +133,13 @@ namespace utils
     class ProductZ
     {
     public:
-        ProductZ(int weight, short pojemnosc);
+        ProductZ(int weight, char a, char b);
         // paramety produktu 4+2 bajty -> trzy jednostki
         int m_weight;
-        short m_pojemnosc;
-    };
+        char m_a;
+        char m_b;
+    } __attribute__((packed));
+    // FAKT ZE WCZESNIEJ INT + 2*CHAR = 8 BAJTOW KOSZTOWAL WIELE GODZIN CIEKAWEJ ZABAWY
 
     // ----------ENUMY
     // typ produktu

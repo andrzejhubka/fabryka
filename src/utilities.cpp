@@ -38,7 +38,7 @@ namespace utils
         struct sembuf bufor_sem;
         bufor_sem.sem_num=sem;
         bufor_sem.sem_op=value;
-        bufor_sem.sem_flg=SEM_UNDO;
+        // TA FLAGA WYSADZILA MI 1000 RAZY PROGRAM BO DOSTAWCY/FABRYKA COFALI SWOJE OPERACJE bufor_sem.sem_flg=SEM_UNDO;
         if (semop(semid,&bufor_sem,1)==-1)
         {
             printf("Blad inkrementacji semafora.\n");
@@ -246,8 +246,8 @@ namespace utils
         : m_weight(weight)
     {
     }
-    ProductZ::ProductZ(int weight, short pojemnosc)
-        : m_weight(weight), m_pojemnosc(pojemnosc)
+    ProductZ::ProductZ(int weight, char a, char b)
+        : m_weight(weight), m_a(a), m_b(b)
     {
     }
 
