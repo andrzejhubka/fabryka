@@ -73,3 +73,10 @@
 358	439	1737230717843722617	bin/supplier	f14c8260c269830c
 2	386	1737230721834581412	CMakeFiles/director.dir/src/warehouse.cpp.o	edbe9de5f24c7817
 386	472	1737230722218567846	bin/director	c561f5786b6ae1e5
+3	404	1737231096687670032	CMakeFiles/director.dir/src/director.cpp.o	4b2226b9e75e7108
+3	317	1737231151208106092	CMakeFiles/director.dir/src/director.cpp.o	4b2226b9e75e7108
+3	387	1737231151208106092	CMakeFiles/director.dir/src/warehouse.cpp.o	edbe9de5f24c7817
+387	468	1737231151592095191	bin/director	c561f5786b6ae1e5
+3	423	1737231180068290846	CMakeFiles/supplier.dir/src/warehouse.cpp.o	6fe208bca86cc190
+3	475	1737231180068290846	CMakeFiles/supplier.dir/src/supplier.cpp.o	5438c86c3d8676c1
+475	577	1737231180540277583	bin/supplier	f14c8260c269830c

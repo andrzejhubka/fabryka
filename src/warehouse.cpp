@@ -118,9 +118,9 @@ namespace warehouse
         return STATE_LOADED;
     }
     // --------------------------Zarzadzanie wskaznikami--------------------------
-    int WarehouseManager::offset_move_to_next(int& offset, size_t object_size, int shelf_capacity)
+    int WarehouseManager::offset_move_to_next(size_t& offset, size_t object_size, int shelf_capacity)
     {
-        int new_offset = (offset+object_size) % ( shelf_capacity*object_size);
+        size_t new_offset = (offset+object_size) % ( shelf_capacity*object_size);
         offset = new_offset;
         return 1;
     }

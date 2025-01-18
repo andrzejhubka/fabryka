@@ -16,22 +16,22 @@ namespace warehouse
         long capacity;
         int products_per_shelf;
         // dane polki x
-        int x_offset; // wzgledem poczatku zegmentu pamieci wspoldzielnej
-        int x_offset_pisanie; // ozgledem poczatku tablicy;
-        int x_offset_czytanie; // wzgledem poczatku polki x; zeby modulo dzialalo
+        size_t x_offset; // wzgledem poczatku zegmentu pamieci wspoldzielnej
+        size_t x_offset_pisanie; // ozgledem poczatku tablicy;
+        size_t x_offset_czytanie; // wzgledem poczatku polki x; zeby modulo dzialalo
         int x_wolne;
         int x_zajete;
 
         // dane polki y
-        int y_offset;
-        int y_offset_pisanie;
-        int y_offset_czytanie;
+        size_t y_offset;
+        size_t y_offset_pisanie;
+        size_t y_offset_czytanie;
         int y_wolne;
         int y_zajete;
         // dane polki z
-        int z_offset;
-        int z_offset_pisanie;
-        int z_offset_czytanie;
+        size_t z_offset;
+        size_t z_offset_pisanie;
+        size_t z_offset_czytanie;
         int z_wolne;
         int z_zajete;
     };
@@ -61,7 +61,7 @@ namespace warehouse
         int close(bool save);
 
         // po zapisaniu/odczytaniu przesuwamy wskaznik odczytu/zapisu na kolejny objekt
-        int offset_move_to_next(int &offset, size_t object_size, int shelf_capacity);
+        int offset_move_to_next(size_t &offset, size_t object_size, int shelf_capacity);
 
         // inicjalizacja wskaznikow i danych o magazynie -> raczej tylko dyrektor jej uzywa
         int initiailze(long capacity);
