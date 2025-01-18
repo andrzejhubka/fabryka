@@ -1,9 +1,10 @@
 #ifndef WAREHOUSE_H
 #define WAREHOUSE_H
 #include <iostream>
-#include <mutex>
 #include <utilities.h>
-#include <condition_variable>
+
+#define STATE_LOADED 0
+#define LOAD_FILE_DOESNT_EXIST 1
 
 namespace warehouse
 {
@@ -78,7 +79,7 @@ namespace warehouse
         // zapisanie stanu do pliku
         void save_to_file(const std::string& filePath) const;
         // wczytanie stanu z pliku
-        void load_from_file(const std::string& filePath);
+        int load_from_file(const std::string& filePath);
 
         // informacje o magazynie
         void info();

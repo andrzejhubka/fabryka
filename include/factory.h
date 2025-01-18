@@ -19,8 +19,6 @@ class Factory {
     Factory();
     ~Factory();
 
-    private:
-
     // dane do ipc
     key_t m_key_ipc;
     int m_sem_id;

@@ -21,10 +21,6 @@ namespace warehouse
         // gdy mamy adres odczytujemy informacje
         m_data = reinterpret_cast<warehouse_data*>(m_sharedptr);
 
-        std::cout << "Na polce x jest "<<m_data->x_wolne << " wolnych miejsc"<<std::endl;
-        std::cout << "Na polce y jest "<<m_data->y_wolne << " wolnych miejsc"<<std::endl;
-        std::cout << "Na polce z jest "<<m_data->z_wolne << " wolnych miejsc"<<std::endl;
-
         x_shelf_adress = m_sharedptr+m_data->x_offset;
         y_shelf_adress = m_sharedptr+m_data->y_offset;
         z_shelf_adress = m_sharedptr+m_data->z_offset;
@@ -37,44 +33,48 @@ namespace warehouse
 
     WarehouseManager::~WarehouseManager()
     {
-        // zapisujemy stan do pliku
-        return;
-
     }
 
     int WarehouseManager::initiailze(long capacity)
     {
-        // inicjalizacja semaforow
+        // umozliw dostep do półek
         utils::semafor_set(m_semid, sem_shelf_x, 1 );
         utils::semafor_set(m_semid, sem_shelf_y, 1 );
         utils::semafor_set(m_semid, sem_shelf_z, 1 );
 
-        m_data->capacity = capacity;
-        m_data->products_per_shelf = capacity / 6;
 
-        // obbliczamy ofssety, poczatki tablic
-        m_data->x_offset = sizeof(warehouse_data);
-        m_data->y_offset = m_data->x_offset + sizeof(utils::ProductX)*m_data->products_per_shelf;
-        m_data->z_offset = m_data->y_offset + sizeof(utils::ProductY)*m_data->products_per_shelf;
+        // jesli sie da to zaladuj -> jesli nie to ustawienia domyslne
+        if (load_from_file(WAREHOUSE_PATH)==LOAD_FILE_DOESNT_EXIST)
+        {
+            m_data->capacity = capacity;
+            m_data->products_per_shelf = capacity / 6;
 
-        m_data->x_wolne = m_data->products_per_shelf;
-        m_data->x_zajete = 0;
+            // obbliczamy ofssety, poczatki tablic
+            m_data->x_offset = sizeof(warehouse_data);
+            m_data->y_offset = m_data->x_offset + sizeof(utils::ProductX)*m_data->products_per_shelf;
+            m_data->z_offset = m_data->y_offset + sizeof(utils::ProductY)*m_data->products_per_shelf;
 
-        m_data->y_wolne = m_data->products_per_shelf;
-        m_data->y_zajete = 0;
+            m_data->x_wolne = m_data->products_per_shelf;
+            m_data->x_zajete = 0;
 
-        m_data->z_wolne = m_data->products_per_shelf;
-        m_data->z_zajete = 0;
+            m_data->y_wolne = m_data->products_per_shelf;
+            m_data->y_zajete = 0;
 
-        //na poczatku ustawiamy czytanie i pisanie na poczatki tablic
-        m_data->x_offset_czytanie = 0;
-        m_data->x_offset_pisanie =  0;
+            m_data->z_wolne = m_data->products_per_shelf;
+            m_data->z_zajete = 0;
 
-        m_data->y_offset_czytanie = 0;
-        m_data->y_offset_pisanie =  0;
+            //na poczatku ustawiamy czytanie i pisanie na poczatki tablic
+            m_data->x_offset_czytanie = 0;
+            m_data->x_offset_pisanie =  0;
 
-        m_data->z_offset_czytanie = 0;
-        m_data->z_offset_pisanie  = 0;
+            m_data->y_offset_czytanie = 0;
+            m_data->y_offset_pisanie =  0;
+
+            m_data->z_offset_czytanie = 0;
+            m_data->z_offset_pisanie  = 0;
+        }
+
+
 
         std::cout<<"Pomyslnie zainicjowano pojemnosc magazynu: " << capacity<<std::endl;
 
@@ -105,17 +105,17 @@ namespace warehouse
         file.close();
     }
 
-    void WarehouseManager::load_from_file(const std::string& filePath)
+    int WarehouseManager::load_from_file(const std::string& filePath)
     {
         std::ifstream file(filePath, std::ios::binary);
         if (!file)
         {
-            utils::odlacz_segment_pamieci_dzielonej(m_sharedptr);
-            throw std::runtime_error("Nie udało się otworzyć pliku do odczytu.");
+            return LOAD_FILE_DOESNT_EXIST;
         }
 
         long memory_size = sizeof(warehouse_data) + m_data->capacity * sizeof(UNIT_SIZE);
         file.read(m_sharedptr, memory_size);
+        return STATE_LOADED;
     }
     // --------------------------Zarzadzanie wskaznikami--------------------------
     int WarehouseManager::offset_move_to_next(int& offset, size_t object_size, int shelf_capacity)
@@ -131,7 +131,7 @@ namespace warehouse
 
     int WarehouseManager::grab_x(utils::ProductX* container) //TODOSHARED
     {
-        // ------------------------ CZEKANIE NA PRODUKT Z MOZLIWOSCIA WYBUDZENIA MASZYNY
+        // ------------------------ CZEKANIE NA PRODUKT Z MOZLIWOSCIA WYBUDZENIA MASZYN
         utils::semafor_p(m_semid, sem_dostepne_x, 1);
         //UWAGA! MASZYNA MOGLA ZOSTAC WYBUDZONA GDY CZEKALA NA PRODUKT WIEC TRZRBA TO SPRAWDZIC
         if (utils::semafor_value(m_semid, sem_factory_working)!=1)
@@ -164,7 +164,6 @@ namespace warehouse
         utils::semafor_v(m_semid, sem_wolne_miejsca_x, 1);
         return MACHINE_RECIEVED_PRODUCT;
     }
-
     int WarehouseManager::grab_y(utils::ProductY* container) //TODOSHARED
     {
         // ------------------------ CZEKANIE NA PRODUKT Z MOZLIWOSCIA WYBUDZENIA MASZYNY
@@ -245,11 +244,18 @@ namespace warehouse
     // --------------------------DODAWANIE ZASOBOW --------------------------
     int WarehouseManager::insert_x(utils::ProductX* container) //TODOSHARED
     {
-        // sprawdz pierwsze czy w ogole masz miejsce!
+        // JESLI FABRYKA NIE PRACUJE I NIE MA MIEJSCA TO LEPIEJ NIE OPUSZCZAJ SEMAFORA BO SIE NIE DOCZEKASZ
+        if ((utils::semafor_value(m_semid, sem_factory_working)!=1) && (utils::semafor_value(m_semid, sem_wolne_miejsca_x)<1))
+        {
+            return INSERT_DEADLOCK_RISK;
+        }
+
+        // poczekaj na miejsce
         utils::semafor_p(m_semid, sem_wolne_miejsca_x, 1);
         // SPRAWDZ CZY MAGAZYN NIE OBUDZIL CIE Z INNEGO POWODU!
         if (utils::semafor_value(m_semid, sem_wareohuse_working )!=1)
         {
+            std::cout<<"Dostawca X: wykryto zamkniecie magazynu"<<std::endl;
             utils::semafor_v(m_semid, sem_wolne_miejsca_x, 1);
             return WAREHOUSE_CLOSED;
         }
@@ -273,12 +279,19 @@ namespace warehouse
     }
     int WarehouseManager::insert_y(utils::ProductY* container) //TODOSHARED
     {
+        // JESLI FABRYKA NIE PRACUJE I NIE MA MIEJSCA TO LEPIEJ NIE OPUSZCZAJ SEMAFORA BO SIE NIE DOCZEKASZ
+        if ((utils::semafor_value(m_semid, sem_factory_working)!=1) && (utils::semafor_value(m_semid, sem_wolne_miejsca_y)<1))
+        {
+            return INSERT_DEADLOCK_RISK;
+        }
+
         // sprawdz pierwsze czy w ogole masz miejsce!
         utils::semafor_p(m_semid, sem_wolne_miejsca_y, 1);
         // SPRAWDZ CZY MAGAZYN NIE OBUDZIL CIE Z INNEGO POWODU!
         if (utils::semafor_value(m_semid, sem_wareohuse_working )!=1)
         {
             utils::semafor_v(m_semid, sem_wolne_miejsca_y, 1);
+            std::cout<<"Dostawca y: wykryto zamkniecie magazynu"<<std::endl;
             return WAREHOUSE_CLOSED;
         }
 
@@ -294,12 +307,19 @@ namespace warehouse
     }
     int WarehouseManager::insert_z(utils::ProductZ* container) //TODOSHARED
     {
+        // JESLI FABRYKA NIE PRACUJE I NIE MA MIEJSCA TO LEPIEJ NIE OPUSZCZAJ SEMAFORA BO SIE NIE DOCZEKASZ
+        if ((utils::semafor_value(m_semid, sem_factory_working)!=1) && (utils::semafor_value(m_semid, sem_wolne_miejsca_z)<1))
+        {
+            return INSERT_DEADLOCK_RISK;
+        }
+
         // sprawdz pierwsze czy w ogole masz miejsce!
         utils::semafor_p(m_semid, sem_wolne_miejsca_z, 1);
         // SPRAWDZ CZY MAGAZYN NIE OBUDZIL CIE Z INNEGO POWODU!
         if (utils::semafor_value(m_semid, sem_wareohuse_working )!=1)
         {
-            utils::semafor_v(m_semid, sem_wolne_miejsca_x, 1);
+            std::cout<<"Dostawca X: wykryto zamkniecie magazynu"<<std::endl;
+            utils::semafor_v(m_semid, sem_wolne_miejsca_z, 1);
             return WAREHOUSE_CLOSED;
         }
 
@@ -337,6 +357,10 @@ namespace warehouse
         {
             save_to_file(WAREHOUSE_PATH);
         }
+        else
+        {
+            std::remove(WAREHOUSE_PATH);
+        }
 
         // daj znac ze magazyn juz nie dziala
         utils::semafor_v(m_semid, sem_wareohuse_working, WAREHOUSE_CLOSED);
@@ -360,9 +384,6 @@ namespace warehouse
 
 
     }
-
-
-
 
 }
 

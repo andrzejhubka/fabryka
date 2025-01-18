@@ -15,6 +15,7 @@
 #define MACHINE_RECIEVED_PRODUCT 0
 #define WAREHOUSE_SUCCESFUL_INSERT 0
 #define WAREHOUSE_CLOSED 1
+#define INSERT_DEADLOCK_RISK 2
 
 // definicja semaforow
 #define sem_dostepne_x 0
@@ -41,11 +42,11 @@
 #define COMMAND_STOP_WAREHOUSE_FACTORY_NO_SAVE 4
 
 // czasy wykonywania czynnosci
-#define speed_machine_a 30000
-#define speed_machine_b 30000
-#define speed_supply_x 10000
-#define speed_supply_y 10000
-#define speed_supply_z 10000
+#define speed_machine_a 0
+#define speed_machine_b 0
+#define speed_supply_x 0
+#define speed_supply_y 0
+#define speed_supply_z 0
 
 
 

@@ -104,8 +104,8 @@ void director::main_loop()
         std::cout << "Wybierz polecenie dyrektora:" << std::endl;
         std::cout << "1. Zatrzymaj magazyn" << std::endl;
         std::cout << "2. Zatrzymaj fabryke" << std::endl;
-        std::cout << "3. Zatrzymaj magazyn i fabryke. Zapisz stan magazynu" << std::endl;
-        std::cout << "4. Zatrzymaj fabryke i nie zapamietuj stanu magazynu" << std::endl;
+        std::cout << "3. Zatrzymaj magazyn i fabryke. Zapisz stan magazynu i zakoncz symulacje" << std::endl;
+        std::cout << "4. Zatrzymaj fabryke i nie zapamietuj stanu magazynu i zakoncz symulacje" << std::endl;
         std::cout << "5. Uruchom tryb monitorowania magazynu" << std::endl;
         std::cout << "6. Zakoncz prace dyrektora" << std::endl;
         std::cout << "Wprowadz polecenie: ";
@@ -116,26 +116,29 @@ void director::main_loop()
 
         switch (wybor)
         {
-            case 1:
+            case COMMAND_STOP_WAREHOUSE:
             {
                 m_warehouse.close(false);
                 utils::semafor_v(m_semid, sem_command, COMMAND_STOP_WAREHOUSE);
                 break;
             }
-            case 2:
+            case COMMAND_STOP_FACTORY:
             {
                 utils::semafor_v(m_semid, sem_command, COMMAND_STOP_FACTORY);
                 break;
             }
-            case 3:
+            case COMMAND_STOP_WAREHOUSE_FACTORY_AND_SAVE:
             {
                 utils::semafor_v(m_semid, sem_command, COMMAND_STOP_WAREHOUSE_FACTORY_AND_SAVE);
+                m_warehouse.close(true);
+                m_run = false;
                 break;
             }
-            case 4:
+            case COMMAND_STOP_WAREHOUSE_FACTORY_NO_SAVE:
             {
                 utils::semafor_v(m_semid, sem_command, COMMAND_STOP_WAREHOUSE_FACTORY_NO_SAVE);
                 m_warehouse.close(false);
+                m_run = false;
                 break;
             }
             case 5:

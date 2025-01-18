@@ -15,6 +15,7 @@ bool manager_run{true}; // Flaga zatrzymania maszyny B
 int main()
 {
     Factory fabryka;
+    fabryka.
     return 0;
 }
 
@@ -43,10 +44,7 @@ Factory::Factory()
 
 Factory::~Factory()
 {
-    worker_a_THREAD.join();
-    worker_b_THREAD.join();
-    manager_THREAD.join();
-    sleep(10);
+    ;
 }
 
 
@@ -301,6 +299,7 @@ void Factory::thread_manager()
             case COMMAND_STOP_WAREHOUSE:
                 {
                     std::cout<<"Fabryka: wykryto zamykanie magazynu\n";
+                    manager_run = false;
                     break;
                 }
             case COMMAND_STOP_FACTORY:
@@ -344,6 +343,8 @@ void Factory::stop_workring()
     utils::semafor_v(m_sem_id, sem_dostepne_x, 2);
     utils::semafor_v(m_sem_id, sem_dostepne_y, 2);
     utils::semafor_v(m_sem_id, sem_dostepne_z, 2);
+
+    // rozwaz sytuacje w ktorej magazun sie zapelnia, co robia wtedy dostawcy?
 
 }
 

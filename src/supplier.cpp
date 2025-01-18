@@ -14,9 +14,14 @@ bool supplier_z_run{true};
 #define test_sended_z_count 10000
 
 
+
 int main()
 {
-    Supplier Supplier;
+    Supplier supplier;
+    supplier.supplier_x_THREAD.join();
+    supplier.supplier_y_THREAD.join();
+    supplier.supplier_z_THREAD.join();
+    return 0;
 }
 
 Supplier::Supplier()
@@ -36,21 +41,20 @@ Supplier::Supplier()
 
 
     // watki
-    m_threads.emplace_back(&Supplier::supply_x, this);
-    m_threads.emplace_back(&Supplier::supply_y, this);
-    m_threads.emplace_back(&Supplier::supply_z, this);
+    supplier_x_THREAD = std::thread(&Supplier::supply_x,  this);
+    supplier_y_THREAD = std::thread(&Supplier::supply_y,  this);
+     supplier_z_THREAD = std::thread(&Supplier::supply_z,  this);
+
     std::cout<<"======================= SUKCES =======================\n"<<std::endl;
 
 }
 Supplier::~Supplier()
 {
+    std::cout << "Destruktor Supplier: zaczynam czyszczenie wątków" << std::endl;
     // zanim usuniemy dostawce, czekamy az skoncza sie wszystkie watki wysylajace produkty
-    for (auto& t: m_threads)
-    {
-        if (t.joinable())
-            t.join();
-    }
-    sleep(6);
+   supplier_x_THREAD.join();
+   supplier_y_THREAD.join();
+   supplier_z_THREAD.join();
 }
 
 
@@ -79,6 +83,13 @@ void Supplier::supply_x()
                 std::cout<<"Supplier X: dostarczono produkt X"<<std::endl;
                 break;
             }
+        case INSERT_DEADLOCK_RISK:
+            {
+                std::cout<<"Supplier X: fabryka nie pracuje i magazyn jest pelny. Nie mam juz co robic"<<std::endl;
+                i = test_sended_x_count+1;
+                supplier_x_run = false;
+                break;
+            }
         default:
             {
                 i = test_sended_x_count+1;
@@ -87,6 +98,7 @@ void Supplier::supply_x()
             }
         }
     }
+    sleep(2);
     std::cout<<"Supplier X: koniec pracy"<<std::endl;
 }
 void Supplier::supply_y()
@@ -115,6 +127,14 @@ void Supplier::supply_y()
                 std::cout<<"Supplier Y: dostarczono produkt y"<<std::endl;
                 break;
             }
+        case INSERT_DEADLOCK_RISK:
+            {
+                i = test_sended_y_count+1;
+                std::cout<<"Supplier y: fabryka nie pracuje i magazyn jest pelny. Nie mam juz co robic"<<std::endl;
+                supplier_y_run = false;
+                break;
+            }
+
         default:
             {
                 i = test_sended_y_count+1;
@@ -123,6 +143,7 @@ void Supplier::supply_y()
             }
         }
     }
+    sleep(2);
     std::cout<<"Supplier y: koniec pracy"<<std::endl;
 }
 void Supplier::supply_z()
@@ -152,6 +173,13 @@ void Supplier::supply_z()
                 std::cout<<"Supplier Z: dostarczono produkt Z"<<std::endl;
                     break;
             }
+            case INSERT_DEADLOCK_RISK:
+            {
+                i = test_sended_z_count+1;
+                std::cout<<"Supplier z: fabryka nie pracuje i magazyn jest pelny. Nie mam juz co robic"<<std::endl;
+                supplier_z_run = false;
+                break;
+            }
             default:
             {
                 i = test_sended_z_count+1;
@@ -160,6 +188,7 @@ void Supplier::supply_z()
             }
         }
     }
+    sleep(2);
     std::cout<<"Supplier z: koniec pracy"<<std::endl;
 }
 
