@@ -33,8 +33,6 @@ int main(int argc, char *argv[])
         std::cerr << "Magazyn jest zbyt duzy. Dokup ram albo zwieksz limity w kodzie. Obecne maksimum:"<<max_capacity<<" b"<<std::endl;
         return 1;
     }
-
-    std::cout << "Max shared Capacity: " << max_capacity << std::endl;
     director zarzadca(capacity);
     return 0;
 
@@ -51,7 +49,7 @@ director::director(long warehouse_capacity_units)
     }
 
     // zainicjuj zbior semaforow
-    if ((m_semid = utils::utworz_zbior_semaforow(m_key_ipc, 11)) == IPC_RESULT_ERROR)
+    if ((m_semid = utils::utworz_zbior_semaforow(m_key_ipc, 12)) == IPC_RESULT_ERROR)
     {
         std::cerr << "Blad tworzenie zbioru semafgorow" << std::endl;
         exit(-1);
@@ -66,8 +64,6 @@ director::director(long warehouse_capacity_units)
 
     // otworz segment pamieciwspoldzielonej dla magazynu
     long segment_size = warehouse_capacity_units*UNIT_SIZE + sizeof(warehouse::warehouse_data);
-    std::cout<<sizeof(warehouse::warehouse_data)<<std::endl;
-    std::cout<<sizeof(warehouse_capacity_units*UNIT_SIZE)<<std::endl;
     if  (utils::utworz_segment_pamieci_dzielonej(&m_shared, m_key_ipc, segment_size) == IPC_RESULT_ERROR)
     {
         std::cerr << "Blad tworzenia segmentu" << std::endl;
@@ -77,6 +73,7 @@ director::director(long warehouse_capacity_units)
 
     // dolacz segment
     m_warehouse = warehouse::WarehouseManager(m_key_ipc, m_semid);
+    utils::semafor_set(m_semid, sem_wareohuse_working, 1);
 
     // zainicjuj dane magazynu
     m_warehouse.initiailze(warehouse_capacity_units);
@@ -104,7 +101,7 @@ void director::main_loop()
     int wybor;
     while (m_run)
     {
-        std::cout << "\nWybierz polecenie dyrektora:" << std::endl;
+        std::cout << "Wybierz polecenie dyrektora:" << std::endl;
         std::cout << "1. Zatrzymaj magazyn" << std::endl;
         std::cout << "2. Zatrzymaj fabryke" << std::endl;
         std::cout << "3. Zatrzymaj magazyn i fabryke. Zapisz stan magazynu" << std::endl;
@@ -121,25 +118,24 @@ void director::main_loop()
         {
             case 1:
             {
-                m_warehouse.save_to_file(WAREHOUSE_PATH);
-                //command = utils::stop_magazyn;
-                //utils::semafor_v(m_semid, sem_command, 1);
+                m_warehouse.close(false);
+                utils::semafor_v(m_semid, sem_command, COMMAND_STOP_WAREHOUSE);
                 break;
             }
             case 2:
             {
-                m_warehouse.load_from_file(WAREHOUSE_PATH);
-               // utils::semafor_v(m_semid, sem_command, 2);
+                utils::semafor_v(m_semid, sem_command, COMMAND_STOP_FACTORY);
                 break;
             }
             case 3:
             {
-                utils::semafor_v(m_semid, sem_command, 3);
+                utils::semafor_v(m_semid, sem_command, COMMAND_STOP_WAREHOUSE_FACTORY_AND_SAVE);
                 break;
             }
             case 4:
             {
-                utils::semafor_v(m_semid, sem_command, 4);
+                utils::semafor_v(m_semid, sem_command, COMMAND_STOP_WAREHOUSE_FACTORY_NO_SAVE);
+                m_warehouse.close(false);
                 break;
             }
             case 5:

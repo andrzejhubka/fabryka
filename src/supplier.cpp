@@ -9,9 +9,9 @@ bool supplier_x_run{true};
 bool supplier_y_run{true};
 bool supplier_z_run{true};
 
-#define test_sended_x_count 10
-#define test_sended_y_count 10
-#define test_sended_z_count 10
+#define test_sended_x_count 10000
+#define test_sended_y_count 10000
+#define test_sended_z_count 10000
 
 
 int main()
@@ -50,6 +50,7 @@ Supplier::~Supplier()
         if (t.joinable())
             t.join();
     }
+    sleep(6);
 }
 
 
@@ -61,12 +62,32 @@ void Supplier::supply_x()
     for (int i = 0; i < test_sended_x_count; i++)
    // while (supplier_x_run)
     {
-        sleep(speed_supply_x); // trwa produkcja
+        usleep(speed_supply_x*100); // trwa produkcja
         // generuj produkt
         towar.m_weight = utils::random_number(1, 20);;
         // wyslij produkt
-        m_warehouse.insert_x(&towar);
+        switch(m_warehouse.insert_x(&towar))
+        {
+        case WAREHOUSE_CLOSED:
+            {
+                i = test_sended_x_count+1;
+                supplier_x_run = false;
+                break;
+            }
+        case WAREHOUSE_SUCCESFUL_INSERT:
+            {
+                std::cout<<"Supplier X: dostarczono produkt X"<<std::endl;
+                break;
+            }
+        default:
+            {
+                i = test_sended_x_count+1;
+                supplier_x_run = false;
+                break;
+            }
+        }
     }
+    std::cout<<"Supplier X: koniec pracy"<<std::endl;
 }
 void Supplier::supply_y()
 {
@@ -78,11 +99,31 @@ void Supplier::supply_y()
     for (int i = 0; i < test_sended_y_count; i++)
     //while (supplier_y_run)
     {
-        sleep(speed_supply_y); // trwa produkcja
+        usleep(speed_supply_y*100); // trwa produkcja
         // generuj produkt
         towar.m_weight = utils::random_number(1, 20);
-        m_warehouse.insert_y(&towar);
+        switch(m_warehouse.insert_y(&towar))
+        {
+        case WAREHOUSE_CLOSED:
+            {
+                i = test_sended_y_count+1;
+                supplier_y_run = false;
+                break;
+            }
+        case WAREHOUSE_SUCCESFUL_INSERT:
+            {
+                std::cout<<"Supplier Y: dostarczono produkt y"<<std::endl;
+                break;
+            }
+        default:
+            {
+                i = test_sended_y_count+1;
+                supplier_y_run = false;
+                break;
+            }
+        }
     }
+    std::cout<<"Supplier y: koniec pracy"<<std::endl;
 }
 void Supplier::supply_z()
 {
@@ -94,11 +135,32 @@ void Supplier::supply_z()
     for (int i = 0; i < test_sended_z_count; i++)
     //while (supplier_z_run)
     {
-        sleep(speed_supply_z); // trwa produkcja
-
+        usleep(speed_supply_z*100); // trwa produkcja
         // generuj produkt
         towar.m_weight = utils::random_number(1, 20);
         towar.m_weight = utils::random_number(1, 20);
-        m_warehouse.insert_z(&towar);
+        switch(m_warehouse.insert_z(&towar))
+        {
+            case WAREHOUSE_CLOSED:
+            {
+                i = test_sended_z_count+1;
+                supplier_z_run = false;
+                break;
+            }
+            case WAREHOUSE_SUCCESFUL_INSERT:
+            {
+                std::cout<<"Supplier Z: dostarczono produkt Z"<<std::endl;
+                    break;
+            }
+            default:
+            {
+                i = test_sended_z_count+1;
+                supplier_z_run = false;
+                break;
+            }
+        }
     }
+    std::cout<<"Supplier z: koniec pracy"<<std::endl;
 }
+
+//!!!!!!!!!!!!!!! koniec tego procesu wywala semafory?

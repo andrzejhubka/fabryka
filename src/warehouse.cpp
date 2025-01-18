@@ -18,7 +18,6 @@ namespace warehouse
         m_sharedptr = utils::dolacz_segment_pamieci(m_sharedid);
         m_semid = semid;
 
-        std::cout << "Shared ptr: " << m_sharedptr << std::endl;
         // gdy mamy adres odczytujemy informacje
         m_data = reinterpret_cast<warehouse_data*>(m_sharedptr);
 
@@ -39,6 +38,7 @@ namespace warehouse
     WarehouseManager::~WarehouseManager()
     {
         // zapisujemy stan do pliku
+        return;
 
     }
 
@@ -79,9 +79,12 @@ namespace warehouse
         std::cout<<"Pomyslnie zainicjowano pojemnosc magazynu: " << capacity<<std::endl;
 
         // ustawienie miejsca w magazynie
-        utils::semafor_set(m_semid, sem_wolne_miejsca_x, m_data->products_per_shelf );
-        utils::semafor_set(m_semid, sem_wolne_miejsca_y, m_data->products_per_shelf );
-        utils::semafor_set(m_semid, sem_wolne_miejsca_z, m_data->products_per_shelf );
+        utils::semafor_set(m_semid, sem_wolne_miejsca_x, m_data->y_wolne);
+        utils::semafor_set(m_semid, sem_wolne_miejsca_y, m_data->y_wolne);
+        utils::semafor_set(m_semid, sem_wolne_miejsca_z, m_data->x_wolne);
+        utils::semafor_set(m_semid, sem_dostepne_x, m_data->x_zajete);
+        utils::semafor_set(m_semid, sem_dostepne_y, m_data->y_zajete);
+        utils::semafor_set(m_semid, sem_dostepne_z, m_data->z_zajete);
         return 0;
     }
 
@@ -133,7 +136,14 @@ namespace warehouse
         //UWAGA! MASZYNA MOGLA ZOSTAC WYBUDZONA GDY CZEKALA NA PRODUKT WIEC TRZRBA TO SPRAWDZIC
         if (utils::semafor_value(m_semid, sem_factory_working)!=1)
         {
+            utils::semafor_v(m_semid, sem_dostepne_x, 1);
             return MACHINE_STOPPED;
+        }
+        // w trakcie pobierania produktu moglo sie okazac ze magazyn jest zamkniety
+        if (utils::semafor_value(m_semid, sem_wareohuse_working )!=1)
+        {
+            utils::semafor_v(m_semid, sem_dostepne_x, 1);
+            return WAREHOUSE_CLOSED;
         }
 
         utils::semafor_p(m_semid, sem_shelf_x, 1);
@@ -149,6 +159,7 @@ namespace warehouse
         std::cout<<"MAGAZYN: pobrano produkt X"<<std::endl;
         offset_move_to_next(m_data->x_offset_czytanie, sizeof(utils::ProductX), m_data->products_per_shelf);
         m_data->x_wolne += 1;
+        m_data->x_zajete -= 1;
         utils::semafor_v(m_semid, sem_shelf_x, 1);
         utils::semafor_v(m_semid, sem_wolne_miejsca_x, 1);
         return MACHINE_RECIEVED_PRODUCT;
@@ -161,7 +172,14 @@ namespace warehouse
         // UWAGA! MASZYNA MOGLA ZOSTAC WYBUDZONA GDY CZEKALA NA PRODUKT WIEC TRZRBA TO SPRAWDZIC
         if (utils::semafor_value(m_semid, sem_factory_working)!=1)
         {
+            utils::semafor_v(m_semid, sem_dostepne_y, 1);
             return MACHINE_STOPPED;
+        }
+        // w trakcie pobierania produktu moglo sie okazac ze magazyn jest zamkniety
+        if (utils::semafor_value(m_semid, sem_wareohuse_working )!=1)
+        {
+            utils::semafor_v(m_semid, sem_dostepne_y, 1);
+            return WAREHOUSE_CLOSED;
         }
 
         // ------------------------ TRZEBA JAKOS ZAPEWNIC ZEBY POLKI NIGDY SIE NIE ZATKALY
@@ -178,6 +196,7 @@ namespace warehouse
         std::cout<<"MAGAZYN: pobrano produkt Y"<<std::endl;
         offset_move_to_next(m_data->y_offset_czytanie, sizeof(utils::ProductY), m_data->products_per_shelf);
         m_data->y_wolne += 1;
+        m_data->y_zajete -= 1;
         utils::semafor_v(m_semid, sem_shelf_y, 1);
         utils::semafor_v(m_semid, sem_wolne_miejsca_y, 1);
         return MACHINE_RECIEVED_PRODUCT;
@@ -189,7 +208,14 @@ namespace warehouse
         // UWAGA! MASZYNA MOGLA ZOSTAC WYBUDZONA GDY CZEKALA NA PRODUKT WIEC TRZRBA TO SPRAWDZIC
         if (utils::semafor_value(m_semid, sem_factory_working)!=1)
         {
+            utils::semafor_v(m_semid, sem_dostepne_z, 1);
             return MACHINE_STOPPED;
+        }
+        // w trakcie pobierania produktu moglo sie okazac ze magazyn jest zamkniety
+        if (utils::semafor_value(m_semid, sem_wareohuse_working )!=1)
+        {
+            utils::semafor_v(m_semid, sem_dostepne_z, 1);
+            return WAREHOUSE_CLOSED;
         }
 
         // UWAGA! MASZYNA MOGLA ZOSTAC WYBUDZONA GDY CZEKALA NA PRODUKT WIEC TRZRBA TO SPRAWDZIC
@@ -211,6 +237,7 @@ namespace warehouse
         std::cout<<"MAGAZYN: pobrano produkt Z"<<std::endl;
         offset_move_to_next(m_data->z_offset_czytanie, sizeof(utils::ProductZ), m_data->products_per_shelf);
         m_data->z_wolne += 1;
+        m_data->z_zajete -= 1;
         utils::semafor_v(m_semid, sem_shelf_z, 1);
         utils::semafor_v(m_semid, sem_wolne_miejsca_z, 1);
         return MACHINE_RECIEVED_PRODUCT;
@@ -220,6 +247,13 @@ namespace warehouse
     {
         // sprawdz pierwsze czy w ogole masz miejsce!
         utils::semafor_p(m_semid, sem_wolne_miejsca_x, 1);
+        // SPRAWDZ CZY MAGAZYN NIE OBUDZIL CIE Z INNEGO POWODU!
+        if (utils::semafor_value(m_semid, sem_wareohuse_working )!=1)
+        {
+            utils::semafor_v(m_semid, sem_wolne_miejsca_x, 1);
+            return WAREHOUSE_CLOSED;
+        }
+
         utils::semafor_p(m_semid, sem_shelf_x, 1);
         if (container != nullptr)
         {
@@ -232,35 +266,52 @@ namespace warehouse
         std::cout<<"MAGAZYN: dostarczono produkt X"<<std::endl;
         offset_move_to_next(m_data->x_offset_pisanie, sizeof(utils::ProductX), m_data->products_per_shelf);
         m_data->x_zajete += 1;
-        utils::semafor_v(m_semid, sem_shelf_x, 1);
+        m_data->x_wolne -= 1;
         utils::semafor_v(m_semid, sem_dostepne_x, 1);
-        return 1;
+        utils::semafor_v(m_semid, sem_shelf_x, 1);
+        return WAREHOUSE_SUCCESFUL_INSERT;
     }
     int WarehouseManager::insert_y(utils::ProductY* container) //TODOSHARED
     {
         // sprawdz pierwsze czy w ogole masz miejsce!
         utils::semafor_p(m_semid, sem_wolne_miejsca_y, 1);
+        // SPRAWDZ CZY MAGAZYN NIE OBUDZIL CIE Z INNEGO POWODU!
+        if (utils::semafor_value(m_semid, sem_wareohuse_working )!=1)
+        {
+            utils::semafor_v(m_semid, sem_wolne_miejsca_y, 1);
+            return WAREHOUSE_CLOSED;
+        }
+
         utils::semafor_p(m_semid, sem_shelf_y, 1);
         memcpy(y_shelf_adress+m_data->y_offset_pisanie, container, sizeof(utils::ProductY));
         std::cout<<"MAGAZYN: dostarczono produkt Y"<<std::endl;
         offset_move_to_next(m_data->y_offset_pisanie, sizeof(utils::ProductY), m_data->products_per_shelf);
         m_data->y_zajete += 1;
-        utils::semafor_v(m_semid, sem_shelf_y, 1);
+        m_data->y_wolne -= 1;
         utils::semafor_v(m_semid, sem_dostepne_y, 1);
-        return 1;
+        utils::semafor_v(m_semid, sem_shelf_y, 1);
+        return WAREHOUSE_SUCCESFUL_INSERT;
     }
     int WarehouseManager::insert_z(utils::ProductZ* container) //TODOSHARED
     {
         // sprawdz pierwsze czy w ogole masz miejsce!
         utils::semafor_p(m_semid, sem_wolne_miejsca_z, 1);
+        // SPRAWDZ CZY MAGAZYN NIE OBUDZIL CIE Z INNEGO POWODU!
+        if (utils::semafor_value(m_semid, sem_wareohuse_working )!=1)
+        {
+            utils::semafor_v(m_semid, sem_wolne_miejsca_x, 1);
+            return WAREHOUSE_CLOSED;
+        }
+
         utils::semafor_p(m_semid, sem_shelf_z, 1);
         memcpy(z_shelf_adress+m_data->z_offset_pisanie, container, sizeof(utils::ProductZ));
         std::cout<<"MAGAZYN: dostarczono produkt Z"<<std::endl;
         offset_move_to_next(m_data->z_offset_pisanie, sizeof(utils::ProductZ), m_data->products_per_shelf);
         m_data->z_zajete += 1;
-        utils::semafor_v(m_semid, sem_shelf_z, 1);
+        m_data->z_wolne -= 1;
         utils::semafor_v(m_semid, sem_dostepne_z, 1);
-        return 1;
+        utils::semafor_v(m_semid, sem_shelf_z, 1);
+        return WAREHOUSE_SUCCESFUL_INSERT;
     }
     // --------------------------DIAGNOSTYKA --------------------------
     void WarehouseManager::info()
@@ -276,19 +327,35 @@ namespace warehouse
     // --------------------------KONIEC PRACY --------------------------
     int WarehouseManager::close(bool save)
     {
-        // aby zamknac magazyn musimy zablokowac wszystkie polki
+        // aby zamknac magazyn musimy zablokowac wszystkie polki -> MAMY DO NIEGO CALKOWITY DOSTEP
         utils::semafor_p(m_semid, sem_shelf_x, 1);
         utils::semafor_p(m_semid, sem_shelf_y, 1);
         utils::semafor_p(m_semid, sem_shelf_z, 1);
 
-        // zapisujemy
+        // zapisujemy go do pliku
         if (save)
         {
             save_to_file(WAREHOUSE_PATH);
         }
 
+        // daj znac ze magazyn juz nie dziala
+        utils::semafor_v(m_semid, sem_wareohuse_working, WAREHOUSE_CLOSED);
 
+        // obudz dostawcow
+        utils::semafor_v(m_semid, sem_wolne_miejsca_x, 1);
+        utils::semafor_v(m_semid, sem_wolne_miejsca_y, 1);
+        utils::semafor_v(m_semid, sem_wolne_miejsca_z, 1);
 
+        // obudz te maszyny ktore czekaja na produkt
+        utils::semafor_v(m_semid, sem_dostepne_x, 2);
+        utils::semafor_v(m_semid, sem_dostepne_y, 2);
+        utils::semafor_v(m_semid, sem_dostepne_z, 2);
+
+        utils::semafor_v(m_semid, sem_shelf_x, 1);
+        utils::semafor_v(m_semid, sem_shelf_y, 1);
+        utils::semafor_v(m_semid, sem_shelf_z, 1);
+
+        return 0;
         //
 
 

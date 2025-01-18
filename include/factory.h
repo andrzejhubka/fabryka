@@ -12,7 +12,7 @@
 // praca maszyn
 extern bool machine_a_run;
 extern bool machine_b_run;
-
+extern bool manager_run;
 
 class Factory {
   public:

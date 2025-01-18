@@ -10,6 +10,7 @@
 // Definicja zmiennych atomowych
 bool machine_a_run{true}; // Flaga zatrzymania maszyny A
 bool machine_b_run{true}; // Flaga zatrzymania maszyny B
+bool manager_run{true}; // Flaga zatrzymania maszyny B
 
 int main()
 {
@@ -45,6 +46,7 @@ Factory::~Factory()
     worker_a_THREAD.join();
     worker_b_THREAD.join();
     manager_THREAD.join();
+    sleep(10);
 }
 
 
@@ -58,24 +60,82 @@ void Factory::thread_worker_a()
     //
     while (machine_a_run)
     {
+        bool poprawne_pobranie_produktow = true;
         //pobieramy X
-        if (m_magazyn.grab_x(&containter_x) != MACHINE_RECIEVED_PRODUCT)
+        switch (m_magazyn.grab_x(&containter_x))
         {
-            // gdy sie nie uda, w sumie nic nie trzeba robic, ale moze w przyszlosci sie to zmieni
-            continue;
+            case MACHINE_RECIEVED_PRODUCT:
+            {
+                break;
+            }
+            case WAREHOUSE_CLOSED:
+            {
+                machine_a_run = false;
+                poprawne_pobranie_produktow = false;
+                std::cout<<"Maszyna A: wykryto zamkniecie magazynu. Wylaczam sie" << std::endl;
+                break;
+            }
+            case MACHINE_STOPPED:
+            {
+                poprawne_pobranie_produktow = false;
+                false;
+            }
+            default:
+            {
+                break;
+            }
+        }
+        //pobieramy y
+        switch (m_magazyn.grab_y(&containter_y))
+        {
+        case MACHINE_RECIEVED_PRODUCT:
+            {
+                break;
+            }
+        case WAREHOUSE_CLOSED:
+            {
+                machine_a_run = false;
+                poprawne_pobranie_produktow = false;
+                std::cout<<"Maszyna A: wykryto zamkniecie magazynu. Wylaczam sie" << std::endl;
+                break;
+            }
+        case MACHINE_STOPPED:
+            {
+                machine_a_run = false;
+                poprawne_pobranie_produktow = false;
+            }
+        default:
+            {
+                break;
+            }
+        }
+        //pobieramy Z
+        switch (m_magazyn.grab_z(&containter_z))
+        {
+        case MACHINE_RECIEVED_PRODUCT:
+            {
+                break;
+            }
+        case WAREHOUSE_CLOSED:
+            {
+                machine_a_run = false;
+                std::cout<<"Maszyna A: wykryto zamkniecie magazynu. Wylaczam sie" << std::endl;
+                break;
+            }
+        case MACHINE_STOPPED:
+            {
+                machine_a_run = false;
+                poprawne_pobranie_produktow = false;
+            }
+        default:
+            {
+                break;
+            }
         }
 
-        // pobieramy y
-        if (m_magazyn.grab_y(&containter_y) != MACHINE_RECIEVED_PRODUCT)
+        // pomijamy produkcje jak nie pobralismy produktow
+        if (!poprawne_pobranie_produktow)
         {
-            // gdy sie nie uda, w sumie nic nie trzeba robic, ale moze w przyszlosci sie to zmieni
-            continue;
-        }
-
-        // pobieramy z
-        if (m_magazyn.grab_z(&containter_z) != MACHINE_RECIEVED_PRODUCT)
-        {
-           // gdy sie nie uda, w sumie nic nie trzeba robic, ale moze w przyszlosci sie to zmieni
             continue;
         }
 
@@ -115,25 +175,84 @@ void Factory::thread_worker_b()
     auto containter_y = utils::ProductY(0);
     auto containter_z = utils::ProductZ(0, 0);
     //
-    while (machine_a_run)
+    while (machine_b_run)
     {
+        bool poprawne_pobranie_produktow = true;
         //pobieramy X
-        if (m_magazyn.grab_x(&containter_x) != MACHINE_RECIEVED_PRODUCT)
+        switch (m_magazyn.grab_x(&containter_x))
         {
-            // gdy dostaniesz odmowe/nie uda sie proboj dalej lub sie wylacz
-            continue;
+        case MACHINE_RECIEVED_PRODUCT:
+            {
+                break;
+            }
+        case WAREHOUSE_CLOSED:
+            {
+                machine_b_run = false;
+                poprawne_pobranie_produktow = false;
+                std::cout<<"Maszyna B: wykryto zamkniecie magazynu. Wylaczam sie" << std::endl;
+                break;
+            }
+        case MACHINE_STOPPED:
+            {
+                poprawne_pobranie_produktow = false;
+                false;
+            }
+        default:
+            {
+                break;
+            }
+        }
+        //pobieramy y
+        switch (m_magazyn.grab_y(&containter_y))
+        {
+        case MACHINE_RECIEVED_PRODUCT:
+            {
+                break;
+            }
+        case WAREHOUSE_CLOSED:
+            {
+                machine_b_run = false;
+                poprawne_pobranie_produktow = false;
+                std::cout<<"Maszyna B: wykryto zamkniecie magazynu. Wylaczam sie" << std::endl;
+                break;
+            }
+        case MACHINE_STOPPED:
+            {
+                machine_b_run = false;
+                poprawne_pobranie_produktow = false;
+            }
+        default:
+            {
+                break;
+            }
+        }
+        //pobieramy Z
+        switch (m_magazyn.grab_z(&containter_z))
+        {
+        case MACHINE_RECIEVED_PRODUCT:
+            {
+                break;
+            }
+        case WAREHOUSE_CLOSED:
+            {
+                machine_b_run = false;
+                std::cout<<"Maszyna B: wykryto zamkniecie magazynu. Wylaczam sie" << std::endl;
+                break;
+            }
+        case MACHINE_STOPPED:
+            {
+                machine_b_run = false;
+                poprawne_pobranie_produktow = false;
+            }
+        default:
+            {
+                break;
+            }
         }
 
-        // pobieramy y
-        if (m_magazyn.grab_y(&containter_y) != MACHINE_RECIEVED_PRODUCT)
+        // pomijamy produkcje jak nie pobralismy produktow
+        if (!poprawne_pobranie_produktow)
         {
-            // gdy dostaniesz odmowe/nie uda sie proboj dalej lub sie wylacz
-            continue;
-        }
-        // pobieramy z
-        if (m_magazyn.grab_z(&containter_z) != MACHINE_RECIEVED_PRODUCT)
-        {
-            // gdy dostaniesz odmowe/nie uda sie proboj dalej lub sie wylacz
             continue;
         }
 
@@ -169,40 +288,45 @@ void Factory::thread_worker_b()
 void Factory::thread_manager()
 {
     int command;
-    while (true)
+    while (manager_run)
     {
         // czekaj az semafor polecenia zostanie zmieniony
         utils::semafor_p(m_sem_id, sem_command, 1);
+        utils::semafor_v(m_sem_id, sem_command, 1);
 
         command = utils::semafor_value(m_sem_id, sem_command);
 
         switch (command)
         {
-            case 0:
+            case COMMAND_STOP_WAREHOUSE:
                 {
-                    std::cout<<"Fabryka: otrzymano polecenie 1\n";
+                    std::cout<<"Fabryka: wykryto zamykanie magazynu\n";
                     break;
                 }
-            case 1:
+            case COMMAND_STOP_FACTORY:
                 {
-                    std::cout<<"Fabryka: otrzymano polecenie 2\n";
+                    std::cout<<"Fabryka: otrzymano polecenie zamkniecia\n";
                     stop_workring();
+                    manager_run = false;
                     break;
                 }
-            case 2:
+            case COMMAND_STOP_WAREHOUSE_FACTORY_AND_SAVE:
                 {
-                    std::cout<<"Fabryka: otrzymano polecenie 3\n";
-                    stop_workring(); // KOLEJNOSC JEST WAZNA! gdybym zapisal magazyn do pliku i maszyna zdazyla pobrac produkt, po odczytaiu stanu magazynu od nowa ten produkt by sie zdublowal
+                    std::cout<<"Fabryka: otrzymano polecenie zamkniecia\n";
+                    stop_workring();
+                    manager_run = false;
                     break;
                 }
-            case 3:
+            case COMMAND_STOP_WAREHOUSE_FACTORY_NO_SAVE:
                 {
-                    std::cout<<"Fabryka: otrzymano polecenie 4\n";
+                    std::cout<<"Fabryka: otrzymano polecenie zamkniecia\n";
+                    manager_run = false;
                     break;
                 }
         }
         utils::semafor_set(m_sem_id, sem_command, 0);
     }
+    std::cout<<"Manager: wylaczono"<<std::endl;
 }
 
 void Factory::stop_workring()
@@ -217,9 +341,9 @@ void Factory::stop_workring()
     utils::semafor_v(m_sem_id, sem_factory_working, 1);
 
     // obudz te maszyny ktore czekaja na produkt
-    utils::semafor_v(m_sem_id, sem_dostepne_x, 1);
-    utils::semafor_v(m_sem_id, sem_dostepne_x, 1);
-    utils::semafor_v(m_sem_id, sem_dostepne_x, 1);
+    utils::semafor_v(m_sem_id, sem_dostepne_x, 2);
+    utils::semafor_v(m_sem_id, sem_dostepne_y, 2);
+    utils::semafor_v(m_sem_id, sem_dostepne_z, 2);
 
 }
 
