@@ -15,7 +15,6 @@ bool manager_run{true}; // Flaga zatrzymania maszyny B
 int main()
 {
     Factory fabryka;
-    fabryka.
     return 0;
 }
 
@@ -44,7 +43,9 @@ Factory::Factory()
 
 Factory::~Factory()
 {
-    ;
+    worker_a_THREAD.join();
+    worker_b_THREAD.join();
+    manager_THREAD.join();
 }
 
 

@@ -18,9 +18,9 @@ bool supplier_z_run{true};
 int main()
 {
     Supplier supplier;
-    supplier.supplier_x_THREAD.join();
-    supplier.supplier_y_THREAD.join();
-    supplier.supplier_z_THREAD.join();
+   // supplier.supplier_x_THREAD.join();
+    //supplier.supplier_y_THREAD.join();
+   // supplier.supplier_z_THREAD.join();
     return 0;
 }
 
@@ -41,8 +41,8 @@ Supplier::Supplier()
 
 
     // watki
-    supplier_x_THREAD = std::thread(&Supplier::supply_x,  this);
-    supplier_y_THREAD = std::thread(&Supplier::supply_y,  this);
+    //supplier_x_THREAD = std::thread(&Supplier::supply_x,  this);
+    //supplier_y_THREAD = std::thread(&Supplier::supply_y,  this);
      supplier_z_THREAD = std::thread(&Supplier::supply_z,  this);
 
     std::cout<<"======================= SUKCES =======================\n"<<std::endl;
@@ -52,8 +52,8 @@ Supplier::~Supplier()
 {
     std::cout << "Destruktor Supplier: zaczynam czyszczenie wątków" << std::endl;
     // zanim usuniemy dostawce, czekamy az skoncza sie wszystkie watki wysylajace produkty
-   supplier_x_THREAD.join();
-   supplier_y_THREAD.join();
+   //supplier_x_THREAD.join();
+   //supplier_y_THREAD.join();
    supplier_z_THREAD.join();
 }
 
@@ -98,7 +98,6 @@ void Supplier::supply_x()
             }
         }
     }
-    sleep(2);
     std::cout<<"Supplier X: koniec pracy"<<std::endl;
 }
 void Supplier::supply_y()
@@ -143,7 +142,6 @@ void Supplier::supply_y()
             }
         }
     }
-    sleep(2);
     std::cout<<"Supplier y: koniec pracy"<<std::endl;
 }
 void Supplier::supply_z()
@@ -188,7 +186,7 @@ void Supplier::supply_z()
             }
         }
     }
-    sleep(2);
+
     std::cout<<"Supplier z: koniec pracy"<<std::endl;
 }
 

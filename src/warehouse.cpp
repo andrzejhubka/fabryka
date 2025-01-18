@@ -318,7 +318,7 @@ namespace warehouse
         // SPRAWDZ CZY MAGAZYN NIE OBUDZIL CIE Z INNEGO POWODU!
         if (utils::semafor_value(m_semid, sem_wareohuse_working )!=1)
         {
-            std::cout<<"Dostawca X: wykryto zamkniecie magazynu"<<std::endl;
+            std::cout<<"Dostawca Z: wykryto zamkniecie magazynu"<<std::endl;
             utils::semafor_v(m_semid, sem_wolne_miejsca_z, 1);
             return WAREHOUSE_CLOSED;
         }
