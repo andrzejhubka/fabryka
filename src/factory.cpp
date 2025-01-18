@@ -61,31 +61,51 @@ void Factory::thread_worker_a()
         //pobieramy X
         if (m_magazyn.grab_x(&containter_x) != MACHINE_RECIEVED_PRODUCT)
         {
-            // gdy dostaniesz odmowe/nie uda sie proboj dalej lub sie wylacz
+            // gdy sie nie uda, w sumie nic nie trzeba robic, ale moze w przyszlosci sie to zmieni
             continue;
         }
 
         // pobieramy y
         if (m_magazyn.grab_y(&containter_y) != MACHINE_RECIEVED_PRODUCT)
         {
-            // gdy dostaniesz odmowe/nie uda sie proboj dalej lub sie wylacz
+            // gdy sie nie uda, w sumie nic nie trzeba robic, ale moze w przyszlosci sie to zmieni
             continue;
         }
 
         // pobieramy z
         if (m_magazyn.grab_z(&containter_z) != MACHINE_RECIEVED_PRODUCT)
         {
-            // gdy dostaniesz odmowe/nie uda sie proboj dalej lub sie wylacz
+           // gdy sie nie uda, w sumie nic nie trzeba robic, ale moze w przyszlosci sie to zmieni
             continue;
         }
 
-        // gdy masz juz produkty wyprodokuj cos i napisz na konsoli
-        sleep(speed_machine_a);
-        std::cout<<"Maszyna A: Wyprodukowano produkt z x, y, z. Wazy: "<<containter_x.m_weight+containter_y.m_weight+containter_z.m_weight<<" kg.\n";
+        // ----------------------------------PRACA MASZYNY JAKO LICZENIE W BLOKACH I MOZLIWOSC WCZESNIEJSZEGO SKONCZENIA GDY MASZYNA ZOSTANIE WYLACZONA
+        // ps. szansa ze na tym etapie jednoczesnie wyprodukujemy produkt i wylaczymy maszyne jest raczej zerowa, ale dla pewnosci ja obslugujemy
+        // idea: maszyna wykonuje bloki obliczen <u mnie dla uproszczenia iteracje petli> i po policzeniu ktoregos z nich sprawdzamy czy dalej mozemy i jak nie to wysadzamy maszyne
+        int i=0;
+        for (i; i < 100; i++)
+        {
+            if (machine_a_run)
+            {
+                usleep(speed_machine_a*10);
+                // i cos sobie liczymy
+            }
+            // jesli jest stop to konczymy wczesniej
+            else break;
+        }
+
+        // sprawdzamy czy policono wszystkie bloki i mozna oddac produkt
+        if (i >= 99)
+        {
+            std::cout<<"Maszyna A: Wyprodukowano produkt z x, y, z. Wazy: "<<containter_x.m_weight+containter_y.m_weight+containter_z.m_weight<<" kg.\n";
+        }
+        else
+        {
+            std::cout<<"Maszyna A: Produkcja przerwana na bloku: "<<i<<". Powod: wylaczenie maszyny ";
+        }
     }
 
-    std::cout<<"Maszyna A: zakonczono produkcje\n";
-
+    std::cout<<"Maszyna A: wylaczono\n";
 }
 
 void Factory::thread_worker_b()
@@ -117,12 +137,33 @@ void Factory::thread_worker_b()
             continue;
         }
 
-        // gdy masz juz produkty wyprodokuj cos i napisz na konsoli
-        sleep(speed_machine_b);
-        std::cout<<"Maszyna B: Wyprodukowano produkt z x, y, z. Wazy: "<<containter_x.m_weight+containter_y.m_weight+containter_z.m_weight<<" kg.\n";
+        // ----------------------------------PRACA MASZYNY JAKO LICZENIE W BLOKACH I MOZLIWOSC WCZESNIEJSZEGO SKONCZENIA GDY MASZYNA ZOSTANIE WYLACZONA
+        // ps. szansa ze na tym etapie jednoczesnie wyprodukujemy produkt i wylaczymy maszyne jest raczej zerowa, ale dla pewnosci ja obslugujemy
+        // idea: maszyna wykonuje bloki obliczen <u mnie dla uproszczenia iteracje petli> i po policzeniu ktoregos z nich sprawdzamy czy dalej mozemy i jak nie to wysadzamy maszyne
+        int i=0;
+        for (i; i < 100; i++)
+        {
+            if (machine_b_run)
+            {
+                usleep(speed_machine_b*10);
+                // i cos sobie liczymy
+            }
+            // jesli jest stop to konczymy wczesniej
+            else break;
+        }
+
+        // sprawdzamy czy policono wszystkie bloki i mozna oddac produkt
+        if (i >= 99)
+        {
+            std::cout<<"Maszyna B: Wyprodukowano produkt z x, y, z. Wazy: "<<containter_x.m_weight+containter_y.m_weight+containter_z.m_weight<<" kg.\n";
+        }
+        else
+        {
+            std::cout<<"Maszyna B: Produkcja przerwana na bloku: "<<i<<". Powod: wylaczenie maszyny";
+        }
     }
 
-    std::cout<<"Maszyna A: zakonczono produkcje\n";
+    std::cout<<"Maszyna B: wylaczono\n";
 
 }
 void Factory::thread_manager()

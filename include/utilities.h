@@ -30,8 +30,8 @@
 #define sem_factory_working 10
 
 // czasy wykonywania czynnosci
-#define speed_machine_a 1
-#define speed_machine_b 1
+#define speed_machine_a 3000
+#define speed_machine_b 3000
 #define speed_supply_x 1
 #define speed_supply_y 1
 #define speed_supply_z 1
