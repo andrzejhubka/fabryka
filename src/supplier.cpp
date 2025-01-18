@@ -41,9 +41,9 @@ Supplier::Supplier()
 
 
     // watki
-    //supplier_x_THREAD = std::thread(&Supplier::supply_x,  this);
-    //supplier_y_THREAD = std::thread(&Supplier::supply_y,  this);
-     supplier_z_THREAD = std::thread(&Supplier::supply_z,  this);
+        supplier_x_THREAD = std::thread(&Supplier::supply_x,  this);
+        supplier_y_THREAD = std::thread(&Supplier::supply_y,  this);
+        supplier_z_THREAD = std::thread(&Supplier::supply_z,  this);
 
     std::cout<<"======================= SUKCES =======================\n"<<std::endl;
 
@@ -52,8 +52,8 @@ Supplier::~Supplier()
 {
     std::cout << "Destruktor Supplier: zaczynam czyszczenie wątków" << std::endl;
     // zanim usuniemy dostawce, czekamy az skoncza sie wszystkie watki wysylajace produkty
-   //supplier_x_THREAD.join();
-   //supplier_y_THREAD.join();
+   supplier_x_THREAD.join();
+   supplier_y_THREAD.join();
    supplier_z_THREAD.join();
 }
 
@@ -147,7 +147,7 @@ void Supplier::supply_y()
 void Supplier::supply_z()
 {
     // generuj produkt x
-    utils::ProductZ towar(0, 0);
+    utils::ProductZ towar(0, 'h', 'g');
     int id = 0;
     int waga = 10;
 
@@ -190,4 +190,3 @@ void Supplier::supply_z()
     std::cout<<"Supplier z: koniec pracy"<<std::endl;
 }
 
-//!!!!!!!!!!!!!!! koniec tego procesu wywala semafory?

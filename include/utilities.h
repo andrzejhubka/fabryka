@@ -133,11 +133,13 @@ namespace utils
     class ProductZ
     {
     public:
-        ProductZ(int weight, short pojemnosc);
+        ProductZ(int weight, char a, char b);
         // paramety produktu 4+2 bajty -> trzy jednostki
         int m_weight;
-        short m_pojemnosc;
-    };
+        char m_a;
+        char m_b;
+    } __attribute__((packed));
+    // FAKT ZE WCZESNIEJ INT + 2*CHAR = 8 BAJTOW KOSZTOWAL WIELE GODZIN CIEKAWEJ ZABAWY
 
     // ----------ENUMY
     // typ produktu

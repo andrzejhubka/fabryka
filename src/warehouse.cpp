@@ -326,6 +326,7 @@ namespace warehouse
         utils::semafor_p(m_semid, sem_shelf_z, 1);
         memcpy(z_shelf_adress+m_data->z_offset_pisanie, container, sizeof(utils::ProductZ));
         std::cout<<"MAGAZYN: dostarczono produkt Z"<<std::endl;
+        std::cout<<"Ofset: "<<m_data->z_offset_pisanie<<std::endl;
         offset_move_to_next(m_data->z_offset_pisanie, sizeof(utils::ProductZ), m_data->products_per_shelf);
         m_data->z_zajete += 1;
         m_data->z_wolne -= 1;

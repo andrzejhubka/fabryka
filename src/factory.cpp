@@ -54,7 +54,7 @@ void Factory::thread_worker_a()
     // gdy pobierzemy produkty przechowywujemy je tutaj
     auto containter_x = utils::ProductX(0);
     auto containter_y = utils::ProductY(0);
-    auto containter_z = utils::ProductZ(0, 0);
+    auto containter_z = utils::ProductZ(0, 'j','h');
 
     //
     while (machine_a_run)
@@ -172,7 +172,7 @@ void Factory::thread_worker_b()
     // gdy pobierzemy produkty przechowywujemy je tutaj
     auto containter_x = utils::ProductX(0);
     auto containter_y = utils::ProductY(0);
-    auto containter_z = utils::ProductZ(0, 0);
+    auto containter_z = utils::ProductZ(0,'k', 'l');
     //
     while (machine_b_run)
     {
@@ -346,6 +346,10 @@ void Factory::stop_workring()
     utils::semafor_v(m_sem_id, sem_dostepne_z, 2);
 
     // rozwaz sytuacje w ktorej magazun sie zapelnia, co robia wtedy dostawcy?
+    utils::semafor_v(m_sem_id, sem_wolne_miejsca_x, 1);
+    utils::semafor_v(m_sem_id, sem_wolne_miejsca_y, 1);
+    utils::semafor_v(m_sem_id, sem_wolne_miejsca_z, 1);
+
 
 }
 

@@ -246,8 +246,8 @@ namespace utils
         : m_weight(weight)
     {
     }
-    ProductZ::ProductZ(int weight, short pojemnosc)
-        : m_weight(weight), m_pojemnosc(pojemnosc)
+    ProductZ::ProductZ(int weight, char a, char b)
+        : m_weight(weight), m_a(a), m_b(b)
     {
     }
 
