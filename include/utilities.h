@@ -5,7 +5,7 @@
 #include <iostream>
 
 // sciezka do pliku z magazynem
-#define WAREHOUSE_PATH "src/warehouse_data"
+#define WAREHOUSE_PATH "warehouse_data"
 
 // rodzaje bledow & wynikow
 #define IPC_RESULT_ERROR -1
