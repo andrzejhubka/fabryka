@@ -41,7 +41,7 @@ namespace utils
         // TA FLAGA WYSADZILA MI 1000 RAZY PROGRAM BO DOSTAWCY/FABRYKA COFALI SWOJE OPERACJE bufor_sem.sem_flg=SEM_UNDO;
         if (semop(semid,&bufor_sem,1)==-1)
         {
-            printf("Blad inkrementacji semafora.\n");
+            printf("Koniec procesu.\n");
             exit(EXIT_FAILURE);
         }
     }
