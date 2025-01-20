@@ -5,7 +5,7 @@
 #include <iostream>
 
 // sciezka do pliku z magazynem
-#define WAREHOUSE_PATH "/home/andrzej/Documents/SO/fabryka/data/warehouse_state"
+#define WAREHOUSE_PATH "data/warehouse_state"
 
 // rodzaje bledow & wynikow
 #define IPC_RESULT_ERROR -1
@@ -41,12 +41,12 @@
 #define COMMAND_STOP_WAREHOUSE_FACTORY_AND_SAVE 3
 #define COMMAND_STOP_WAREHOUSE_FACTORY_NO_SAVE 4
 
-// czasy wykonywania czynnosci
-#define speed_machine_a 0
-#define speed_machine_b 0
-#define speed_supply_x 0
-#define speed_supply_y 0
-#define speed_supply_z 0
+// czasy wykonywania czynnosci -> w milisekundach
+#define speed_machine_a 0//10000
+#define speed_machine_b 0//10000
+#define speed_supply_x 0//1000
+#define speed_supply_y 0//1000
+#define speed_supply_z 0//1000
 
 
 

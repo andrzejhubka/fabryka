@@ -129,15 +129,15 @@ void director::main_loop()
             }
             case COMMAND_STOP_WAREHOUSE_FACTORY_AND_SAVE:
             {
-                utils::semafor_v(m_semid, sem_command, COMMAND_STOP_WAREHOUSE_FACTORY_AND_SAVE);
                 m_warehouse.close(true);
+                utils::semafor_v(m_semid, sem_command, COMMAND_STOP_WAREHOUSE_FACTORY_AND_SAVE);
                 m_run = false;
                 break;
             }
             case COMMAND_STOP_WAREHOUSE_FACTORY_NO_SAVE:
             {
-                utils::semafor_v(m_semid, sem_command, COMMAND_STOP_WAREHOUSE_FACTORY_NO_SAVE);
                 m_warehouse.close(false);
+                utils::semafor_v(m_semid, sem_command, COMMAND_STOP_WAREHOUSE_FACTORY_NO_SAVE);
                 m_run = false;
                 break;
             }
