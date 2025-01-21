@@ -149,6 +149,7 @@ void director::main_loop()
             case 6:
             {
                 m_run = false;
+                std::remove(WAREHOUSE_PATH);
                 break;
             }
             default:
