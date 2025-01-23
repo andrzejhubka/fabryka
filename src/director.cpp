@@ -5,11 +5,15 @@
 #include "warehouse.h"
 #include <unistd.h>
 #include <cstdlib>
+#include <signal.h>
 
+bool director_run = true;
+
+void mainloop();
 
 int main(int argc, char *argv[])
 {
-    // weryfikujemy liczbe argumentow
+    // -------------------------- WERYFIKACJA WPROWADZONEJ POJEMNOSCI MAGAZYNU
     if (argc != 2)
     {
         std::cerr << "Uzycie: " << argv[0] << " <pojemnosc magazynu>" << std::endl;
@@ -33,73 +37,28 @@ int main(int argc, char *argv[])
         std::cerr << "Magazyn jest zbyt duzy. Dokup ram albo zwieksz limity w kodzie. Obecne maksimum:"<<max_capacity<<" b"<<std::endl;
         return 1;
     }
-    director zarzadca(capacity);
-    return 0;
-
-}
-
-director::director(long warehouse_capacity_units)
-{
-    std::cout<<"\n=============== DIRECTOR: inicjalizacja ==============="<<std::endl;
-    // generowaie klucza
-    if ((m_key_ipc=ftok("/tmp", 32 ))==IPC_RESULT_ERROR)
-    {
-        std::cerr << "Blad tworzenie zbioru semafgorow" << std::endl;
-        exit(-1);
-    }
-
-    // zainicjuj zbior semaforow
-    if ((m_semid = utils::utworz_zbior_semaforow(m_key_ipc, 12)) == IPC_RESULT_ERROR)
-    {
-        std::cerr << "Blad tworzenie zbioru semafgorow" << std::endl;
-        exit(-1);
-    }
-    std::cout << "semid: " << m_semid << std::endl;
 
     // ilosc jednostek pojemnosci magazynu musi byc podzielna przez 6 ;
-    if (warehouse_capacity_units % 6 != 0)
+    if (capacity % 6 != 0)
     {
-        warehouse_capacity_units = (warehouse_capacity_units / 6) * 6;
+        capacity = (capacity / 6) * 6;
     }
+    long segment_size = capacity*UNIT_SIZE + sizeof(warehouse::warehouse_data);
 
-    // otworz segment pamieciwspoldzielonej dla magazynu
-    long segment_size = warehouse_capacity_units*UNIT_SIZE + sizeof(warehouse::warehouse_data);
-    if  (utils::utworz_segment_pamieci_dzielonej(&m_shared, m_key_ipc, segment_size) == IPC_RESULT_ERROR)
-    {
-        std::cerr << "Blad tworzenia segmentu" << std::endl;
-        exit(-1);
-    }
-    std::cout << "pamiec wspoldzielona id: " << m_shared.id << std::endl;
+    // -------------------------- OBSLUGA MECHANIZMOW IPC
+    key_t key_ipc = ftok("/tmp", 32 );
+    //TODO OBSLUGA BLEDU
+    int semid = utils::utworz_zbior_semaforow(key_ipc, 12);
+    //TODO OBSLUGA BLEDU
+    int memid = utils::utworz_segment_pamieci_dzielonej(key_ipc, segment_size);
+    //TODO OBSLUGA BLEDU
+    auto warehouse = warehouse::WarehouseManager(key_ipc, semid);
+    warehouse.initiailze(capacity);
 
-    // dolacz segment
-    m_warehouse = warehouse::WarehouseManager(m_key_ipc, m_semid);
-    utils::semafor_set(m_semid, sem_wareohuse_working, 1);
-
-    // zainicjuj dane magazynu
-    m_warehouse.initiailze(warehouse_capacity_units);
-
-
-
-    std::cout<<"======================= SUKCES =======================\n"<<std::endl;
-
-    // zainicjuj semafor do komend:
-    utils::semafor_set(m_semid, sem_command, 0);
-
-    // rozpoczecie pracy
 
     // glowna petla
-    main_loop();
-}
-director::~director()
-{
-    utils::usun_zbior_semaforow(this->m_semid);
-    utils::ustaw_do_usuniecia_segment(&m_shared);
-}
-
-void director::main_loop()
-{
     int wybor;
-    while (m_run)
+    while (director_run)
     {
         std::cout << "Wybierz polecenie dyrektora:" << std::endl;
         std::cout << "1. Zatrzymaj magazyn" << std::endl;
@@ -110,7 +69,6 @@ void director::main_loop()
         std::cout << "6. Zakoncz prace dyrektora" << std::endl;
         std::cout << "Wprowadz polecenie: ";
 
-        int wybor;
         std::cin >> wybor;
         std::string command;
 
@@ -118,37 +76,35 @@ void director::main_loop()
         {
             case COMMAND_STOP_WAREHOUSE:
             {
-                m_warehouse.close(false);
-                utils::semafor_v(m_semid, sem_command, COMMAND_STOP_WAREHOUSE);
+                warehouse.close(false);
+
                 break;
             }
             case COMMAND_STOP_FACTORY:
             {
-                utils::semafor_v(m_semid, sem_command, COMMAND_STOP_FACTORY);
+                kill(9, 9);
                 break;
             }
             case COMMAND_STOP_WAREHOUSE_FACTORY_AND_SAVE:
             {
-                m_warehouse.close(true);
-                utils::semafor_v(m_semid, sem_command, COMMAND_STOP_WAREHOUSE_FACTORY_AND_SAVE);
-                m_run = false;
+                warehouse.close(true);
+                director_run = false;
                 break;
             }
             case COMMAND_STOP_WAREHOUSE_FACTORY_NO_SAVE:
             {
-                m_warehouse.close(false);
-                utils::semafor_v(m_semid, sem_command, COMMAND_STOP_WAREHOUSE_FACTORY_NO_SAVE);
-                m_run = false;
+                warehouse.close(false);
+                director_run = false;
                 break;
             }
             case 5:
             {
-                m_warehouse.info();
+                warehouse.info();
                 break;
             }
             case 6:
             {
-                m_run = false;
+                director_run = false;
                 break;
             }
             default:
@@ -158,7 +114,13 @@ void director::main_loop()
             }
         }
     }
+
+    utils::usun_zbior_semaforow(semid);
+    utils::ustaw_do_usuniecia_segment(memid);
 }
+
+
+
 
 
 

@@ -1,12 +1,12 @@
 #include "warehouse.h"
 #include <cstring>
 #include <director.h>
-
 #include "utilities.h"
 #include  <iostream>
 #include <fstream>
 #include <unistd.h>
 #include <iomanip>
+
 namespace warehouse
 {
     // --------------------------KONSTRUKTURY/DESTRUKTORY--------------------------
@@ -85,6 +85,8 @@ namespace warehouse
         utils::semafor_set(m_semid, sem_dostepne_x, m_data->x_zajete);
         utils::semafor_set(m_semid, sem_dostepne_y, m_data->y_zajete);
         utils::semafor_set(m_semid, sem_dostepne_z, m_data->z_zajete);
+
+        utils::semafor_set(m_semid, sem_wareohuse_working, 1);
         return 0;
     }
 
@@ -133,12 +135,6 @@ namespace warehouse
     {
         // ------------------------ CZEKANIE NA PRODUKT Z MOZLIWOSCIA WYBUDZENIA MASZYN
         utils::semafor_p(m_semid, sem_dostepne_x, 1);
-        //UWAGA! MASZYNA MOGLA ZOSTAC WYBUDZONA GDY CZEKALA NA PRODUKT WIEC TRZRBA TO SPRAWDZIC
-        if (utils::semafor_value(m_semid, sem_factory_working)!=1)
-        {
-            utils::semafor_v(m_semid, sem_dostepne_x, 1);
-            return MACHINE_STOPPED;
-        }
         // w trakcie pobierania produktu moglo sie okazac ze magazyn jest zamkniety
         if (utils::semafor_value(m_semid, sem_wareohuse_working )!=1)
         {
@@ -167,13 +163,6 @@ namespace warehouse
     int WarehouseManager::grab_y(utils::ProductY* container) //TODOSHARED
     {
         // ------------------------ CZEKANIE NA PRODUKT Z MOZLIWOSCIA WYBUDZENIA MASZYNY
-        utils::semafor_p(m_semid, sem_dostepne_y, 1);
-        // UWAGA! MASZYNA MOGLA ZOSTAC WYBUDZONA GDY CZEKALA NA PRODUKT WIEC TRZRBA TO SPRAWDZIC
-        if (utils::semafor_value(m_semid, sem_factory_working)!=1)
-        {
-            utils::semafor_v(m_semid, sem_dostepne_y, 1);
-            return MACHINE_STOPPED;
-        }
         // w trakcie pobierania produktu moglo sie okazac ze magazyn jest zamkniety
         if (utils::semafor_value(m_semid, sem_wareohuse_working )!=1)
         {
@@ -202,25 +191,11 @@ namespace warehouse
     }
     int WarehouseManager::grab_z(utils::ProductZ* container) //TODOSHARED
     {
-        // ------------------------ CZEKANIE NA PRODUKT Z MOZLIWOSCIA WYBUDZENIA MASZYNY
-        utils::semafor_p(m_semid, sem_dostepne_z, 1);
-        // UWAGA! MASZYNA MOGLA ZOSTAC WYBUDZONA GDY CZEKALA NA PRODUKT WIEC TRZRBA TO SPRAWDZIC
-        if (utils::semafor_value(m_semid, sem_factory_working)!=1)
-        {
-            utils::semafor_v(m_semid, sem_dostepne_z, 1);
-            return MACHINE_STOPPED;
-        }
         // w trakcie pobierania produktu moglo sie okazac ze magazyn jest zamkniety
         if (utils::semafor_value(m_semid, sem_wareohuse_working )!=1)
         {
             utils::semafor_v(m_semid, sem_dostepne_z, 1);
             return WAREHOUSE_CLOSED;
-        }
-
-        // UWAGA! MASZYNA MOGLA ZOSTAC WYBUDZONA GDY CZEKALA NA PRODUKT WIEC TRZRBA TO SPRAWDZIC
-        if (utils::semafor_value(m_semid, sem_factory_working)!=1)
-        {
-            return MACHINE_STOPPED;
         }
 
         utils::semafor_p(m_semid, sem_shelf_z, 1);
@@ -242,14 +217,8 @@ namespace warehouse
         return MACHINE_RECIEVED_PRODUCT;
     }
     // --------------------------DODAWANIE ZASOBOW --------------------------
-    int WarehouseManager::insert_x(utils::ProductX* container) //TODOSHARED
+    int WarehouseManager::insert(utils::ProductX* container) //TODOSHARED
     {
-        // JESLI FABRYKA NIE PRACUJE I NIE MA MIEJSCA TO LEPIEJ NIE OPUSZCZAJ SEMAFORA BO SIE NIE DOCZEKASZ
-        if ((utils::semafor_value(m_semid, sem_factory_working)!=1) && (utils::semafor_value(m_semid, sem_wolne_miejsca_x)<1))
-        {
-            return INSERT_DEADLOCK_RISK;
-        }
-
         // poczekaj na miejsce
         utils::semafor_p(m_semid, sem_wolne_miejsca_x, 1);
         // SPRAWDZ CZY MAGAZYN NIE OBUDZIL CIE Z INNEGO POWODU!
@@ -277,14 +246,8 @@ namespace warehouse
         utils::semafor_v(m_semid, sem_shelf_x, 1);
         return WAREHOUSE_SUCCESFUL_INSERT;
     }
-    int WarehouseManager::insert_y(utils::ProductY* container) //TODOSHARED
+    int WarehouseManager::insert(utils::ProductY* container) //TODOSHARED
     {
-        // JESLI FABRYKA NIE PRACUJE I NIE MA MIEJSCA TO LEPIEJ NIE OPUSZCZAJ SEMAFORA BO SIE NIE DOCZEKASZ
-        if ((utils::semafor_value(m_semid, sem_factory_working)!=1) && (utils::semafor_value(m_semid, sem_wolne_miejsca_y)<1))
-        {
-            return INSERT_DEADLOCK_RISK;
-        }
-
         // sprawdz pierwsze czy w ogole masz miejsce!
         utils::semafor_p(m_semid, sem_wolne_miejsca_y, 1);
         // SPRAWDZ CZY MAGAZYN NIE OBUDZIL CIE Z INNEGO POWODU!
@@ -305,14 +268,8 @@ namespace warehouse
         utils::semafor_v(m_semid, sem_shelf_y, 1);
         return WAREHOUSE_SUCCESFUL_INSERT;
     }
-    int WarehouseManager::insert_z(utils::ProductZ* container) //TODOSHARED
+    int WarehouseManager::insert(utils::ProductZ* container) //TODOSHARED
     {
-        // JESLI FABRYKA NIE PRACUJE I NIE MA MIEJSCA TO LEPIEJ NIE OPUSZCZAJ SEMAFORA BO SIE NIE DOCZEKASZ
-        if ((utils::semafor_value(m_semid, sem_factory_working)!=1) && (utils::semafor_value(m_semid, sem_wolne_miejsca_z)<1))
-        {
-            return INSERT_DEADLOCK_RISK;
-        }
-
         // sprawdz pierwsze czy w ogole masz miejsce!
         utils::semafor_p(m_semid, sem_wolne_miejsca_z, 1);
         // SPRAWDZ CZY MAGAZYN NIE OBUDZIL CIE Z INNEGO POWODU!

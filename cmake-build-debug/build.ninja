@@ -87,6 +87,52 @@ build bin/supplier: CXX_EXECUTABLE_LINKER__supplier_Debug CMakeFiles/supplier.di
   TARGET_PDB = supplier.dbg
 
 # =============================================================================
+# Object build statements for EXECUTABLE target machine
+
+
+#############################################
+# Order-only phony target for machine
+
+build cmake_object_order_depends_target_machine: phony || .
+
+build CMakeFiles/machine.dir/src/machine.cpp.o: CXX_COMPILER__machine_unscanned_Debug /home/andrzej/Documents/SO/fabryka/src/machine.cpp || cmake_object_order_depends_target_machine
+  DEP_FILE = CMakeFiles/machine.dir/src/machine.cpp.o.d
+  FLAGS = -g -fdiagnostics-color=always
+  INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
+  OBJECT_DIR = CMakeFiles/machine.dir
+  OBJECT_FILE_DIR = CMakeFiles/machine.dir/src
+
+build CMakeFiles/machine.dir/src/utilities.cpp.o: CXX_COMPILER__machine_unscanned_Debug /home/andrzej/Documents/SO/fabryka/src/utilities.cpp || cmake_object_order_depends_target_machine
+  DEP_FILE = CMakeFiles/machine.dir/src/utilities.cpp.o.d
+  FLAGS = -g -fdiagnostics-color=always
+  INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
+  OBJECT_DIR = CMakeFiles/machine.dir
+  OBJECT_FILE_DIR = CMakeFiles/machine.dir/src
+
+build CMakeFiles/machine.dir/src/warehouse.cpp.o: CXX_COMPILER__machine_unscanned_Debug /home/andrzej/Documents/SO/fabryka/src/warehouse.cpp || cmake_object_order_depends_target_machine
+  DEP_FILE = CMakeFiles/machine.dir/src/warehouse.cpp.o.d
+  FLAGS = -g -fdiagnostics-color=always
+  INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
+  OBJECT_DIR = CMakeFiles/machine.dir
+  OBJECT_FILE_DIR = CMakeFiles/machine.dir/src
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target machine
+
+
+#############################################
+# Link the executable bin/machine
+
+build bin/machine: CXX_EXECUTABLE_LINKER__machine_Debug CMakeFiles/machine.dir/src/machine.cpp.o CMakeFiles/machine.dir/src/utilities.cpp.o CMakeFiles/machine.dir/src/warehouse.cpp.o
+  FLAGS = -g
+  OBJECT_DIR = CMakeFiles/machine.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = bin/machine
+  TARGET_PDB = machine.dbg
+
+# =============================================================================
 # Object build statements for EXECUTABLE target factory
 
 
@@ -109,8 +155,22 @@ build CMakeFiles/factory.dir/src/utilities.cpp.o: CXX_COMPILER__factory_unscanne
   OBJECT_DIR = CMakeFiles/factory.dir
   OBJECT_FILE_DIR = CMakeFiles/factory.dir/src
 
+build CMakeFiles/factory.dir/src/supplier.cpp.o: CXX_COMPILER__factory_unscanned_Debug /home/andrzej/Documents/SO/fabryka/src/supplier.cpp || cmake_object_order_depends_target_factory
+  DEP_FILE = CMakeFiles/factory.dir/src/supplier.cpp.o.d
+  FLAGS = -g -fdiagnostics-color=always
+  INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
+  OBJECT_DIR = CMakeFiles/factory.dir
+  OBJECT_FILE_DIR = CMakeFiles/factory.dir/src
+
 build CMakeFiles/factory.dir/src/warehouse.cpp.o: CXX_COMPILER__factory_unscanned_Debug /home/andrzej/Documents/SO/fabryka/src/warehouse.cpp || cmake_object_order_depends_target_factory
   DEP_FILE = CMakeFiles/factory.dir/src/warehouse.cpp.o.d
+  FLAGS = -g -fdiagnostics-color=always
+  INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
+  OBJECT_DIR = CMakeFiles/factory.dir
+  OBJECT_FILE_DIR = CMakeFiles/factory.dir/src
+
+build CMakeFiles/factory.dir/src/machine.cpp.o: CXX_COMPILER__factory_unscanned_Debug /home/andrzej/Documents/SO/fabryka/src/machine.cpp || cmake_object_order_depends_target_factory
+  DEP_FILE = CMakeFiles/factory.dir/src/machine.cpp.o.d
   FLAGS = -g -fdiagnostics-color=always
   INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
   OBJECT_DIR = CMakeFiles/factory.dir
@@ -124,7 +184,7 @@ build CMakeFiles/factory.dir/src/warehouse.cpp.o: CXX_COMPILER__factory_unscanne
 #############################################
 # Link the executable bin/factory
 
-build bin/factory: CXX_EXECUTABLE_LINKER__factory_Debug CMakeFiles/factory.dir/src/factory.cpp.o CMakeFiles/factory.dir/src/utilities.cpp.o CMakeFiles/factory.dir/src/warehouse.cpp.o
+build bin/factory: CXX_EXECUTABLE_LINKER__factory_Debug CMakeFiles/factory.dir/src/factory.cpp.o CMakeFiles/factory.dir/src/utilities.cpp.o CMakeFiles/factory.dir/src/supplier.cpp.o CMakeFiles/factory.dir/src/warehouse.cpp.o CMakeFiles/factory.dir/src/machine.cpp.o
   FLAGS = -g
   OBJECT_DIR = CMakeFiles/factory.dir
   POST_BUILD = :
@@ -208,6 +268,8 @@ build director: phony bin/director
 
 build factory: phony bin/factory
 
+build machine: phony bin/machine
+
 build supplier: phony bin/supplier
 
 # =============================================================================
@@ -218,7 +280,7 @@ build supplier: phony bin/supplier
 #############################################
 # Folder: /home/andrzej/Documents/SO/fabryka/cmake-build-debug
 
-build all: phony bin/supplier bin/factory bin/director
+build all: phony bin/supplier bin/machine bin/factory bin/director
 
 # =============================================================================
 # Built-in targets

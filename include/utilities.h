@@ -9,7 +9,6 @@
 
 // rodzaje bledow & wynikow
 #define IPC_RESULT_ERROR -1
-#define MACHINE_STOPPED -2
 
 // zwracane przez warehouse
 #define MACHINE_RECIEVED_PRODUCT 0
@@ -26,14 +25,11 @@
 #define sem_wolne_miejsca_y 4
 #define sem_wolne_miejsca_z 5
 
-#define sem_shelf_x 7
-#define sem_shelf_y 8
-#define sem_shelf_z 9
+#define sem_shelf_x 6
+#define sem_shelf_y 7
+#define sem_shelf_z 8
 
-#define sem_command 6
-
-#define sem_factory_working 10
-#define sem_wareohuse_working 11
+#define sem_wareohuse_working 9
 
 // rodzaje komend dyrektora
 #define COMMAND_STOP_WAREHOUSE 1
@@ -47,7 +43,6 @@
 #define speed_supply_x 0//1000
 #define speed_supply_y 0//1000
 #define speed_supply_z 0//1000
-
 
 
 namespace utils
@@ -75,26 +70,10 @@ namespace utils
     // uzysknanie semid gdy zbior semaforow istnieje; inaczej -1
     int get_semid(key_t);
 
-    // ---------------------------- KOLEJKI ----------------------------- //
-    // tworzenie kolejki komunikatow
-    int utworz_kolejke(key_t key);
 
-    // uzysknanie msgid gdy kolejka istnieje; inaczej -1
-    int get_msid(key_t key);
-
-    // usuniecie kolejki
-    int usun_kolejke(int id);
     // ---------------------------- PAMIEC ----------------------------- //
-    typedef struct PamiecWspoldzielona
-    {
-        int id;
-        size_t size;
-        int flg;
-        char *adres;
-    } PamiecWspoldzielona;
-
     // tworzenie segmentu pamieci
-    int utworz_segment_pamieci_dzielonej(PamiecWspoldzielona *pDzielona, key_t klucz, long size);
+    int utworz_segment_pamieci_dzielonej(key_t klucz, long size);
 
     // dolaczenie segmentu pamieci -> zwraca adres
     char* dolacz_segment_pamieci(int shared_id);
@@ -106,7 +85,7 @@ namespace utils
     int odlacz_segment_pamieci_dzielonej(char *adres);
 
     // ustawienie do usuniecia segmnetu
-    int ustaw_do_usuniecia_segment(PamiecWspoldzielona *pDzielona);
+    int ustaw_do_usuniecia_segment(int memid);
 
     // pobranie informajci o rozmiarze segmentu
     size_t pobierz_rozmiar_pamieci(int shared_id);
@@ -117,27 +96,30 @@ namespace utils
     class ProductX
     {
     public:
-        ProductX(short weight);
+        ProductX();
         // paramety produktu // 2 bajty -> jedna jednostka
         short m_weight;
+        void recreate();
     };
 
     class ProductY
     {
     public:
-        ProductY(int weight);
+        ProductY();
         // paramety produktu 4 bajty -> dwie jednostki
         int m_weight;
+        void recreate();
     };
 
     class ProductZ
     {
     public:
-        ProductZ(int weight, char a, char b);
+        ProductZ();
         // paramety produktu 4+2 bajty -> trzy jednostki
         int m_weight;
         char m_a;
         char m_b;
+        void recreate();
     } __attribute__((packed));
     // FAKT ZE WCZESNIEJ INT + 2*CHAR = 8 BAJTOW KOSZTOWAL WIELE GODZIN CIEKAWEJ ZABAWY
 

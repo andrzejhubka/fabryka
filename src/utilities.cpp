@@ -109,44 +109,6 @@ namespace utils
         return semid;
     }
 
-    // kolejki komunikatow
-    int utworz_kolejke(key_t key)
-    {
-        int msid = msgget(key, IPC_CREAT | 0600);
-        if (msid == -1)
-        {
-            perror("NIe udalo sie utworzyc kolejki komunikatow");
-            return IPC_RESULT_ERROR;
-        }
-        return msid;
-
-    }
-
-    int get_msid(key_t key)
-    {
-        int msid = msgget(key, 0);
-
-        while(msid==-1)
-        {
-            msid = msgget(key, 0);
-            std::cout<<"Brak kolejki. Dyrektor musi ja zainicjowac"<<"\n";
-            sleep(10);
-        }
-        std::cout<<"Udalo sie podlaczyc do kolejki\n";
-        return msid;
-    }
-
-    int usun_kolejke(int id)
-    {
-        if(msgctl(id, 0, IPC_RMID) == -1)
-        {
-            perror("Nie udalo sie usunac kolejki komunikatow");
-            return IPC_RESULT_ERROR;
-        }
-        return 0;
-    }
-
-
     // random
     int random_number(int min, int max)
     {
@@ -159,24 +121,16 @@ namespace utils
         return dis(gen);
     }
 
-    int utworz_segment_pamieci_dzielonej(PamiecWspoldzielona *pDzielona, key_t klucz, long size)
+    int utworz_segment_pamieci_dzielonej(key_t klucz, long size)
     {
         // utworzenie i uzyskanie dostepu segmentu pamieci dzielonej
         int createid = shmget(klucz, size, IPC_CREAT | 0600);
         if (createid == IPC_RESULT_ERROR)
         {
             perror("Blad tworzenie segmentu pamieci\n");
-            return -1;
+            return IPC_RESULT_ERROR;
         }
-
-        // dolaczenie segmentu pamieci operacyjnej
-        char *adres = (char *)shmat(createid, 0, SHM_RND);
-
-        pDzielona->id = createid;
-        pDzielona->size = size;
-        pDzielona->flg = IPC_CREAT | 0600;
-        pDzielona->adres = adres;
-        return 0;
+        return createid;
     }
     int odlacz_segment_pamieci_dzielonej(char *adres)
     {
@@ -188,9 +142,9 @@ namespace utils
         }
         return 0;
     }
-    int ustaw_do_usuniecia_segment(PamiecWspoldzielona *pDzielona)
+    int ustaw_do_usuniecia_segment(int memid)
     {
-        int result = shmctl(pDzielona->id, IPC_RMID, NULL);
+        int result = shmctl(memid, IPC_RMID, NULL);
         if (result == -1 )
         {
             printf("Blad usuwania segmentu");
@@ -238,17 +192,32 @@ namespace utils
         return buf.shm_segsz;
     }
 
-    ProductX::ProductX(short weight)
-        : m_weight(weight)
+    ProductX::ProductX()
     {
+        m_weight = random_number(1,60);
     }
-    ProductY::ProductY(int weight)
-        : m_weight(weight)
+    void ProductX::recreate()
     {
+        m_weight = random_number(1,60);
     }
-    ProductZ::ProductZ(int weight, char a, char b)
-        : m_weight(weight), m_a(a), m_b(b)
+    ProductY::ProductY()
     {
+        m_weight = random_number(1,60);
     }
-
+    void ProductY::recreate()
+    {
+        m_weight = random_number(1,60);
+    }
+    ProductZ::ProductZ()
+    {
+        m_weight = random_number(1,60);
+        m_a = '2';
+        m_b = '3';
+    }
+    void ProductZ::recreate()
+    {
+        m_weight = random_number(1,60);
+        m_a = '2';
+        m_b = '3';
+    }
 }

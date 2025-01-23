@@ -67,9 +67,9 @@ namespace warehouse
         int initiailze(long capacity);
 
         // dodanie czegos do magazynu
-        int insert_x(utils::ProductX* container);
-        int insert_y(utils::ProductY* container);
-        int insert_z(utils::ProductZ* container);
+        int insert(utils::ProductX* container);
+        int insert(utils::ProductY* container);
+        int insert(utils::ProductZ* container);
 
         // wydawanie produktow pracownikom
         int grab_x(utils::ProductX* container);
