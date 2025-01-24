@@ -1,15 +1,19 @@
 #include <thread>
+#include <signal.h>
+#include <unistd.h>
 #include <sys/ipc.h>
 #include "utilities.h"
+#include "config.h"
 #include "warehouse.h"
-#include<unistd.h>
+
+
 
 static bool supplier_running = true;
 
-void supplier_stop(int signal)
+static void supplier_stop(int signal)
 {
+    std::cout<<"DOSTAWCA: Proba wylaczenia dostawcy o pid: "<<getpid()<<std::endl;
     supplier_running = false;
-
     // jesli maszyna czekala na produkty to ja obudz!
 }
 
@@ -25,7 +29,7 @@ void supplier(int speed)
     // pobierz zbior semaforow
     int sem_id = utils::get_semid(key_ipc);
 
-    // api do magazuni
+    // api do magazynu
     auto warehouse = warehouse::WarehouseManager(key_ipc, sem_id);
 
     // pojemnik na odbierane produkty
@@ -34,17 +38,11 @@ void supplier(int speed)
     // glowna petla
     while(supplier_running)
     {
-        usleep(speed*100000);
+        usleep(speed*1000);
         towar.recreate();
-        std::cout <<"TOWAR WAGA:"<< towar.m_weight << std::endl;
         warehouse.insert(&towar);
     }
 }
 
-void supplier_stop()
-{
-    supplier_running = false;
-    // jesli dostawca czekal na wolne miejsce to go obudz!
-}
 
 

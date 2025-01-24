@@ -9,6 +9,7 @@
 #include <sys/msg.h>
 #include <cstring>
 #include <sys/shm.h>
+#include "config.h"
 
 
 namespace utils
@@ -38,10 +39,10 @@ namespace utils
         struct sembuf bufor_sem;
         bufor_sem.sem_num=sem;
         bufor_sem.sem_op=value;
-        // TA FLAGA WYSADZILA MI 1000 RAZY PROGRAM BO DOSTAWCY/FABRYKA COFALI SWOJE OPERACJE bufor_sem.sem_flg=SEM_UNDO;
         if (semop(semid,&bufor_sem,1)==-1)
         {
-            printf("Koniec procesu.\n");
+            std::cout<<"Koniec procesu. Nieprawidzlowa operacja na semaforze: "<<sem<<std::endl;
+            std::cout<<"Mial wartosc:"<<utils::semafor_value(semid,sem)<<std::endl;
             exit(EXIT_FAILURE);
         }
     }

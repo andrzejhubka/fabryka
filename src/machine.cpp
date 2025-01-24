@@ -4,13 +4,14 @@
 #include <utilities.h>
 #include <warehouse.h>
 #include <signal.h>
+#include "config.h"
 
 bool machine_running = true;
 
 void machine_stop(int signal)
 {
+    std::cout<<"MASZYNA: Proba wylaczenia maszyny o pid: "<<getpid()<<std::endl;
     machine_running = false;
-
     // jesli maszyna czekala na produkty to ja obudz!
 }
 
@@ -42,10 +43,10 @@ void machine(int speed)
         magazyn.grab_z(&containter_z);
 
         // symbolizuje produkcje
-        usleep(speed*100);
+        usleep(speed*1000);
 
         // pokaz wynik na ekranie
-        std::cout<<"Wyprodukowano:" <<containter_x.m_weight+containter_y.m_weight+containter_z.m_weight<<" jako laczna waga."<<std::endl;;
+        std::cout<<"\033[33m"<<"MASZYNA: przetworzono produkty. Waga wyrobu: " <<containter_x.m_weight+containter_y.m_weight+containter_z.m_weight<<"\033[33m"<<std::endl;;
     }
 }
 

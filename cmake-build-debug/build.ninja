@@ -176,6 +176,13 @@ build CMakeFiles/factory.dir/src/machine.cpp.o: CXX_COMPILER__factory_unscanned_
   OBJECT_DIR = CMakeFiles/factory.dir
   OBJECT_FILE_DIR = CMakeFiles/factory.dir/src
 
+build CMakeFiles/factory.dir/src/director.cpp.o: CXX_COMPILER__factory_unscanned_Debug /home/andrzej/Documents/SO/fabryka/src/director.cpp || cmake_object_order_depends_target_factory
+  DEP_FILE = CMakeFiles/factory.dir/src/director.cpp.o.d
+  FLAGS = -g -fdiagnostics-color=always
+  INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
+  OBJECT_DIR = CMakeFiles/factory.dir
+  OBJECT_FILE_DIR = CMakeFiles/factory.dir/src
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target factory
@@ -184,7 +191,7 @@ build CMakeFiles/factory.dir/src/machine.cpp.o: CXX_COMPILER__factory_unscanned_
 #############################################
 # Link the executable bin/factory
 
-build bin/factory: CXX_EXECUTABLE_LINKER__factory_Debug CMakeFiles/factory.dir/src/factory.cpp.o CMakeFiles/factory.dir/src/utilities.cpp.o CMakeFiles/factory.dir/src/supplier.cpp.o CMakeFiles/factory.dir/src/warehouse.cpp.o CMakeFiles/factory.dir/src/machine.cpp.o
+build bin/factory: CXX_EXECUTABLE_LINKER__factory_Debug CMakeFiles/factory.dir/src/factory.cpp.o CMakeFiles/factory.dir/src/utilities.cpp.o CMakeFiles/factory.dir/src/supplier.cpp.o CMakeFiles/factory.dir/src/warehouse.cpp.o CMakeFiles/factory.dir/src/machine.cpp.o CMakeFiles/factory.dir/src/director.cpp.o
   FLAGS = -g
   OBJECT_DIR = CMakeFiles/factory.dir
   POST_BUILD = :
@@ -222,6 +229,13 @@ build CMakeFiles/director.dir/src/warehouse.cpp.o: CXX_COMPILER__director_unscan
   OBJECT_DIR = CMakeFiles/director.dir
   OBJECT_FILE_DIR = CMakeFiles/director.dir/src
 
+build CMakeFiles/director.dir/src/machine.cpp.o: CXX_COMPILER__director_unscanned_Debug /home/andrzej/Documents/SO/fabryka/src/machine.cpp || cmake_object_order_depends_target_director
+  DEP_FILE = CMakeFiles/director.dir/src/machine.cpp.o.d
+  FLAGS = -g -fdiagnostics-color=always
+  INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
+  OBJECT_DIR = CMakeFiles/director.dir
+  OBJECT_FILE_DIR = CMakeFiles/director.dir/src
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target director
@@ -230,7 +244,7 @@ build CMakeFiles/director.dir/src/warehouse.cpp.o: CXX_COMPILER__director_unscan
 #############################################
 # Link the executable bin/director
 
-build bin/director: CXX_EXECUTABLE_LINKER__director_Debug CMakeFiles/director.dir/src/director.cpp.o CMakeFiles/director.dir/src/utilities.cpp.o CMakeFiles/director.dir/src/warehouse.cpp.o
+build bin/director: CXX_EXECUTABLE_LINKER__director_Debug CMakeFiles/director.dir/src/director.cpp.o CMakeFiles/director.dir/src/utilities.cpp.o CMakeFiles/director.dir/src/warehouse.cpp.o CMakeFiles/director.dir/src/machine.cpp.o
   FLAGS = -g
   OBJECT_DIR = CMakeFiles/director.dir
   POST_BUILD = :

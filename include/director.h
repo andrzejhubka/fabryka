@@ -10,7 +10,7 @@
 
 
 // informajca czy dyrektor pracuje
-int main(int argc, char *argv[]);
+void director(pid_t pid1, pid_t pid2, pid_t pid3, pid_t pid4, pid_t pid5);
 
 
 

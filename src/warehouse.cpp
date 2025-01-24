@@ -1,11 +1,14 @@
-#include "warehouse.h"
+#include <unistd.h>
 #include <cstring>
-#include <director.h>
-#include "utilities.h"
 #include  <iostream>
 #include <fstream>
-#include <unistd.h>
 #include <iomanip>
+#include <director.h>
+#include "utilities.h"
+#include "config.h"
+#include "warehouse.h"
+
+
 
 namespace warehouse
 {
@@ -74,8 +77,6 @@ namespace warehouse
             m_data->z_offset_pisanie  = 0;
         }
 
-
-
         std::cout<<"Pomyslnie zainicjowano pojemnosc magazynu: " << capacity<<std::endl;
 
         // ustawienie miejsca w magazynie
@@ -134,11 +135,11 @@ namespace warehouse
     int WarehouseManager::grab_x(utils::ProductX* container) //TODOSHARED
     {
         // ------------------------ CZEKANIE NA PRODUKT Z MOZLIWOSCIA WYBUDZENIA MASZYN
-        utils::semafor_p(m_semid, sem_dostepne_x, 1);
         // w trakcie pobierania produktu moglo sie okazac ze magazyn jest zamkniety
+        utils::semafor_p(m_semid, sem_dostepne_x, 1);
         if (utils::semafor_value(m_semid, sem_wareohuse_working )!=1)
         {
-            utils::semafor_v(m_semid, sem_dostepne_x, 1);
+           // utils::semafor_v(m_semid, sem_dostepne_x, 1);
             return WAREHOUSE_CLOSED;
         }
 
@@ -152,7 +153,7 @@ namespace warehouse
             std::cerr << "Błąd: Wskaźniki są niezainicjowane!" << std::endl;
             return -1;
         }
-        std::cout<<"MAGAZYN: pobrano produkt X"<<std::endl;
+        std::cout<<"\033[33m"<<"MASZYNA: pobrano produkt X"<< "\033[0m" <<std::endl;
         offset_move_to_next(m_data->x_offset_czytanie, sizeof(utils::ProductX), m_data->products_per_shelf);
         m_data->x_wolne += 1;
         m_data->x_zajete -= 1;
@@ -164,9 +165,10 @@ namespace warehouse
     {
         // ------------------------ CZEKANIE NA PRODUKT Z MOZLIWOSCIA WYBUDZENIA MASZYNY
         // w trakcie pobierania produktu moglo sie okazac ze magazyn jest zamkniety
+        utils::semafor_p(m_semid, sem_dostepne_y, 1);
         if (utils::semafor_value(m_semid, sem_wareohuse_working )!=1)
         {
-            utils::semafor_v(m_semid, sem_dostepne_y, 1);
+          //  utils::semafor_v(m_semid, sem_dostepne_y, 1);
             return WAREHOUSE_CLOSED;
         }
 
@@ -181,7 +183,7 @@ namespace warehouse
             std::cerr << "Błąd: Wskaźniki są niezainicjowane!" << std::endl;
             return -1;
         }
-        std::cout<<"MAGAZYN: pobrano produkt Y"<<std::endl;
+        std::cout<<"\033[33m"<<"MASZYNA: pobrano produkt Y"<< "\033[0m" <<std::endl;
         offset_move_to_next(m_data->y_offset_czytanie, sizeof(utils::ProductY), m_data->products_per_shelf);
         m_data->y_wolne += 1;
         m_data->y_zajete -= 1;
@@ -191,10 +193,11 @@ namespace warehouse
     }
     int WarehouseManager::grab_z(utils::ProductZ* container) //TODOSHARED
     {
+        utils::semafor_p(m_semid, sem_dostepne_z, 1);
         // w trakcie pobierania produktu moglo sie okazac ze magazyn jest zamkniety
         if (utils::semafor_value(m_semid, sem_wareohuse_working )!=1)
         {
-            utils::semafor_v(m_semid, sem_dostepne_z, 1);
+            //utils::semafor_v(m_semid, sem_dostepne_z, 1);
             return WAREHOUSE_CLOSED;
         }
 
@@ -208,7 +211,7 @@ namespace warehouse
             std::cerr << "Błąd: Wskaźniki są niezainicjowane!" << std::endl;
             return -1;
         }
-        std::cout<<"MAGAZYN: pobrano produkt Z"<<std::endl;
+        std::cout<<"\033[33m"<<"MASZYNA: pobrano produkt Z"<< "\033[0m" <<std::endl;
         offset_move_to_next(m_data->z_offset_czytanie, sizeof(utils::ProductZ), m_data->products_per_shelf);
         m_data->z_wolne += 1;
         m_data->z_zajete -= 1;
@@ -225,7 +228,7 @@ namespace warehouse
         if (utils::semafor_value(m_semid, sem_wareohuse_working )!=1)
         {
             std::cout<<"Dostawca X: wykryto zamkniecie magazynu"<<std::endl;
-            utils::semafor_v(m_semid, sem_wolne_miejsca_x, 1);
+            //utils::semafor_v(m_semid, sem_wolne_miejsca_x, 1);
             return WAREHOUSE_CLOSED;
         }
 
@@ -238,7 +241,7 @@ namespace warehouse
         {
             std::cerr << "Błąd: Wskaźniki są niezainicjowane!" << std::endl;
         }
-        std::cout<<"MAGAZYN: dostarczono produkt X"<<std::endl;
+        std::cout<<"\033[34m"<<"DOSTAWCA: dostarczono produkt X"<< "\033[0m" <<std::endl;
         offset_move_to_next(m_data->x_offset_pisanie, sizeof(utils::ProductX), m_data->products_per_shelf);
         m_data->x_zajete += 1;
         m_data->x_wolne -= 1;
@@ -253,14 +256,14 @@ namespace warehouse
         // SPRAWDZ CZY MAGAZYN NIE OBUDZIL CIE Z INNEGO POWODU!
         if (utils::semafor_value(m_semid, sem_wareohuse_working )!=1)
         {
-            utils::semafor_v(m_semid, sem_wolne_miejsca_y, 1);
-            std::cout<<"Dostawca y: wykryto zamkniecie magazynu"<<std::endl;
+            //utils::semafor_v(m_semid, sem_wolne_miejsca_y, 1);
+            std::cout<<"DOSTAWCA: wykryto zamkniecie magazynu"<<std::endl;
             return WAREHOUSE_CLOSED;
         }
 
         utils::semafor_p(m_semid, sem_shelf_y, 1);
         memcpy(y_shelf_adress+m_data->y_offset_pisanie, container, sizeof(utils::ProductY));
-        std::cout<<"MAGAZYN: dostarczono produkt Y"<<std::endl;
+        std::cout<<"\033[34m"<<"MAGAZYN: dostarczono produkt Y"<< "\033[0m" <<std::endl;
         offset_move_to_next(m_data->y_offset_pisanie, sizeof(utils::ProductY), m_data->products_per_shelf);
         m_data->y_zajete += 1;
         m_data->y_wolne -= 1;
@@ -276,13 +279,13 @@ namespace warehouse
         if (utils::semafor_value(m_semid, sem_wareohuse_working )!=1)
         {
             std::cout<<"Dostawca Z: wykryto zamkniecie magazynu"<<std::endl;
-            utils::semafor_v(m_semid, sem_wolne_miejsca_z, 1);
+            //utils::semafor_v(m_semid, sem_wolne_miejsca_z, 1);
             return WAREHOUSE_CLOSED;
         }
 
         utils::semafor_p(m_semid, sem_shelf_z, 1);
         memcpy(z_shelf_adress+m_data->z_offset_pisanie, container, sizeof(utils::ProductZ));
-        std::cout<<"MAGAZYN: dostarczono produkt Z"<<std::endl;
+        std::cout<<"\033[34m"<<"DOSTAWCA: dostarczono produkt Z"<< "\033[0m" <<std::endl;
         offset_move_to_next(m_data->z_offset_pisanie, sizeof(utils::ProductZ), m_data->products_per_shelf);
         m_data->z_zajete += 1;
         m_data->z_wolne -= 1;
