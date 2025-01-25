@@ -2,18 +2,92 @@
 #include <iostream>
 #include <sys/ipc.h>
 #include <sys/sem.h>
+#include <fstream>
 #include <errno.h>
 #include <cstdlib>
 #include <unistd.h>
 #include <random>
 #include <sys/msg.h>
 #include <cstring>
+#include <director.h>
 #include <sys/shm.h>
 #include "config.h"
 
 
 namespace utils
 {
+    void detect_issue(int condition, const char* message)
+    {
+        if (condition)
+        {
+            perror(message);
+            exit(EXIT_FAILURE); // Zakończenie programu
+        }
+    }
+    long calculate_capacity_units(int argc, char* argv[])
+    {
+        if (argc < 2)
+        {
+            errno = EINVAL;
+            utils::detect_issue(true, "Obliczanie jednostek pojemnosci");
+        }
+
+
+        long capacity;
+        try
+        {
+            capacity = std::stol(argv[1]);
+        }
+        catch (const std::invalid_argument& e)
+        {
+            errno = EINVAL;
+            utils::detect_issue(true, "Argument pojemności nie jest liczbą całkowitą");
+        }
+        catch (const std::out_of_range& e)
+        {
+            errno = ERANGE;
+            utils::detect_issue(true, "Argument pojemności jest poza zakresem");
+        }
+
+
+        // liczba jednostek musi byc powyzej 6
+        if (capacity < 6)
+        {
+            errno = ERANGE;
+            utils::detect_issue(true, "Pojemnosc magazynu musi byc wieksza niz 6");
+        }
+
+        // jednostki pojemnosci magazynu -> musza byc podzielne przez 6
+        if (capacity % 6 != 0)
+        {
+            capacity = (capacity / 6) * 6;
+        }
+
+        // sprawdzamy limity pamieci ram w komupterze i ustawiamy uzywane przez segment pamieci
+        long pages = sysconf(_SC_PHYS_PAGES); // strony pamieci
+        long page_size = sysconf(_SC_PAGE_SIZE); // Rozmiar strony w bajtach
+        long total_memory = pages * page_size; // Całkowita pamięć RAM w bajtach
+        int max_capacity = total_memory * MAX_RAM ;
+
+        // jesli proponowana pojemnosc bedzie zbyt duza
+        if (max_capacity < capacity * UNIT_SIZE)
+        {
+            errno = ENOMEM;
+            detect_issue(true, "Za duza pojemnosc magazunu");
+        }
+
+
+        std::cout << "capacity: " << capacity << std::endl;
+        return capacity;
+    }
+
+    bool does_pid_exist(int pid)
+    {
+        std::ifstream file("/proc/" + std::to_string(pid) + "/stat");
+        return file.is_open();
+    }
+
+
     void semafor_p(int semid, int sem, int value)
     {
         struct sembuf bufor_sem;
@@ -39,75 +113,24 @@ namespace utils
         struct sembuf bufor_sem;
         bufor_sem.sem_num=sem;
         bufor_sem.sem_op=value;
-        if (semop(semid,&bufor_sem,1)==-1)
-        {
-            std::cout<<"Koniec procesu. Nieprawidzlowa operacja na semaforze: "<<sem<<std::endl;
-            std::cout<<"Mial wartosc:"<<utils::semafor_value(semid,sem)<<std::endl;
-            exit(EXIT_FAILURE);
-        }
+        int result = semop(semid,&bufor_sem,1);
+        detect_issue(result==IPC_RESULT_ERROR, "Blad dekrementaccji semafora");
     }
 
     int semafor_value(int semid, int sem)
     {
         // Odczytanie wartości semafora
-        int value = semctl(semid, sem, GETVAL);
+        int result = semctl(semid, sem, GETVAL);
+        detect_issue(result==IPC_RESULT_ERROR, "Blad sprawdzania wartosci semafora");
 
-        // Jeśli operacja zwróci -1, oznacza to błąd
-        if (value == -1)
-        {
-            throw std::runtime_error("Błąd odczytu wartości semafora.");
-        }
-
-        return value;
+        return result;
     }
 
     void semafor_set(int semid, int sem, int value)
     {
         // inicjacja semafora
-        int wynikInicjalizacji = semctl(semid, sem, SETVAL, value);
-        if (wynikInicjalizacji == -1)
-        {
-            perror("Nie udalo sie zainicjializowac wartosci semafora");
-        }
-    }
-
-    int utworz_zbior_semaforow(key_t key, int count)
-    {
-        // tworzenie zbioru semaforow
-        int semid = semget(key, count, IPC_CREAT | 0600);
-
-        if (semid == -1)
-        {
-            perror("NIe udalo sie utworzyc zbioru semaforow");
-            return -1;
-        }
-
-        return semid;
-    }
-
-    int usun_zbior_semaforow(int semid)
-    {
-        if(semctl(semid, 0, IPC_RMID) == -1)
-        {
-            perror("Nie udalo sie usunac zbioru semaforow");
-            return IPC_RESULT_ERROR;
-        }
-        return 0;
-    }
-
-    int get_semid(key_t key)
-    {
-        int semid = semget(key, 0, 0);
-
-        while(semid==-1)
-        {
-            semid = semget(key, 0, 0);
-            //perror("Nie zbior semaforow nie istnieje, czekam na jego utworzenie");
-            std::cout<<"Brak zbioru semaforow. Dyrektor musi go zainicjowac"<<"\n";
-            sleep(10);
-        }
-        std::cout<<"Udalo sie podlaczyc do zbioru semaforow\n";
-        return semid;
+        int result = semctl(semid, sem, SETVAL, value);
+        detect_issue(result==IPC_RESULT_ERROR, "Blad ustawiania wartosci semafora");
     }
 
     // random
@@ -122,60 +145,11 @@ namespace utils
         return dis(gen);
     }
 
-    int utworz_segment_pamieci_dzielonej(key_t klucz, long size)
-    {
-        // utworzenie i uzyskanie dostepu segmentu pamieci dzielonej
-        int createid = shmget(klucz, size, IPC_CREAT | 0600);
-        if (createid == IPC_RESULT_ERROR)
-        {
-            perror("Blad tworzenie segmentu pamieci\n");
-            return IPC_RESULT_ERROR;
-        }
-        return createid;
-    }
-    int odlacz_segment_pamieci_dzielonej(char *adres)
-    {
-        int result = shmdt(adres);
-        if(result == -1)
-        {
-            perror("Blad odlaczania segmentu\n");
-            return -1;
-        }
-        return 0;
-    }
-    int ustaw_do_usuniecia_segment(int memid)
-    {
-        int result = shmctl(memid, IPC_RMID, NULL);
-        if (result == -1 )
-        {
-            printf("Blad usuwania segmentu");
-            return -1;
-        }
-        return 0;
-    }
-    int get_shared_id(key_t klucz)
-    {
-        int id = shmget(klucz, 0, 0);
-
-        while(id==IPC_RESULT_ERROR)
-        {
-            id = msgget(klucz, 0);
-            std::cout<<"Brak segmentu. Dyrektor musi go zainicjowac"<<"\n";
-            sleep(10);
-        }
-       return id;
-    }
-
     char* dolacz_segment_pamieci(int shared_id)
     {
         char *adres = (char *)shmat(shared_id, 0, SHM_RND);
-        if (adres == (char*)-1)
-        {
-            std::cerr << "Błąd przy dołączaniu segmentu pamięci współdzielonej: "
-                      << strerror(errno) << std::endl;
-            return nullptr;
-        }
-        std::cout<<"Udalo sie dolaczyc do pamieci wspoldzielonej\n";
+        detect_issue(adres==(char*)-1, "Blad dolaczania segmentu pamieci");
+
         return adres;
     }
     size_t pobierz_rozmiar_pamieci(int shared_id)
@@ -183,16 +157,11 @@ namespace utils
         struct shmid_ds buf;
 
         // Pobranie informacji o segmencie pamięci
-        if (shmctl(shared_id, IPC_STAT, &buf) == -1)
-        {
-            std::cerr << "Błąd: nie udało się pobrać informacji o pamięci współdzielonej: "
-                      << strerror(errno) << std::endl;
-            return IPC_RESULT_ERROR; // Zwróć 0 w przypadku błędu
-        }
+        int result = shmctl(shared_id, IPC_STAT, &buf) == -1;
+        detect_issue(result==IPC_RESULT_ERROR, "Blad pobierania rozmiaru pamieci");
         // Zwrócenie rozmiaru pamięci współdzielonej
         return buf.shm_segsz;
     }
-
     ProductX::ProductX()
     {
         m_weight = random_number(1,60);

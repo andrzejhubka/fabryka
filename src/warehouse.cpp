@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iomanip>
 #include <director.h>
+#include <sys/shm.h>
 #include "utilities.h"
 #include "config.h"
 #include "warehouse.h"
@@ -17,7 +18,7 @@ namespace warehouse
     WarehouseManager::WarehouseManager(key_t ipckey, int semid)
     {
         // inicjacja ipc
-        m_sharedid = utils::get_shared_id(ipckey);
+        m_sharedid = shmget(ipckey, 0, 0);
         m_sharedptr = utils::dolacz_segment_pamieci(m_sharedid);
         m_semid = semid;
 
@@ -91,7 +92,6 @@ namespace warehouse
         return 0;
     }
 
-
     // --------------------------ZAPIS/ODCZYT DO PLIKU --------------------------
     void WarehouseManager::save_to_file(const std::string& filePath) const
     {
@@ -99,7 +99,6 @@ namespace warehouse
         std::cout<<"Sciezka:"<<WAREHOUSE_PATH<<std::endl;
         if (!file)
         {
-            utils::odlacz_segment_pamieci_dzielonej(m_sharedptr); // Odłącz segment pamięci przed zgłoszeniem błędu
             throw std::runtime_error("Nie udało się otworzyć pliku do zapisu.");
         }
 
@@ -132,14 +131,14 @@ namespace warehouse
 
     // --------------------------POBIERANIE ZASOBOW --------------------------
 
-    int WarehouseManager::grab_x(utils::ProductX* container) //TODOSHARED
+    int WarehouseManager::grab_x(utils::ProductX* container)
     {
-        // ------------------------ CZEKANIE NA PRODUKT Z MOZLIWOSCIA WYBUDZENIA MASZYN
-        // w trakcie pobierania produktu moglo sie okazac ze magazyn jest zamkniety
+        // czekaj na produkt
         utils::semafor_p(m_semid, sem_dostepne_x, 1);
-        if (utils::semafor_value(m_semid, sem_wareohuse_working )!=1)
+        // magazyn mogl obudzic maszyne z powodu potrzeby jej wylaczenia
+        if (utils::semafor_value(m_semid, sem_factory_working )!=1)
         {
-           // utils::semafor_v(m_semid, sem_dostepne_x, 1);
+            std::cout<<"Maszyna X: obudzono do wylaczenia"<<std::endl;
             return WAREHOUSE_CLOSED;
         }
 
@@ -161,18 +160,18 @@ namespace warehouse
         utils::semafor_v(m_semid, sem_wolne_miejsca_x, 1);
         return MACHINE_RECIEVED_PRODUCT;
     }
-    int WarehouseManager::grab_y(utils::ProductY* container) //TODOSHARED
+    int WarehouseManager::grab_y(utils::ProductY* container)
     {
-        // ------------------------ CZEKANIE NA PRODUKT Z MOZLIWOSCIA WYBUDZENIA MASZYNY
-        // w trakcie pobierania produktu moglo sie okazac ze magazyn jest zamkniety
+        // czekaj na produkt
         utils::semafor_p(m_semid, sem_dostepne_y, 1);
-        if (utils::semafor_value(m_semid, sem_wareohuse_working )!=1)
+        // magazyn mogl obudzic maszyne z powodu potrzeby jej wylaczenia
+        if (utils::semafor_value(m_semid, sem_factory_working )!=1)
         {
-          //  utils::semafor_v(m_semid, sem_dostepne_y, 1);
+            std::cout<<"Maszyna Y: obudzono do wylaczenia"<<std::endl;
             return WAREHOUSE_CLOSED;
         }
 
-        // ------------------------ TRZEBA JAKOS ZAPEWNIC ZEBY POLKI NIGDY SIE NIE ZATKALY
+        // zajmij polke i pobierz produkt
         utils::semafor_p(m_semid, sem_shelf_y, 1);
         if (container != nullptr)
         {
@@ -191,16 +190,18 @@ namespace warehouse
         utils::semafor_v(m_semid, sem_wolne_miejsca_y, 1);
         return MACHINE_RECIEVED_PRODUCT;
     }
-    int WarehouseManager::grab_z(utils::ProductZ* container) //TODOSHARED
+    int WarehouseManager::grab_z(utils::ProductZ* container)
     {
+        // czekanie na produkt
         utils::semafor_p(m_semid, sem_dostepne_z, 1);
-        // w trakcie pobierania produktu moglo sie okazac ze magazyn jest zamkniety
-        if (utils::semafor_value(m_semid, sem_wareohuse_working )!=1)
+        // magazyn mogl obudzic maszyne z powodu potrzeby jej wylaczenia
+        if (utils::semafor_value(m_semid, sem_factory_working )!=1)
         {
-            //utils::semafor_v(m_semid, sem_dostepne_z, 1);
+            std::cout<<"Maszyna Z: obudzono do wylaczenia"<<std::endl;
             return WAREHOUSE_CLOSED;
         }
 
+        // zajmoj polke i wloz produkt
         utils::semafor_p(m_semid, sem_shelf_z, 1);
         if (container != nullptr)
         {
@@ -343,6 +344,28 @@ namespace warehouse
         //
 
 
+    }
+
+    void WarehouseManager::wakeup_suppliers(int semid)
+    {
+        // zakoncz prace magazynu
+        utils::semafor_set(semid, sem_wareohuse_working, 0);
+
+        // obudz dostawcow
+        utils::semafor_set(semid, sem_wolne_miejsca_x, 2);
+        utils::semafor_set(semid, sem_wolne_miejsca_y, 2);
+        utils::semafor_set(semid, sem_wolne_miejsca_z, 2);
+    }
+
+    void WarehouseManager::wakeup_machines(int semid)
+    {
+        // zakoncz prace fabryki
+        utils::semafor_set(semid, sem_wareohuse_working, 0);
+
+        // obudz dostawcow
+        utils::semafor_set(semid, sem_dostepne_x, 2);
+        utils::semafor_set(semid, sem_dostepne_y, 2);
+        utils::semafor_set(semid, sem_dostepne_z, 2);
     }
 
 }

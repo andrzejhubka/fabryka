@@ -1,5 +1,6 @@
 #include <thread>
 #include <signal.h>
+#include <sys/sem.h>
 #include <unistd.h>
 #include <sys/ipc.h>
 #include "utilities.h"
@@ -10,11 +11,16 @@
 
 static bool supplier_running = true;
 
+static key_t key_ipc;
+static int sem_id;
+
 static void supplier_stop(int signal)
 {
     std::cout<<"DOSTAWCA: Proba wylaczenia dostawcy o pid: "<<getpid()<<std::endl;
     supplier_running = false;
+
     // jesli maszyna czekala na produkty to ja obudz!
+    warehouse::WarehouseManager::wakeup_suppliers(sem_id);
 }
 
 template<typename Product>
@@ -23,11 +29,13 @@ void supplier(int speed)
     // handler dla sygnalu wylaczenia
     signal(SIGUSR1, supplier_stop);
 
-    // klcuz do ipc
-    key_t key_ipc = ftok("/tmp", 32);
+    // klucz do mechanizmow ipc
+    key_ipc = ftok("/tmp", 32);
+    utils::detect_issue(key_ipc==IPC_RESULT_ERROR, "Blad generowania ftok");
 
-    // pobierz zbior semaforow
-    int sem_id = utils::get_semid(key_ipc);
+    // klucz do zbioru semaforow
+    sem_id = semget(key_ipc, 0, 0);
+    utils::detect_issue(sem_id==IPC_RESULT_ERROR, "Blad pobierania id zbioru semaforow");
 
     // api do magazynu
     auto warehouse = warehouse::WarehouseManager(key_ipc, sem_id);

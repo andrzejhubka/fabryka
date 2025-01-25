@@ -81,10 +81,14 @@ namespace warehouse
         // wczytanie stanu z pliku
         int load_from_file(const std::string& filePath);
 
+        // budzenie dostawcow czejakacych na miejsce
+        static void wakeup_suppliers(int semid);
+
+        // budzenie masszyn czejakacych na produkt
+        static void wakeup_machines(int semid);
+
         // informacje o magazynie
         void info();
-        // obudz czekajace na produkty maszyny, zeby sprawdzily czy sa tez wylaczone
-        void wake_machines();
     };
 
 };
