@@ -38,11 +38,11 @@
 #define COMMAND_STOP_WAREHOUSE_FACTORY_NO_SAVE 4
 
 // czasy wykonywania czynnosci -> w milisekundach
-#define speed_machine_a 100//10000
-#define speed_machine_b 100//10000
-#define speed_supply_x 100000000//1000
-#define speed_supply_y 100000000//1000
-#define speed_supply_z 100000000//1000
+#define speed_machine_a 1000//10000
+#define speed_machine_b 1000//10000
+#define speed_supply_x 1000//1000
+#define speed_supply_y 1000//1000
+#define speed_supply_z 1000//1000
 
 // maksymalna zajetosc pamieci ram przez magazyn w %
 #define MAX_RAM 0.005

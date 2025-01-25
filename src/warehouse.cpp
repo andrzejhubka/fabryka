@@ -19,6 +19,8 @@ namespace warehouse
     {
         // inicjacja ipc
         m_sharedid = shmget(ipckey, 0, 0);
+        utils::detect_issue(m_sharedid==IPC_RESULT_ERROR, "WarehouseManager: blad pobierania semid");
+
         m_sharedptr = utils::dolacz_segment_pamieci(m_sharedid);
         m_semid = semid;
 
@@ -96,11 +98,7 @@ namespace warehouse
     void WarehouseManager::save_to_file(const std::string& filePath) const
     {
         std::ofstream file(filePath, std::ios::binary);
-        std::cout<<"Sciezka:"<<WAREHOUSE_PATH<<std::endl;
-        if (!file)
-        {
-            throw std::runtime_error("Nie udało się otworzyć pliku do zapisu.");
-        }
+        utils::detect_issue(!file, "Blad otwarcie pliku do zapisu");
 
         long memory_size = sizeof(warehouse_data) + m_data->capacity * sizeof(UNIT_SIZE);
         file.write(m_sharedptr, memory_size);

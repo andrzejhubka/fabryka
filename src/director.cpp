@@ -34,6 +34,7 @@ void director(int pid_x, int pid_y, int pid_z, int pid_a,int pid_b)
 
         std::cin >> wybor;
         std::string command;
+        usleep(1000);
 
         switch (wybor)
         {

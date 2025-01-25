@@ -15,10 +15,8 @@ static int sem_id;
 
 void machine_stop(int signal)
 {
-    std::cout<<"MASZYNA: Proba wylaczenia maszyny o pid: "<<getpid()<<std::endl;
     machine_running = false;
-
-    // jesli maszyna czekala na produkty to ja obudz!
+    // jesli maszyna czek1ala na produkty to ja obudz!
     warehouse::WarehouseManager::wakeup_machines(sem_id);
 }
 
@@ -60,6 +58,8 @@ void machine(int speed)
         // pokaz wynik na ekranie
         std::cout<<"\033[33m"<<"MASZYNA: przetworzono produkty. Waga wyrobu: " <<containter_x.m_weight+containter_y.m_weight+containter_z.m_weight<<"\033[0m"<<std::endl;;
     }
+
+    std::cout<<"Maszyna zakonczyla produkcje. "<<std::endl;
 }
 
 
