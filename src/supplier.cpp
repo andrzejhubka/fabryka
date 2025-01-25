@@ -6,7 +6,7 @@
 #include "utilities.h"
 #include "config.h"
 #include "warehouse.h"
-
+#include <sys/prctl.h>
 
 
 static bool supplier_running = true;
@@ -16,11 +16,14 @@ static int sem_id;
 
 static void supplier_stop(int signal)
 {
+
     std::cout<<"DOSTAWCA: Proba wylaczenia dostawcy o pid: "<<getpid()<<std::endl;
     supplier_running = false;
 
     // jesli maszyna czekala na produkty to ja obudz!
+
     warehouse::WarehouseManager::wakeup_suppliers(sem_id);
+    exit(EXIT_SUCCESS);
 }
 
 template<typename Product>
@@ -29,6 +32,8 @@ void supplier(int speed)
     // handler dla sygnalu wylaczenia
     signal(SIGUSR1, supplier_stop);
 
+    // w przypadku smierci rodzica, tez zakoncz prace.
+    prctl(PR_SET_PDEATHSIG, SIGTERM);
     // klucz do mechanizmow ipc
     key_ipc = ftok("/tmp", 32);
     utils::detect_issue(key_ipc==IPC_RESULT_ERROR, "Blad generowania ftok");
@@ -50,6 +55,8 @@ void supplier(int speed)
         towar.recreate();
         warehouse.insert(&towar);
     }
+
+    exit(EXIT_SUCCESS);
 }
 
 

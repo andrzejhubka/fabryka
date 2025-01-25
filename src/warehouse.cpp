@@ -322,17 +322,17 @@ namespace warehouse
         }
 
         // daj znac ze magazyn juz nie dziala
-        utils::semafor_v(m_semid, sem_wareohuse_working, WAREHOUSE_CLOSED);
+        utils::semafor_set(m_semid, sem_wareohuse_working, 0);
 
         // obudz dostawcow
-        utils::semafor_v(m_semid, sem_wolne_miejsca_x, 1);
-        utils::semafor_v(m_semid, sem_wolne_miejsca_y, 1);
-        utils::semafor_v(m_semid, sem_wolne_miejsca_z, 1);
+        utils::semafor_v(m_semid, sem_wolne_miejsca_x, 2);
+        utils::semafor_v(m_semid, sem_wolne_miejsca_y, 2);
+        utils::semafor_v(m_semid, sem_wolne_miejsca_z, 2);
 
         // obudz te maszyny ktore czekaja na produkt
-        utils::semafor_v(m_semid, sem_dostepne_x, 2);
-        utils::semafor_v(m_semid, sem_dostepne_y, 2);
-        utils::semafor_v(m_semid, sem_dostepne_z, 2);
+        utils::semafor_v(m_semid, sem_dostepne_x, 3);
+        utils::semafor_v(m_semid, sem_dostepne_y, 3);
+        utils::semafor_v(m_semid, sem_dostepne_z, 3);
 
         utils::semafor_v(m_semid, sem_shelf_x, 1);
         utils::semafor_v(m_semid, sem_shelf_y, 1);
@@ -350,9 +350,9 @@ namespace warehouse
         utils::semafor_set(semid, sem_wareohuse_working, 0);
 
         // obudz dostawcow
-        utils::semafor_set(semid, sem_wolne_miejsca_x, 2);
-        utils::semafor_set(semid, sem_wolne_miejsca_y, 2);
-        utils::semafor_set(semid, sem_wolne_miejsca_z, 2);
+        utils::semafor_set(semid, sem_wolne_miejsca_x, 3);
+        utils::semafor_set(semid, sem_wolne_miejsca_y, 3);
+        utils::semafor_set(semid, sem_wolne_miejsca_z, 3);
     }
 
     void WarehouseManager::wakeup_machines(int semid)
@@ -360,7 +360,7 @@ namespace warehouse
         // zakoncz prace fabryki
         utils::semafor_set(semid, sem_wareohuse_working, 0);
 
-        // obudz dostawcow
+        // obudz maszyny
         utils::semafor_set(semid, sem_dostepne_x, 2);
         utils::semafor_set(semid, sem_dostepne_y, 2);
         utils::semafor_set(semid, sem_dostepne_z, 2);

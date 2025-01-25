@@ -7,6 +7,7 @@
 #include <sys/shm.h>
 #include <sys/sem.h>
 #include "config.h"
+#include <sys/prctl.h>
 
 bool machine_running = true;
 
@@ -24,6 +25,9 @@ void machine(int speed)
 {
     // handler dla sygnalu wylaczenia
     signal(SIGUSR1, machine_stop);
+
+    // w przypadku smierci rodzica, tez zakoncz prace.
+    prctl(PR_SET_PDEATHSIG, SIGTERM);
 
     // klucz do mechanizmow ipc
     key_ipc = ftok("/tmp", 32);
@@ -60,6 +64,7 @@ void machine(int speed)
     }
 
     std::cout<<"Maszyna zakonczyla produkcje. "<<std::endl;
+    exit(EXIT_SUCCESS);
 }
 
 

@@ -17,8 +17,9 @@ void cleanup(int signal);
 void child_terminated(int signal);
 bool is_pid_active(pid_t pid);
 pid_t pids[6];
-int active_processes = 6;
+
 bool stopped_processes[6] = {false, false, false, false, false, false};
+bool waiting_for_processes = true;
 
 int main(int argc, char *argv[])
 {
@@ -108,15 +109,11 @@ int main(int argc, char *argv[])
   utils::detect_issue(signal(SIGCHLD, child_terminated)==SIG_ERR, "Blad ustawiania handlera syngalu");
 
   // czekamy dopolki sa jeszcze dzialajace procesy
-  // czekanie na procesy potomne utils::detect_issue(waitpid(pid_x, NULL, 0)==WAIT_ERROR, "Blad czekania na pid_x");
-  waitpid(pids[0], NULL, 0) ;
-  waitpid(pids[1], NULL, 0);
-  waitpid(pids[2], NULL, 0) ;
-  waitpid(pids[3], NULL, 0);
-  waitpid(pids[4], NULL, 0) ;
-  waitpid(pids[5], NULL, 0);
+  while (waiting_for_processes)
+  {
+    pause();
+  }
 
-  // usun wszystkie mechanizmy ipc
   cleanup(0);
 }
 
@@ -142,46 +139,85 @@ void cleanup(int signal)
 void child_terminated(int signal)
 {
   int status;
-  // odbieramy pid zakonczonego procesu, zeby nie byl zombie
-  pid_t pid = waitpid(-1, &status, WNOHANG);
+  // odbieramy wszystkie zakonczone sygnaly : wczesniej bez petli byly bledy bo mozliwe jest ze ten sygnal zostanie wywolany gdy dwa procesy beda zakoczone
+  pid_t pid;
+  while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
+  {
+    // sprawdzamy ktory proces sie zakonczyl i reagujemy
+    if (pid == pids[0])
+    {
+      if (!stopped_processes[0])
+      {
+        stopped_processes[0] = true;
+        std::cout<<"DOstawca X nie zyje. Pozostali dostawcy koncza prace"<<std::endl;
+        kill(pids[1], SIGUSR1);
+        kill(pids[2], SIGUSR1);
+      }
+    }
+    else if (pid == pids[1])
+    {
+      if (!stopped_processes[1])
+      {
+        stopped_processes[1] = true;
+        std::cout<<"Dostawca Y nie zyje. Pozostali dostawcy koncza prace"<<std::endl;
+        kill(pids[0], SIGUSR1);
+        kill(pids[2], SIGUSR1);
+      }
+    }
+    else if (pid == pids[2])
+    {
+      if (!stopped_processes[2])
+      {
+        stopped_processes[2] = true;
+        std::cout<<"Dostawca Z nie zyje. Pozostali dostawcy koncza prace"<<std::endl;
+        kill(pids[0], SIGUSR1);
+        kill(pids[1], SIGUSR1);
+      }
+    }
+    else if (pid == pids[3])
+    {
+      if (!stopped_processes[3])
+      {
+        stopped_processes[3] = true;
+        std::cout<<"Maszyna A wylaczona. ALe to nic."<<std::endl;
+      }
+    }
+    else if (pid == pids[4])
+    {
+      if (!stopped_processes[4])
+      {
+        stopped_processes[4] = true;
+        std::cout<<"Maszyna B wylaczona. ALe to nic."<<std::endl;
+      }
+    }
+    else if (pid == pids[5])
+    {
+      if (!stopped_processes[5])
+      {
+        stopped_processes[5] = true;
+        std::cout<<"Dyrektor wylaczony. Cala fabryka sie zamyka"<<std::endl;
+        kill(pids[0], SIGUSR1);
+        kill(pids[1], SIGUSR1);
+        kill(pids[2], SIGUSR1);
+        kill(pids[3], SIGUSR1);
+        kill(pids[4], SIGUSR1);
+      }
+    }
+  }
 
-  // sprawdzamy ktory proces sie zakonczyl i reagujemy
-  if (pid == pids[0])
+  // po obsluzeniu skonnczonych procesow, sprawdz czy mozesz juz zamknac fabryke
+  bool all_stopped = true;
+  for (int i=0; i < 6; i++)
   {
-    std::cout<<"Ktorys dostawca nie zyje. Pozostali dostawcy koncza prace"<<std::endl;
-    //kill(pids[1], SIGUSR1);
-    //kill(pids[2], SIGUSR1);
+    if (!stopped_processes[i])
+    {
+      all_stopped = false;
+    }
   }
-  else if (pid == pids[1])
-  {
-    std::cout<<"Dostawca Y nie zyje. Pozostali dostawcy koncza prace"<<std::endl;
-    kill(pids[0], SIGUSR1);
-    kill(pids[2], SIGUSR1);
-  }
-  else if (pid == pids[2])
-  {
-    std::cout<<"Dostawca Z nie zyje. Pozostali dostawcy koncza prace"<<std::endl;
-   kill(pids[0], SIGUSR1);
-   kill(pids[1], SIGUSR1);
-  }
-  else if (pid == pids[3])
-  {
-    std::cout<<"Maszyna A wylaczona. ALe to nic."<<std::endl;
 
-  }
-  else if (pid == pids[4])
+  if (all_stopped)
   {
-    std::cout<<"Maszyna A wylaczona. ALe to nic."<<std::endl;
-  }
-  else if (pid == pids[5])
-  {
-    std::cout<<"Dyrektor wylaczony. Cala fabryka sie zamyka"<<std::endl;
-
-   kill(pids[0], SIGUSR1);
-   kill(pids[1], SIGUSR1);
-   kill(pids[2], SIGUSR1);
-   kill(pids[3], SIGUSR1);
-   kill(pids[4], SIGUSR1);
+    waiting_for_processes = false;
   }
 }
 

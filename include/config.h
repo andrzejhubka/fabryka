@@ -29,7 +29,7 @@
 #define sem_shelf_z 8
 
 #define sem_wareohuse_working 9
-#define sem_factory_working 9
+#define sem_factory_working 10
 
 // rodzaje komend dyrektora
 #define COMMAND_STOP_WAREHOUSE 1
