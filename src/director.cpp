@@ -43,7 +43,6 @@ void director(int pid_x, int pid_y, int pid_z, int pid_a,int pid_b)
     // -------------------------- OBSLUGA MECHANIZMOW IPC
     key_t key_ipc = ftok("/tmp", 32 );
     int semid = semget(key_ipc, 0, 0);
-    int memid = shmget(key_ipc, 0, 0);
     warehouse::WarehouseManager warehouse(key_ipc, semid);
 
     // glowna petla

@@ -42,7 +42,6 @@ namespace utils
     // ---------------------------- OBSLUGA BLEDOW ----------------------------- //
     void detect_issue(int condition, const char *message);
     long calculate_capacity_units(int argc, char *argv[]);
-    bool does_pid_exist(int pid);
 
     // ---------------------------- SEMAFORY ----------------------------- //
     // zwiekszenie wartosci semafora

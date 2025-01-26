@@ -7,5 +7,4 @@ void machine(int speed);
 
 
 
-
 #endif //FACTORY_H

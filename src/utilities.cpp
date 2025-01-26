@@ -81,13 +81,6 @@ namespace utils
         return capacity;
     }
 
-    bool does_pid_exist(int pid)
-    {
-        std::ifstream file("/proc/" + std::to_string(pid) + "/stat");
-        return file.is_open();
-    }
-
-
     void semafor_p(int semid, int sem, int value)
     {
         struct sembuf bufor_sem;

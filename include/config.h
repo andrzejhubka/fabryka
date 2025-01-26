@@ -9,11 +9,11 @@
 #define LOG_PATH "../../data/log"
 
 // czasy wykonywania czynnosci -> w milisekundach
-#define speed_machine_a 1000//10000
-#define speed_machine_b 1000//10000
-#define speed_supply_x 100//1000
-#define speed_supply_y 100//1000
-#define speed_supply_z 100//1000
+#define speed_machine_a 10//10000
+#define speed_machine_b 10//10000
+#define speed_supply_x 10//1000
+#define speed_supply_y 10//1000
+#define speed_supply_z 10//1000
 
 // maksymalna zajetosc pamieci ram przez magazyn w %
 #define MAX_RAM 0.005
