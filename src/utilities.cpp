@@ -94,18 +94,7 @@ namespace utils
         bufor_sem.sem_num=sem;
         bufor_sem.sem_op=-1*value;
         bufor_sem.sem_flg=0;
-        if (semop(semid,&bufor_sem,1)==-1)
-        {
-            if(errno == EINTR)
-            {
-                semafor_p(semid, sem, value);
-            }
-            else
-            {
-                printf("Blad dekrementacji semafora.\n");
-                exit(EXIT_FAILURE);
-            }
-        }
+        semop(semid,&bufor_sem,1);
     }
 
     void semafor_v(int semid, int sem, int value)
@@ -114,7 +103,7 @@ namespace utils
         bufor_sem.sem_num=sem;
         bufor_sem.sem_op=value;
         int result = semop(semid,&bufor_sem,1);
-        detect_issue(result==IPC_RESULT_ERROR, "Blad dekrementaccji semafora");
+        detect_issue(result==IPC_RESULT_ERROR, "Blad inkrementacji semafora");
     }
 
     int semafor_value(int semid, int sem)

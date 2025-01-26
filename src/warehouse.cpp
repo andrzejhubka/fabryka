@@ -11,6 +11,7 @@
 
 
 
+
 namespace warehouse
 {
     // --------------------------KONSTRUKTURY/DESTRUKTORY--------------------------
@@ -39,6 +40,8 @@ namespace warehouse
 
     WarehouseManager::~WarehouseManager()
     {
+        // odlaczanie segmentu pamieci
+        utils::detect_issue(shmdt(m_sharedptr)==IPC_RESULT_ERROR, "Blad odlaczania segmentu pamieci");
     }
 
     int WarehouseManager::initiailze(long capacity)
@@ -50,8 +53,9 @@ namespace warehouse
 
 
         // jesli sie da to zaladuj -> jesli nie to ustawienia domyslne
-        if (load_from_file(WAREHOUSE_PATH)==LOAD_FILE_DOESNT_EXIST)
+        if (load_from_file(WAREHOUSE_PATH, capacity)==LOAD_FILE_DOESNT_EXIST)
         {
+            std::cout<<"nie ma pliku!";
             m_data->capacity = capacity;
             m_data->products_per_shelf = capacity / 6;
 
@@ -105,7 +109,7 @@ namespace warehouse
         file.close();
     }
 
-    int WarehouseManager::load_from_file(const std::string& filePath)
+    int WarehouseManager::load_from_file(const std::string& filePath, int capacity)
     {
         std::ifstream file(filePath, std::ios::binary);
         if (!file)
@@ -113,7 +117,8 @@ namespace warehouse
             return LOAD_FILE_DOESNT_EXIST;
         }
 
-        long memory_size = sizeof(warehouse_data) + m_data->capacity * sizeof(UNIT_SIZE);
+        long memory_size = sizeof(warehouse_data) + capacity * UNIT_SIZE;
+        std::cout<<"Memory size: "<<memory_size<<std::endl;
         file.read(m_sharedptr, memory_size);
         return STATE_LOADED;
     }
@@ -358,7 +363,7 @@ namespace warehouse
     void WarehouseManager::wakeup_machines(int semid)
     {
         // zakoncz prace fabryki
-        utils::semafor_set(semid, sem_wareohuse_working, 0);
+        utils::semafor_set(semid, sem_factory_working, 0);
 
         // obudz maszyny
         utils::semafor_set(semid, sem_dostepne_x, 2);

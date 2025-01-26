@@ -15,9 +15,9 @@
 
 void cleanup(int signal);
 void child_terminated(int signal);
-bool is_pid_active(pid_t pid);
-pid_t pids[6];
 
+// kontrola nad procesami
+pid_t pids[6];
 bool stopped_processes[6] = {false, false, false, false, false, false};
 bool waiting_for_processes = true;
 
@@ -179,7 +179,7 @@ void child_terminated(int signal)
       if (!stopped_processes[3])
       {
         stopped_processes[3] = true;
-        std::cout<<"Maszyna A wylaczona. ALe to nic."<<std::endl;
+        std::cout<<"Maszyna A wylaczona. Nie ma to wplywu na program."<<std::endl;
       }
     }
     else if (pid == pids[4])
@@ -187,7 +187,7 @@ void child_terminated(int signal)
       if (!stopped_processes[4])
       {
         stopped_processes[4] = true;
-        std::cout<<"Maszyna B wylaczona. ALe to nic."<<std::endl;
+        std::cout<<"Maszyna B wylaczona. Nie ma to wplywu na program."<<std::endl;
       }
     }
     else if (pid == pids[5])
@@ -219,23 +219,6 @@ void child_terminated(int signal)
   {
     waiting_for_processes = false;
   }
-}
-
-
-bool is_pid_active(pid_t pid)
-{
-  // Ścieżka do katalogu procesu w /proc
-  std::string path = "/proc/" + std::to_string(pid);
-
-  // Sprawdzamy, czy katalog dla danego PID istnieje
-  DIR* dir = opendir(path.c_str());
-  if (dir)
-  {
-    // Jeśli katalog istnieje, oznacza to, że proces jest aktywny
-
-    return true;
-  }
-  return false;
 }
 
 

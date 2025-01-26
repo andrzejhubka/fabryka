@@ -33,7 +33,8 @@ static void director_stop(int signal)
 void director(int pid_x, int pid_y, int pid_z, int pid_a,int pid_b)
 {
     // handler dla sygnalu wylaczenia
-    signal(SIGUSR1, director_stop);
+    utils::detect_issue(signal(SIGUSR1, director_stop)==SIG_ERR, "blad ustawiania sygnalu");
+
 
     // w przypadku smierci rodzica, tez zakoncz prace.
     prctl(PR_SET_PDEATHSIG, SIGUSR1);
@@ -46,7 +47,7 @@ void director(int pid_x, int pid_y, int pid_z, int pid_a,int pid_b)
     warehouse::WarehouseManager warehouse(key_ipc, semid);
 
     // glowna petla
-    int wybor;
+    char wybor;
     while (director_run)
     {
         std::cout << "Wybierz polecenie dyrektora:" << std::endl;
@@ -74,6 +75,7 @@ void director(int pid_x, int pid_y, int pid_z, int pid_a,int pid_b)
             }
             case COMMAND_STOP_FACTORY:
             {
+                utils::semafor_set(semid, sem_factory_working, 0);
                 kill(pid_a, SIGUSR1);
                 kill(pid_b, SIGUSR1);
                 break;
@@ -102,12 +104,12 @@ void director(int pid_x, int pid_y, int pid_z, int pid_a,int pid_b)
                 warehouse.close(true);
                 break;
             }
-            case 5:
+            case '5':
             {
                 warehouse.info();
                 break;
             }
-            case 6:
+            case '6':
             {
                 kill(pid_x, SIGUSR1);
                 kill(pid_y, SIGUSR1);

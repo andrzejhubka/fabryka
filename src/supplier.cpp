@@ -8,32 +8,35 @@
 #include "warehouse.h"
 #include <sys/prctl.h>
 
-
 static bool supplier_running = true;
-
 static key_t key_ipc;
 static int sem_id;
 
 static void supplier_stop(int signal)
 {
-
     std::cout<<"DOSTAWCA: Proba wylaczenia dostawcy o pid: "<<getpid()<<std::endl;
     supplier_running = false;
 
     // jesli maszyna czekala na produkty to ja obudz!
-
     warehouse::WarehouseManager::wakeup_suppliers(sem_id);
-    exit(EXIT_SUCCESS);
 }
 
 template<typename Product>
 void supplier(int speed)
 {
+    // przekierowanie
+    if (REDIRECT_LOGS_TO_FILE)
+    {
+        std::freopen(LOG_PATH, "a", stdout);
+
+    }
+
     // handler dla sygnalu wylaczenia
-    signal(SIGUSR1, supplier_stop);
+    utils::detect_issue(signal(SIGUSR1, supplier_stop)==SIG_ERR, "blad ustawiania sygnalu");
 
     // w przypadku smierci rodzica, tez zakoncz prace.
     prctl(PR_SET_PDEATHSIG, SIGTERM);
+
     // klucz do mechanizmow ipc
     key_ipc = ftok("/tmp", 32);
     utils::detect_issue(key_ipc==IPC_RESULT_ERROR, "Blad generowania ftok");

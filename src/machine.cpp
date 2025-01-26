@@ -10,21 +10,31 @@
 #include <sys/prctl.h>
 
 bool machine_running = true;
-
 static key_t key_ipc;
 static int sem_id;
 
 void machine_stop(int signal)
 {
     machine_running = false;
+
     // jesli maszyna czek1ala na produkty to ja obudz!
+    utils::semafor_set(sem_id, sem_factory_working, 0);
     warehouse::WarehouseManager::wakeup_machines(sem_id);
 }
 
 void machine(int speed)
 {
+    // przekierowanie
+    if (REDIRECT_LOGS_TO_FILE)
+    {
+        std::freopen(LOG_PATH, "a", stdout);
+
+    }
+
+
     // handler dla sygnalu wylaczenia
-    signal(SIGUSR1, machine_stop);
+    utils::detect_issue(signal(SIGUSR1, machine_stop)==SIG_ERR, "blad ustawiania sygnalu");
+
 
     // w przypadku smierci rodzica, tez zakoncz prace.
     prctl(PR_SET_PDEATHSIG, SIGTERM);

@@ -79,7 +79,7 @@ namespace warehouse
         // zapisanie stanu do pliku
         void save_to_file(const std::string& filePath) const;
         // wczytanie stanu z pliku
-        int load_from_file(const std::string& filePath);
+        int load_from_file(const std::string& filePath, int capacity);
 
         // budzenie dostawcow czejakacych na miejsce
         static void wakeup_suppliers(int semid);
