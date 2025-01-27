@@ -51,42 +51,42 @@ build cmake_object_order_depends_target_factory: phony || .
 
 build CMakeFiles/factory.dir/src/factory.cpp.o: CXX_COMPILER__factory_unscanned_Debug /home/andrzej/Documents/SO/fabryka/src/factory.cpp || cmake_object_order_depends_target_factory
   DEP_FILE = CMakeFiles/factory.dir/src/factory.cpp.o.d
-  FLAGS = -g -fdiagnostics-color=always
+  FLAGS = -g -std=gnu++14 -fdiagnostics-color=always
   INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
   OBJECT_DIR = CMakeFiles/factory.dir
   OBJECT_FILE_DIR = CMakeFiles/factory.dir/src
 
 build CMakeFiles/factory.dir/src/utilities.cpp.o: CXX_COMPILER__factory_unscanned_Debug /home/andrzej/Documents/SO/fabryka/src/utilities.cpp || cmake_object_order_depends_target_factory
   DEP_FILE = CMakeFiles/factory.dir/src/utilities.cpp.o.d
-  FLAGS = -g -fdiagnostics-color=always
+  FLAGS = -g -std=gnu++14 -fdiagnostics-color=always
   INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
   OBJECT_DIR = CMakeFiles/factory.dir
   OBJECT_FILE_DIR = CMakeFiles/factory.dir/src
 
 build CMakeFiles/factory.dir/src/supplier.cpp.o: CXX_COMPILER__factory_unscanned_Debug /home/andrzej/Documents/SO/fabryka/src/supplier.cpp || cmake_object_order_depends_target_factory
   DEP_FILE = CMakeFiles/factory.dir/src/supplier.cpp.o.d
-  FLAGS = -g -fdiagnostics-color=always
+  FLAGS = -g -std=gnu++14 -fdiagnostics-color=always
   INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
   OBJECT_DIR = CMakeFiles/factory.dir
   OBJECT_FILE_DIR = CMakeFiles/factory.dir/src
 
 build CMakeFiles/factory.dir/src/warehouse.cpp.o: CXX_COMPILER__factory_unscanned_Debug /home/andrzej/Documents/SO/fabryka/src/warehouse.cpp || cmake_object_order_depends_target_factory
   DEP_FILE = CMakeFiles/factory.dir/src/warehouse.cpp.o.d
-  FLAGS = -g -fdiagnostics-color=always
+  FLAGS = -g -std=gnu++14 -fdiagnostics-color=always
   INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
   OBJECT_DIR = CMakeFiles/factory.dir
   OBJECT_FILE_DIR = CMakeFiles/factory.dir/src
 
 build CMakeFiles/factory.dir/src/machine.cpp.o: CXX_COMPILER__factory_unscanned_Debug /home/andrzej/Documents/SO/fabryka/src/machine.cpp || cmake_object_order_depends_target_factory
   DEP_FILE = CMakeFiles/factory.dir/src/machine.cpp.o.d
-  FLAGS = -g -fdiagnostics-color=always
+  FLAGS = -g -std=gnu++14 -fdiagnostics-color=always
   INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
   OBJECT_DIR = CMakeFiles/factory.dir
   OBJECT_FILE_DIR = CMakeFiles/factory.dir/src
 
 build CMakeFiles/factory.dir/src/director.cpp.o: CXX_COMPILER__factory_unscanned_Debug /home/andrzej/Documents/SO/fabryka/src/director.cpp || cmake_object_order_depends_target_factory
   DEP_FILE = CMakeFiles/factory.dir/src/director.cpp.o.d
-  FLAGS = -g -fdiagnostics-color=always
+  FLAGS = -g -std=gnu++14 -fdiagnostics-color=always
   INCLUDES = -I/home/andrzej/Documents/SO/fabryka/include
   OBJECT_DIR = CMakeFiles/factory.dir
   OBJECT_FILE_DIR = CMakeFiles/factory.dir/src
