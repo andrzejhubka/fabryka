@@ -1,6 +1,3 @@
-/home/andrzej/Documents/SO/fabryka/cmake-build-debug/CMakeFiles/supplier.dir
-/home/andrzej/Documents/SO/fabryka/cmake-build-debug/CMakeFiles/machine.dir
 /home/andrzej/Documents/SO/fabryka/cmake-build-debug/CMakeFiles/factory.dir
-/home/andrzej/Documents/SO/fabryka/cmake-build-debug/CMakeFiles/director.dir
 /home/andrzej/Documents/SO/fabryka/cmake-build-debug/CMakeFiles/edit_cache.dir
 /home/andrzej/Documents/SO/fabryka/cmake-build-debug/CMakeFiles/rebuild_cache.dir
