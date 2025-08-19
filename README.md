@@ -1,1 +1,1 @@
-Projekt zaliczeniowy z Systemów Operacyjnych.
+Projekt zaliczeniowy z przedmiotu "systemy operacyjne" na Politechnice Krakowskiej.
